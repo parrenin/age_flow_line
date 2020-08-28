@@ -60,18 +60,6 @@ def interp1d_extrap(x,y):
     return f
 
 
-def interp1d_linear_extrap(x,y, kind = 'linear'):
-    def f(xp):
-        g = interp1d (x , y , kind, bounds_error=False)
-        slope = (y[-1] - y[-2]) / ( x[-1] - x[-2] )
-        ordo_origine = y[-2] - slope * x[-2]
-        xp2 = xp
-        xp2[np.isnan(xp2)] = 0
-        return np.where( xp2 > x[-1], slope * xp + ordo_origine, g(xp) )    
-    return f
-
-
-
 #---------------------------------------------------
 # DEPTH - 1D Vostok drill grid for post-processing
 #---------------------------------------------------
@@ -514,7 +502,7 @@ tau_ie_middle_sp_2 = (ie_depth[1:] - ie_depth[:-1]) / steady_a0[:-1] / \
 #  Calcul matrice depth: mat_depth
 #----------------------------------------------------------
 
-mat_depth = np.where( grid == 1, interp1d_linear_extrap(ie_depth,depth_corrected)(mat_depth_ie), np.nan )
+mat_depth = np.interp(mat_depth_ie, np.append(ie_depth, ie_depth[-1]+10000.), np.append(depth_corrected, depth_corrected[-1]+10000.))
 
 # "x_new" out of range --> linear extrapolation 
 
