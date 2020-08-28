@@ -543,19 +543,16 @@ Age_iso = np.arange( iso_spacing , np.amax(Age), iso_spacing) # Lignes isochrone
 
 steady_age_iso = interp1d(Age, steady_age)(Age_iso)
 
+print('Before mat_theta_iso')
 mat_theta_iso = np.zeros((len(Age_iso), imax+2))
-
-for i in range(len(Age_iso)):
-    for j in range(1,imax+2):
-        mat_theta_iso[i,j] = interp1d(mat_steady_age[:,j], mat_theta[:,j-1])(steady_age_iso[i])
+for j in range(1,imax+2):
+    mat_theta_iso[:,j] = interp1d(mat_steady_age[:,j], mat_theta[:,j-1])(steady_age_iso[:])
 mat_theta_iso[:,0] = mat_theta_iso[:,1]
 
-
+print('Before mat_z_iso')
 mat_z_iso = np.empty_like(mat_theta_iso)
-
-for i in range(len(Age_iso)):
-    for j in range(1,imax+2):
-        mat_z_iso[i,j] = interp1d(- OMEGA, mat_z[:,j])( - exp(mat_theta_iso[i,j])  )
+for j in range(1,imax+2):
+    mat_z_iso[:,j] = interp1d(- OMEGA, mat_z[:,j])( - np.exp(mat_theta_iso[:,j])  )
 mat_z_iso[:,0] = mat_z_iso[:,1]
 
 
