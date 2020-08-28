@@ -448,13 +448,13 @@ a0_vic = steady_a0 * R_t
 #----------------------------------------------------------
 
 steady_age = interp1d(-theta[:][~np.isnan(mat_steady_age[:,imax+1])],\
-mat_steady_age[:,imax+1][~np.isnan(mat_steady_age[:,imax+1])] )(-theta_vic)
+    mat_steady_age[:,imax+1][~np.isnan(mat_steady_age[:,imax+1])] )(-theta_vic)
 
 
 # Cubic spline without derivative constraint
 
 steady_age_sp = interp1d(-theta[:][~np.isnan(mat_steady_age[:,imax+1])],\
-mat_steady_age[:,imax+1][~np.isnan(mat_steady_age[:,imax+1])], kind='cubic' ) (-theta_vic)
+    mat_steady_age[:,imax+1][~np.isnan(mat_steady_age[:,imax+1])], kind='cubic' ) (-theta_vic)
 
 
 # Cubic spline with derivative constraint at surface
@@ -496,6 +496,7 @@ tau_ie_middle = (ie_depth[1:] - ie_depth[:-1]) / steady_a0[:-1] / (steady_age[1:
 1])
 
 
+
 # Tau_ie avec l'interpolation "cubique-spline naturel" de l'âge stationnaire
 
 tau_ie_middle_sp = (ie_depth[1:] - ie_depth[:-1]) / steady_a0[:-1] / \
@@ -531,8 +532,7 @@ mat_z = S - mat_depth
 #  Calcul matrice Age : mat_Age
 #----------------------------------------------------------
 
-mat_Age = np.where( grid == 1, interp1d_linear_extrap(steady_age, Age)(mat_steady_age), np.nan  )
-
+mat_Age = np.interp(mat_steady_age, np.append(steady_age, 100*steady_age[1]), np.append(Age, 100*Age[-1]))
 
 
 #----------------------------------------------------------
@@ -546,8 +546,9 @@ steady_age_iso = interp1d(Age, steady_age)(Age_iso)
 print('Before mat_theta_iso')
 mat_theta_iso = np.zeros((len(Age_iso), imax+2))
 for j in range(1,imax+2):
-    mat_theta_iso[:,j] = interp1d(mat_steady_age[:,j], mat_theta[:,j-1])(steady_age_iso[:])
+    mat_theta_iso[:,j] = np.interp(steady_age_iso[:], mat_steady_age[:,j], mat_theta[:,j-1])
 mat_theta_iso[:,0] = mat_theta_iso[:,1]
+
 
 print('Before mat_z_iso')
 mat_z_iso = np.empty_like(mat_theta_iso)
