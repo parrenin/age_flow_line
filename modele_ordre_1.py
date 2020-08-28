@@ -552,7 +552,7 @@ mat_theta_iso[:,0] = mat_theta_iso[:,1]
 print('Before mat_z_iso')
 mat_z_iso = np.empty_like(mat_theta_iso)
 for j in range(1,imax+2):
-    mat_z_iso[:,j] = interp1d(- OMEGA, mat_z[:,j])( - np.exp(mat_theta_iso[:,j])  )
+    mat_z_iso[:,j] = np.interp( - np.exp(mat_theta_iso[:,j]), - OMEGA, mat_z[:,j] )
 mat_z_iso[:,0] = mat_z_iso[:,1]
 
 
