@@ -118,11 +118,11 @@ OMEGA = np.exp(theta)
 
 x_fld = np.arange(x_right+1)
 
-x = interp1d ( Q_fld , x_fld)(Q)
-Qm = interp1d ( Q_fld , Qm_fld)(Q)
-Y = interp1d(x_fld,Y_fld)(x)
-S = interp1d(x_fld, Su_fld)(x)
-B = interp1d(x_fld, B_fld)(x)
+x = np.interp(Q, Q_fld , x_fld)
+Qm = np.interp(Q, Q_fld , Qm_fld)
+Y = np.interp(x, x_fld,Y_fld)
+S = np.interp(x, x_fld, Su_fld)
+B = np.interp(x, x_fld, B_fld)
 
 B[0] = B[1] # Altitude du socle constante au niveau du dôme
 S[0] = S[1] # Altitude de la surface constante au niveau du dôme
@@ -133,7 +133,7 @@ S[0] = S[1] # Altitude de la surface constante au niveau du dôme
 # Accumulation a(m/yr)
 #--------------------------------------------------
 
-a = interp1d(Q_fld, a0_fld)(Q)
+a = np.interp(Q, Q_fld, a0_fld)
 
 
 
@@ -149,7 +149,7 @@ S_ie = S - DELTA_H
 # Melting
 #--------------------------------------------------
 
-m = interp1d(x_fld, m_fld)(x)
+m = np.interp(x, x_fld, m_fld)
 
 
 
@@ -173,7 +173,7 @@ theta[-1] * np.ones((imax+1,))  )
 
 p = 3.0 * np.ones(imax+1) 
 
-s = interp1d(x_s_geo,s_measure)(x[1:])
+s = np.interp(x[1:], x_s_geo,s_measure)
 
 zeta = np.linspace(1,0,1001).reshape(1001,1)
 
