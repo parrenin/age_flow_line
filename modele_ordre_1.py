@@ -212,12 +212,11 @@ grid = np.ones( ( imax + 1 , imax + 2 ) )
 grid[:,0] = grid[:,1] = np.where( theta >= theta_min[0], 1, 0 )
 
 
+print('Before defining grid boolean')
 for j in range(2, imax+2 ):
-  for i in range(1, imax+1):
-    if ( theta[i] >= theta_min[j-1] and grid[i-1][j-1] == 1 ):
-      grid[i][j] = 1
-    else:
-      grid[i][j] = 0
+    grid[2:,j] = np.where(np.logical_and(theta[2:] >= theta_min[j-1], grid[1:-1,j-1] ==1), 1, 0)
+print('After defining grid boolean')
+
 
 
 
@@ -237,16 +236,12 @@ mat_omega = np.where( grid[:,1:] == 1 ,\
 
 z_ie = np.zeros( (imax+1, imax+2) )
 
+print('Before defining z_ie')
 for j in range(0,imax+1):
-  for i in range(0,imax+1):
-    if grid[i][j+1] == 1 :
-      inter = interp1d( - omega[:,j], zeta, axis = 0 )( - mat_omega[i][j])
-      z_ie[i,j+1] = B[j+1] + inter * ( S_ie[j+1] - B[j+1] )
-    else:
-      z_ie[i,j+1] = np.nan
-
+    inter = np.interp( -mat_omega[:,j], -omega[:,j].flatten(), zeta.flatten())
+    z_ie[:,j+1] = np.where(grid[:,j+1] == 1, B[j+1] + inter * ( S_ie[j+1] - B[j+1] ), np.nan)
 z_ie[:,0] = z_ie[:,1]
-
+print('After defining z_ie')
 
 
 #-------------------------------------------------------
@@ -318,12 +313,10 @@ mat_a0[0,:] = a[1:]
 mat_a0[1:,0] = np.where(grid[1:,1] == 1, mat_a0[0,0], np.nan)
 
 
+print('Before defining mat_a0')
 for j in range(1,imax+1):
-  for i in range(1,imax+1):
-    if grid[i][j+1] == 1 :
-      mat_a0[i][j] = mat_a0[i-1,j-1]
-    else:
-      mat_a0[i,j] = np.nan
+    mat_a0[1:,j] = np.where(grid[1:,j] ==1, mat_a0[:-1,j-1], np.nan)
+print('After defining mat_a0')
 
 
  
@@ -339,12 +332,10 @@ mat_x0 [0,1:] = x[1:]
 
 mat_x0[:,1] = np.where( grid[:,1] == 1 , mat_x0[0][1] * mat_OMEGA[:,0], np.nan )
 
+print('Before defining mat_x0')
 for j in range(2,imax+1+1):
-  for i in range(1,imax+1):
-    if grid[i][j] == 1 :
-      mat_x0[i][j] = mat_x0[i-1][j-1]
-    else:
-      mat_x0[i,j] = np.nan
+    mat_x0[1:,j] = np.where(grid[1:,j] ==1, mat_x0[:-1,j-1], np.nan)
+print('After defining mat_x0')
 
 
 
@@ -355,6 +346,8 @@ for j in range(2,imax+1+1):
 #-----------------------------------------------------------------------------------------------
 # Ordre 1
 #-----------------------------------------------------------------------------------------------
+
+print('Before calculation of steady age matrix.')
 
 mat_steady_age = np.zeros((imax+1, imax+2))
 
@@ -369,32 +362,19 @@ mat_steady_age[:,0] = mat_steady_age[:,1]
 
 
 for j in range(2,imax+2):
-  for i in range(1,imax+1):
-    if grid[i][j] == 1 :
-
-      c = (a[j] - a[j-1]) / delta 
-
-      d = a[j] - c * pi[j-1]
-
-      e = ((z_ie[i,j] - z_ie[i-1,j]) / (OMEGA[i] - OMEGA[i-1]) - \
-      (z_ie[i-1,j-1] - z_ie[i,j-1]) / (OMEGA[i-1] - OMEGA[i]) ) / delta	
-
-      f = (z_ie[i,j] - z_ie[i-1,j]) / ( OMEGA[i] - OMEGA[i-1] ) - e * pi[j-1]
-
-      if c == 0:
-        mat_steady_age[i,j] = mat_steady_age[i-1][j-1] + \
-        (1 / d) * ( e * (pi[j-1]*pi[j-1] - pi[j-2]*pi[j-2]) / 2 + \
-        f * delta )
-
-      else:
-        mat_steady_age[i][j] = mat_steady_age[i-1][j-1] + \
-        (e * pi[j-1] + f) * log (abs ( c * pi[j-1] + d ) ) / c - \
-        (e * pi[j-2] + f) * log ( abs ( c * pi[j-2] + d ) ) / c - \
-        ( e / c ) * ( ( pi[j-1] + d/c ) * log (abs(c * pi[j-1] + d ) )-\
-        ( pi[j-2] + d/c ) * log (abs (c * pi[j-2] + d )) - delta  ) 
-
+    c = (a[j] - a[j-1]) / delta 
+    d = a[j] - c * pi[j-1]
+    e = ((z_ie[1:,j] - z_ie[:-1,j]) / (OMEGA[1:] - OMEGA[:-1]) - (z_ie[:-1,j-1] - z_ie[1:,j-1]) / (OMEGA[:-1] - OMEGA[1:]) ) / delta
+    f = (z_ie[1:,j] - z_ie[:-1,j]) / ( OMEGA[1:] - OMEGA[:-1] ) - e * pi[j-1]
+    if c == 0:
+        mat_steady_age[1:,j] = np.where(grid[1:, j] == 1, mat_steady_age[:-1,j-1] + (1 / d) * ( e * (pi[j-1]*pi[j-1] - pi[j-2]*pi[j-2]) / 2 + f * delta ), np.nan)
     else:
-      mat_steady_age[i][j] = np.nan
+        mat_steady_age[1:,j] = np.where(grid[1:, j] == 1, mat_steady_age[:-1,j-1] + (e * pi[j-1] + f) * log (abs ( c * pi[j-1] + d ) ) / c - \
+                    (e * pi[j-2] + f) * log ( abs ( c * pi[j-2] + d ) ) / c - \
+                    ( e / c ) * ( ( pi[j-1] + d/c ) * log (abs(c * pi[j-1] + d ) )-\
+                    ( pi[j-2] + d/c ) * log (abs (c * pi[j-2] + d )) - delta  ), np.nan) 
+
+print('After calculation of steady age matrix.')
 
 
 # Rq: NaN dans coeff e dû à l'utilisation d'un schéma aux différences finies avant
@@ -563,19 +543,20 @@ Age_iso = np.arange( iso_spacing , np.amax(Age), iso_spacing) # Lignes isochrone
 
 steady_age_iso = interp1d(Age, steady_age)(Age_iso)
 
+print('Before mat_theta_iso')
+
 mat_theta_iso = np.zeros((len(Age_iso), imax+2))
 
-for i in range(len(Age_iso)):
-    for j in range(1,imax+2):
-        mat_theta_iso[i,j] = interp1d(mat_steady_age[:,j], mat_theta[:,j-1])(steady_age_iso[i])
+for j in range(1,imax+2):
+    mat_theta_iso[:,j] = np.interp(steady_age_iso[:], mat_steady_age[:,j], mat_theta[:,j-1])
 mat_theta_iso[:,0] = mat_theta_iso[:,1]
 
 
 mat_z_iso = np.empty_like(mat_theta_iso)
 
-for i in range(len(Age_iso)):
-    for j in range(1,imax+2):
-        mat_z_iso[i,j] = interp1d(- OMEGA, mat_z[:,j])( - exp(mat_theta_iso[i,j])  )
+print('Before mat_z_iso')
+for j in range(1,imax+2):
+    mat_z_iso[:,j] = np.interp( - np.exp(mat_theta_iso[:,j]), - OMEGA, mat_z[:,j] )
 mat_z_iso[:,0] = mat_z_iso[:,1]
 
 
