@@ -49,16 +49,6 @@ exec(open('model_parameters.py').read())
 
 
 
-#----------------------------------------------------------
-# Classes
-#----------------------------------------------------------
-
-def interp1d_extrap(x,y):
-    def f(xp):
-        g=interp1d(x,y, bounds_error=False)
-        return np.where(xp<x[0],y[0],np.where(xp>x[-1],y[-1],g(xp)))    
-    return f
-
 
 #---------------------------------------------------
 # DEPTH - 1D Vostok drill grid for post-processing
@@ -80,7 +70,7 @@ D_depth = density_readarray[:,0]
 
 D_D = density_readarray[:,1]
 
-relative_density = interp1d_extrap(D_depth, D_D) (depth_mid)
+relative_density = np.interp(depth_mid, D_depth, D_D, right = 1.)
 
 ie_depth = np.cumsum(np.concatenate((np.array([0]), relative_density * depth_inter)))
 
