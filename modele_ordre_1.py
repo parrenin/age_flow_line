@@ -391,8 +391,8 @@ if mat_depth_ie[imax,imax+1] < ie_depth[len(ie_depth)-1]:
 	      du maillage sur toute la hauteur du forage Vostok il faut augmenter \n \
         le nombre de noeuds du maillage.")
 
-theta_vic = np.log(interp1d( mat_depth_ie[:,imax+1][~np.isnan(mat_depth_ie[:,imax+1])] , \
-mat_OMEGA[:,imax][~np.isnan(mat_OMEGA[:,imax])]) (ie_depth))
+theta_vic = np.log(np.interp(ie_depth, mat_depth_ie[:,imax+1][~np.isnan(mat_depth_ie[:,imax+1])] , \
+mat_OMEGA[:,imax][~np.isnan(mat_OMEGA[:,imax])]))
 
 
 
@@ -400,8 +400,8 @@ mat_OMEGA[:,imax][~np.isnan(mat_OMEGA[:,imax])]) (ie_depth))
 #  Calcul steady a0 vostok icecore
 #----------------------------------------------------------
 
-steady_a0 = interp1d(-theta[:][~np.isnan(mat_a0[:,imax])], \
-mat_a0[:,imax][~np.isnan(mat_a0[:,imax])]   )(-theta_vic)
+steady_a0 = np.interp(-theta_vic, -theta[:][~np.isnan(mat_a0[:,imax])], \
+mat_a0[:,imax][~np.isnan(mat_a0[:,imax])]   )
 
 
 
@@ -425,8 +425,8 @@ a0_vic = steady_a0 * R_t
 #  Calcul steady_age vostok icecore (yr b 1997)
 #----------------------------------------------------------
 
-steady_age = interp1d(-theta[:][~np.isnan(mat_steady_age[:,imax+1])],\
-    mat_steady_age[:,imax+1][~np.isnan(mat_steady_age[:,imax+1])] )(-theta_vic)
+steady_age = np.interp(-theta_vic, -theta[:][~np.isnan(mat_steady_age[:,imax+1])],\
+    mat_steady_age[:,imax+1][~np.isnan(mat_steady_age[:,imax+1])] )
 
 
 # Cubic spline without derivative constraint
@@ -519,7 +519,7 @@ mat_Age = np.interp(mat_steady_age, np.append(steady_age, 100*steady_age[1]), np
 
 Age_iso = np.arange( iso_spacing , np.amax(Age), iso_spacing) # Lignes isochrones avec un pas constant
 
-steady_age_iso = interp1d(Age, steady_age)(Age_iso)
+steady_age_iso = np.interp(Age_iso, np.append(Age, 100*Age[-1]), np.append(steady_age, 100*steady_age[1]))
 
 print('Before mat_theta_iso')
 mat_theta_iso = np.zeros((len(Age_iso), imax+2))
