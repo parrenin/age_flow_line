@@ -212,12 +212,10 @@ grid = np.ones( ( imax + 1 , imax + 2 ) )
 grid[:,0] = grid[:,1] = np.where( theta >= theta_min[0], 1, 0 )
 
 
+print('Before defining grid boolean')
 for j in range(2, imax+2 ):
-  for i in range(1, imax+1):
-    if ( theta[i] >= theta_min[j-1] and grid[i-1][j-1] == 1 ):
-      grid[i][j] = 1
-    else:
-      grid[i][j] = 0
+    grid[2:,j] = np.where(np.logical_and(theta[2:] >= theta_min[j-1], grid[1:-1,j-1] ==1), 1, 0)
+print('After defining grid boolean')
 
 
 
