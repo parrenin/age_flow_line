@@ -5,7 +5,7 @@ from	scipy . interpolate	import	interp1d
 import	matplotlib . pyplot	as	plt
 from	matplotlib . pyplot	import	*
 
-
+exec(open('model_parameters.py').read())
 
 #-----------------------------------------------------
 #Loading files for Geographic data, arrays creations
@@ -38,7 +38,7 @@ Y_measure = np.loadtxt('input_data/Y_geodata.txt', usecols=(1,))
 #Interpolation
 #--------------------
 
-x = np.arange(371)
+x = np.arange(x_right+1)
 
 a0	=	interp1d (x_a0 , a0_measure) (x) 
 m	=	interp1d (x_m , m_measure) (x)

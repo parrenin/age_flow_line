@@ -138,7 +138,7 @@ OMEGA = np.exp(theta)
 # interpolation of flow line data files for x, Qm, ...
 #----------------------------------------------------------
 
-x_fld = np.arange(371)
+x_fld = np.arange(x_right+1)
 
 x = interp1d ( Q_fld , x_fld)(Q)
 Qm = interp1d ( Q_fld , Qm_fld)(Q)
