@@ -76,7 +76,7 @@ def interp1d_linear_extrap(x,y, kind = 'linear'):
 # DEPTH - 1D Vostok drill grid for post-processing
 #---------------------------------------------------
 
-depth_corrected = np.arange(0., 3310. + 0.1 , 1.)
+depth_corrected = np.arange(0., max_depth + 0.1 , 1.)
 
 depth_mid = (depth_corrected[1:] + depth_corrected[:-1])/2
 
@@ -452,7 +452,7 @@ mat_a0[:,imax][~np.isnan(mat_a0[:,imax])]   )(-theta_vic)
 #----------------------------------------------------------
 
 R_t = np.exp( beta * (deut - deut[0]) )
-
+#FIXME: we should import R from AICC2012 and make it averaged to 1.
 
 
 #----------------------------------------------------------
@@ -559,7 +559,7 @@ mat_Age = np.where( grid == 1, interp1d_linear_extrap(steady_age, Age)(mat_stead
 #  Calcul des isochrones pour des ages données
 #----------------------------------------------------------
 
-Age_iso = np.arange( 20000 , np.amax(Age), 20000) # Lignes isochrones avec un pas de 20000 ans
+Age_iso = np.arange( iso_spacing , np.amax(Age), iso_spacing) # Lignes isochrones avec un pas constant
 
 steady_age_iso = interp1d(Age, steady_age)(Age_iso)
 
