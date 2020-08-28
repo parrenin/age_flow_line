@@ -8,7 +8,7 @@
 # Executing ice_flow_model.py 
 #------------------------------------
 
-execfile('modele_ordre_1.py')
+exec(open('modele_ordre_1.py').read())
 
 
 

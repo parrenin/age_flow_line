@@ -45,7 +45,7 @@ s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
 # Executing model_parameters.py (imax, delta,...) 
 #---------------------------------------------------------
 
-execfile('model_parameters.py')
+exec(open('model_parameters.py').read())
 
 
 
