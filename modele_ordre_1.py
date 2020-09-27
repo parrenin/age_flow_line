@@ -1,3 +1,5 @@
+#TODO: make sure the interpolated values for a, Y and Q are consistent.
+
 #−*−coding: utf−8−*− 
 from __future__ import division
 import os  
