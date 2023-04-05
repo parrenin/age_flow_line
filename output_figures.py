@@ -2,7 +2,7 @@
 
 # La visualisation est plus rapide sans la sauvegarde des figures 
 
-
+import matplotlib.pyplot as plt
 
 #------------------------------------
 # Executing ice_flow_model.py 
@@ -16,7 +16,7 @@ exec(open('modele_ordre_1.py').read())
 # Figure 1: Tube width Y 
 #----------------------------------------
 plt.figure(1)
-plt . plot (pi , Y[1:] , '-')
+plt.plot (pi , Y[1:] , '-')
 plt.legend([r'Tube width: Y (m)'], loc='best')
 plt.xlabel(r'$\pi$', fontsize = 18)
 plt.ylabel(r'$Y \ (m)$', fontsize = 18)

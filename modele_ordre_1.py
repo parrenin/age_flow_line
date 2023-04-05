@@ -2,17 +2,12 @@
 
 #−*−coding: utf−8−*− 
 from __future__ import division
-import os  
 import sys
-import scipy as sp 
 import  numpy as  np 
 from  scipy . interpolate import  interp1d 
-import  matplotlib . pyplot as  plt
-from  matplotlib . lines  import *  
-from math import exp
 from math import log
-from math import sqrt
-from math import isnan
+import yaml
+import matplotlib.pyplot as plt
 
 
 
@@ -47,8 +42,19 @@ s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
 # Executing model_parameters.py (imax, delta,...) 
 #---------------------------------------------------------
 
-exec(open('model_parameters.py').read())
+#Default values for parameters, to prevent spyder errors
+# max_depth=3310.
+# imax=100
+# delta=0.08
+# x_right=370
+# iso_spacing=20000.
+# beta=0.015
+# thickness=3767.
 
+#exec(open('model_parameters.py').read())
+yamls = open('parameters.yml').read()
+para = yaml.load(yamls, Loader=yaml.FullLoader)
+globals().update(para)
 
 
 
