@@ -1,20 +1,16 @@
-#TODO: make sure the interpolated values for a, Y and Q are consistent.
+# TODO: make sure the interpolated values for a, Y and Q are consistent.
 
-#−*−coding: utf−8−*− 
 from __future__ import division
 import sys
-import  numpy as  np 
-from  scipy.interpolate import  interp1d 
+import numpy as np
+from scipy.interpolate import interp1d
 from math import log
 import yaml
 import matplotlib.pyplot as plt
 
-
-
-
-#----------------------------------------------------------
-#Loading data from interpolation_results file
-#----------------------------------------------------------
+# ----------------------------------------------------------
+# Loading data from interpolation_results file
+# ----------------------------------------------------------
 
 Q_fld = np.loadtxt('interpolation_results/Q_fld.txt')
 Qm_fld = np.loadtxt('interpolation_results/Qm_fld.txt')
@@ -25,11 +21,9 @@ Su_fld = np.loadtxt('interpolation_results/Su_interpolated.txt')
 B_fld = np.loadtxt('interpolation_results/B_interpolated.txt')
 Y_fld = np.loadtxt('interpolation_results/Y_interpolated.txt')
 
-
-
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # Loading data from accu-prior.txt , density-prior.txt ... in "input_data" file
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
 deut = np.loadtxt('input_data/deuterium.txt')
 density_readarray = np.loadtxt('input_data/density-prior.txt')
@@ -37,205 +31,177 @@ density_readarray = np.loadtxt('input_data/density-prior.txt')
 x_s_geo = np.loadtxt('input_data/s_geodata.txt', usecols=(0,))
 s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
 
+# ---------------------------------------------------------
+# Reading parameters.yml file (imax, delta,...)
+# ---------------------------------------------------------
 
+# Default values for parameters, to prevent spyder errors
+max_depth = 3310.
+imax = 100
+delta = 0.08
+x_right = 370
+iso_spacing = 20000.
+beta = 0.015
+thickness = 3767.
 
-#---------------------------------------------------------
-#  Reading parameters.yml file (imax, delta,...) 
-#---------------------------------------------------------
-
-#Default values for parameters, to prevent spyder errors
-max_depth=3310.
-imax=100
-delta=0.08
-x_right=370
-iso_spacing=20000.
-beta=0.015
-thickness=3767.
-
-#exec(open('model_parameters.py').read())
 yamls = open('parameters.yml').read()
 para = yaml.load(yamls, Loader=yaml.FullLoader)
 globals().update(para)
 
-
-
-#---------------------------------------------------
+# ---------------------------------------------------
 # DEPTH - 1D Vostok drill grid for post-processing
-#---------------------------------------------------
+# ---------------------------------------------------
 
-depth_corrected = np.arange(0., max_depth + 0.1 , 1.)
+depth_corrected = np.arange(0., max_depth + 0.1, 1.)
 
 depth_mid = (depth_corrected[1:] + depth_corrected[:-1])/2
 
 depth_inter = (depth_corrected[1:] - depth_corrected[:-1])
 
-
-
-#---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # Relative density interpolation with extrapolation of "depth-density" data
-#---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 
-D_depth = density_readarray[:,0]
+D_depth = density_readarray[:, 0]
 
-D_D = density_readarray[:,1]
+D_D = density_readarray[:, 1]
 
-relative_density = np.interp(depth_mid, D_depth, D_D, right = 1.)
+relative_density = np.interp(depth_mid, D_depth, D_D, right=1.)
 
-ie_depth = np.cumsum(np.concatenate((np.array([0]), relative_density * depth_inter)))
+ie_depth = np.cumsum(np.concatenate((np.array([0]),
+                                     relative_density * depth_inter)))
 
-
-
-#----------------------------------------------------------
+# ----------------------------------------------------------
 # DELTA H
-#----------------------------------------------------------
+# ----------------------------------------------------------
 
 DELTA_H = depth_corrected[-1] - ie_depth[-1]
 
-
-
-#----------------------------------------------------------
+# ----------------------------------------------------------
 # Mesh generation (pi,theta)
-#----------------------------------------------------------
+# ----------------------------------------------------------
 
-pi = np.linspace( - imax * delta, 0 ,  imax + 1)
+pi = np.linspace(-imax * delta, 0,  imax + 1)
 
-theta = np.linspace( 0 , - imax * delta,  imax + 1)
+theta = np.linspace(0, - imax * delta,  imax + 1)
 
-
-
-#----------------------------------------------------------
+# ----------------------------------------------------------
 # Total flux Q(m^3/yr)
-#----------------------------------------------------------
- 
-Q = Q_fld[-1] * np.exp(pi) # Q_ref = Q_fld[-1] 
+# ----------------------------------------------------------
 
-Q = np.insert(Q,0,0) # prolongement du vecteur pour les calculs à l'extrémité gauche du maillage
+Q = Q_fld[-1] * np.exp(pi)  # Q_ref = Q_fld[-1]
 
+# prolongement du vecteur pour les calculs à l'extrémité gauche du maillage
+Q = np.insert(Q, 0, 0)
 
-
-#----------------------------------------------------------
+# ----------------------------------------------------------
 # OMEGA
-#----------------------------------------------------------
+# ----------------------------------------------------------
 
 OMEGA = np.exp(theta)
 
-
-
-#----------------------------------------------------------
+# ----------------------------------------------------------
 # interpolation of flow line data files for x, Qm, ...
-#----------------------------------------------------------
+# ----------------------------------------------------------
 
 x_fld = np.arange(x_right+1)
 
-x = np.interp(Q, Q_fld , x_fld)
-Qm = np.interp(Q, Q_fld , Qm_fld)
-Y = np.interp(x, x_fld,Y_fld)
+x = np.interp(Q, Q_fld, x_fld)
+Qm = np.interp(Q, Q_fld, Qm_fld)
+Y = np.interp(x, x_fld, Y_fld)
 S = np.interp(x, x_fld, Su_fld)
 B = np.interp(x, x_fld, B_fld)
 
-B[0] = B[1] # Altitude du socle constante au niveau du dôme
-S[0] = S[1] # Altitude de la surface constante au niveau du dôme
+B[0] = B[1]  # Altitude du socle constante au niveau du dôme
+S[0] = S[1]  # Altitude de la surface constante au niveau du dôme
 
-
-
-#--------------------------------------------------
+# --------------------------------------------------
 # Accumulation a(m/yr)
-#--------------------------------------------------
+# --------------------------------------------------
 
 a = np.interp(Q, Q_fld, a0_fld)
 
-
-
-#--------------------------------------------------
+# --------------------------------------------------
 # Calcul de la surface ice-equivalent S_ie
-#--------------------------------------------------
+# --------------------------------------------------
 
 S_ie = S - DELTA_H
 
-
-
-#--------------------------------------------------
+# --------------------------------------------------
 # Melting
-#--------------------------------------------------
+# --------------------------------------------------
 
 m = np.interp(x, x_fld, m_fld)
 
-
-
-#------------------------------------------------------
+# ------------------------------------------------------
 # Calculs de theta_min et theta_max
-#------------------------------------------------------
+# ------------------------------------------------------
 
 theta_max = np.zeros(imax+1)
 
-theta_min = np.where(Qm[1:] > 0, \
-np.maximum(np.log(Qm[1:].clip(min=10**-100)/Q[1:]), theta[-1] * np.ones((imax+1,))) ,\
-theta[-1] * np.ones((imax+1,))  ) 
+theta_min = np.where(Qm[1:] > 0,
+                     np.maximum(np.log(Qm[1:].clip(min=10**-100)/Q[1:]),
+                                theta[-1] * np.ones((imax+1,))),
+                     theta[-1] * np.ones((imax+1,)))
 
-
-
-#------------------------------------------------------
+# ------------------------------------------------------
 # Routine de calcul de omega(zeta)
-#------------------------------------------------------
+# ------------------------------------------------------
 
 # Lliboutry model for the horizontal flux shape function
 
-p = 3.0 * np.ones(imax+1) 
+p = 3.0 * np.ones(imax+1)
 
-s = np.interp(x[1:], x_s_geo,s_measure)
+s = np.interp(x[1:], x_s_geo, s_measure)
 
-zeta = np.linspace(1,0,1001).reshape(1001,1)
+zeta = np.linspace(1, 0, 1001).reshape(1001, 1)
 
-omega = zeta * s + (1-s) * ( 1 - (p+2)/(p+1) * (1-zeta) + 1/(p+1) * np.power(1-zeta,p+2)  ) 
+omega = zeta * s + (1-s) * (1 - (p+2)/(p+1) * (1-zeta) +
+                            1/(p+1) * np.power(1-zeta, p+2))
 
-
-
-#-------------------------------------------------------
+# -------------------------------------------------------
 # GRID
-#-------------------------------------------------------
+# -------------------------------------------------------
 
-grid = np.ones( ( imax + 1 , imax + 2 ) )
+grid = np.ones((imax + 1, imax + 2))
 
-grid[:,0] = grid[:,1] = np.where( theta >= theta_min[0], 1, 0 )
+grid[:, 0] = grid[:, 1] = np.where(theta >= theta_min[0], 1, 0)
 
 
 print('Before defining grid boolean')
-for j in range(2, imax+2 ):
-    grid[2:,j] = np.where(np.logical_and(theta[2:] >= theta_min[j-1], grid[1:-1,j-1] ==1), 1, 0)
+for j in range(2, imax+2):
+    grid[2:, j] = np.where(np.logical_and(theta[2:] >= theta_min[j-1],
+                                          grid[1:-1, j-1] == 1), 1, 0)
 print('After defining grid boolean')
 
-
-
-#-------------------------------------------------------
+# -------------------------------------------------------
 # Matrice omega : mat_omega
-#-------------------------------------------------------
+# -------------------------------------------------------
 
-mat_omega = np.where( grid[:,1:] == 1 ,\
-( np.dot(OMEGA.reshape(imax+1,1),Q[1:].reshape(1,imax+1)) - Qm[1:] )\
-/ (Q[1:] - Qm[1:]), np.nan )
+mat_omega = np.where(grid[:, 1:] == 1,
+                     (np.dot(OMEGA.reshape(imax+1, 1),
+                             Q[1:].reshape(1, imax+1))-Qm[1:])/(Q[1:]-Qm[1:]),
+                     np.nan)
 
-
-
-#-------------------------------------------------------
+# -------------------------------------------------------
 # Matrice z_ie
-#-------------------------------------------------------
+# -------------------------------------------------------
 
-z_ie = np.zeros( (imax+1, imax+2) )
+z_ie = np.zeros((imax+1, imax+2))
 
 print('Before defining z_ie')
-for j in range(0,imax+1):
-    inter = np.interp( -mat_omega[:,j], -omega[:,j].flatten(), zeta.flatten())
-    z_ie[:,j+1] = np.where(grid[:,j+1] == 1, B[j+1] + inter * ( S_ie[j+1] - B[j+1] ), np.nan)
-z_ie[:,0] = z_ie[:,1]
+for j in range(0, imax+1):
+    inter = np.interp(-mat_omega[:, j], -omega[:, j].flatten(), zeta.flatten())
+    z_ie[:, j+1] = np.where(grid[:, j+1] == 1, B[j+1]+inter*(S_ie[j+1]-B[j+1]),
+                            np.nan)
+z_ie[:, 0] = z_ie[:, 1]
 print('After defining z_ie')
 
-
-
-#-------------------------------------------------------
+# -------------------------------------------------------
 # Matrice theta_min
-#-------------------------------------------------------
+# -------------------------------------------------------
 
-mat_theta_min =  np.tile ( theta_min , (imax+1,1) )
+mat_theta_min = np.tile(theta_min, (imax+1, 1))
 
 
 
