@@ -4,10 +4,10 @@
 from __future__ import division
 import sys
 import  numpy as  np 
-from  scipy . interpolate import  interp1d 
+from  scipy.interpolate import  interp1d 
 from math import log
 import yaml
-import matplotlib.pyplot as plt
+
 
 
 
@@ -39,17 +39,17 @@ s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
 
 
 #---------------------------------------------------------
-# Executing model_parameters.py (imax, delta,...) 
+#  Reading parameters.yml file (imax, delta,...) 
 #---------------------------------------------------------
 
 #Default values for parameters, to prevent spyder errors
-# max_depth=3310.
-# imax=100
-# delta=0.08
-# x_right=370
-# iso_spacing=20000.
-# beta=0.015
-# thickness=3767.
+max_depth=3310.
+imax=100
+delta=0.08
+x_right=370
+iso_spacing=20000.
+beta=0.015
+thickness=3767.
 
 #exec(open('model_parameters.py').read())
 yamls = open('parameters.yml').read()
