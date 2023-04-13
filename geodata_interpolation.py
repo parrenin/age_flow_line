@@ -1,11 +1,19 @@
-#−*−coding: utf−8−*− 
-import scipy as sp 
 import	numpy	as	np 
-from	scipy . interpolate	import	interp1d 
-import	matplotlib . pyplot	as	plt
-from	matplotlib . pyplot	import	*
+from	scipy.interpolate	import	interp1d 
+import yaml
 
-exec(open('model_parameters.py').read())
+# Default values for parameters, to prevent spyder errors
+max_depth = 3310.
+imax = 100
+delta = 0.08
+x_right = 370
+iso_spacing = 20000.
+beta = 0.015
+thickness = 3767.
+
+yamls = open('parameters.yml').read()
+para = yaml.load(yamls, Loader=yaml.FullLoader)
+globals().update(para)
 
 #-----------------------------------------------------
 #Loading files for Geographic data, arrays creations
@@ -22,6 +30,11 @@ m_measure = np.loadtxt('input_data/m_geodata.txt', usecols=(1,))
 # Sliding rate
 x_s = np.loadtxt('input_data/s_geodata.txt', usecols=(0,))
 s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
+
+# Lliboutry parameter
+x_p = np.loadtxt('input_data/p_geodata.txt', usecols=(0,))
+p_measure = np.loadtxt('input_data/p_geodata.txt', usecols=(1,))
+
 
 # Surface and Bedrock
 x_Salamatin = np.loadtxt('input_data/Geographic_data_from_Salamatin_et_al.txt', usecols=(1,))
@@ -40,9 +53,11 @@ Y_measure = np.loadtxt('input_data/Y_geodata.txt', usecols=(1,))
 
 x = np.arange(x_right+1)
 
+# FIXME: Use np.interp instead of interp1d
 a0	=	interp1d (x_a0 , a0_measure) (x) 
 m	=	interp1d (x_m , m_measure) (x)
-s	=	interp1d ( x_s , s_measure) (x) 
+s	=	interp1d ( x_s , s_measure) (x)
+p	=	interp1d ( x_p , p_measure) (x)
 Su	=	interp1d ( x_Salamatin , Su_measure) (x)
 B	=	interp1d ( x_Salamatin , B_measure) (x)
 Y	=	interp1d ( x_Y , Y_measure) (x)    
@@ -78,6 +93,7 @@ np.savetxt('interpolation_results/Qm_fld.txt',Qm, fmt = "%s")
 np.savetxt('interpolation_results/a0_interpolated.txt', a0, fmt = "%s")
 np.savetxt('interpolation_results/m_interpolated.txt', m, fmt = "%s")
 np.savetxt('interpolation_results/s_interpolated.txt', s, fmt = "%s")
+np.savetxt('interpolation_results/p_interpolated.txt', p, fmt = "%s")
 np.savetxt('interpolation_results/Su_interpolated.txt', Su, fmt = "%s")
 np.savetxt('interpolation_results/B_interpolated.txt', B, fmt = "%s")
 np.savetxt('interpolation_results/Y_interpolated.txt', Y, fmt = "%s")

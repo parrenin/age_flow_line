@@ -16,6 +16,7 @@ Qm_fld = np.loadtxt('interpolation_results/Qm_fld.txt')
 a0_fld = np.loadtxt('interpolation_results/a0_interpolated.txt')
 m_fld = np.loadtxt('interpolation_results/m_interpolated.txt')
 s_fld = np.loadtxt('interpolation_results/s_interpolated.txt')
+p_fld = np.loadtxt('interpolation_results/p_interpolated.txt')
 Su_fld = np.loadtxt('interpolation_results/Su_interpolated.txt')
 B_fld = np.loadtxt('interpolation_results/B_interpolated.txt')
 Y_fld = np.loadtxt('interpolation_results/Y_interpolated.txt')
@@ -112,6 +113,7 @@ Y = np.interp(x, x_fld, Y_fld)
 S = np.interp(x, x_fld, Su_fld)
 B = np.interp(x, x_fld, B_fld)
 s = np.interp(x[1:], x_fld, s_fld)
+p = np.interp(x[1:], x_fld, p_fld)
 
 B[0] = B[1]  # Altitude du socle constante au niveau du dôme
 S[0] = S[1]  # Altitude de la surface constante au niveau du dôme
@@ -154,7 +156,7 @@ theta_min = np.where(Qm[1:] > 0,
 # Lliboutry model for the horizontal flux shape function
 
 # FIXME: we should import p as well!
-p = 3.0 * np.ones(imax+1)
+# p = 3.0 * np.ones(imax+1)
 
 # s = np.interp(x[1:], x_s_geo, s_measure)
 
