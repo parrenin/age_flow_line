@@ -27,8 +27,8 @@ Y_fld = np.loadtxt('interpolation_results/Y_interpolated.txt')
 deut = np.loadtxt('input_data/deuterium.txt')
 density_readarray = np.loadtxt('input_data/density-prior.txt')
 
-x_s_geo = np.loadtxt('input_data/s_geodata.txt', usecols=(0,))
-s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
+# x_s_geo = np.loadtxt('input_data/s_geodata.txt', usecols=(0,))
+# s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
 
 # ---------------------------------------------------------
 # Reading parameters.yml file (imax, delta,...)
@@ -105,12 +105,13 @@ OMEGA = np.exp(theta)
 
 x_fld = np.arange(x_right+1)
 
+# FIXME : should we interpolate in x or in Q?
 x = np.interp(Q, Q_fld, x_fld)
 Qm = np.interp(Q, Q_fld, Qm_fld)
 Y = np.interp(x, x_fld, Y_fld)
 S = np.interp(x, x_fld, Su_fld)
 B = np.interp(x, x_fld, B_fld)
-# s = np.interp(x, x_fld, s_fld)
+s = np.interp(x[1:], x_fld, s_fld)
 
 B[0] = B[1]  # Altitude du socle constante au niveau du dôme
 S[0] = S[1]  # Altitude de la surface constante au niveau du dôme
@@ -119,6 +120,7 @@ S[0] = S[1]  # Altitude de la surface constante au niveau du dôme
 # Accumulation a(m/yr)
 # --------------------------------------------------
 
+# FIXME: again here, should we interpolate in x or Q?
 a = np.interp(Q, Q_fld, a0_fld)
 
 # --------------------------------------------------
@@ -131,6 +133,7 @@ S_ie = S - DELTA_H
 # Melting
 # --------------------------------------------------
 
+# FIXME: we do we interpolate m while we already interpolated Qm?
 m = np.interp(x, x_fld, m_fld)
 
 # ------------------------------------------------------
@@ -150,9 +153,10 @@ theta_min = np.where(Qm[1:] > 0,
 
 # Lliboutry model for the horizontal flux shape function
 
+# FIXME: we should import p as well!
 p = 3.0 * np.ones(imax+1)
 
-s = np.interp(x[1:], x_s_geo, s_measure)
+# s = np.interp(x[1:], x_s_geo, s_measure)
 
 zeta = np.linspace(1, 0, 1001).reshape(1001, 1)
 
