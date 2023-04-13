@@ -7,20 +7,6 @@ from math import log
 import yaml
 import matplotlib.pyplot as plt
 
-# ----------------------------------------------------------
-# Loading data from interpolation_results file
-# ----------------------------------------------------------
-
-Q_fld = np.loadtxt('interpolation_results/Q_fld.txt')
-Qm_fld = np.loadtxt('interpolation_results/Qm_fld.txt')
-a0_fld = np.loadtxt('interpolation_results/a0_interpolated.txt')
-m_fld = np.loadtxt('interpolation_results/m_interpolated.txt')
-s_fld = np.loadtxt('interpolation_results/s_interpolated.txt')
-p_fld = np.loadtxt('interpolation_results/p_interpolated.txt')
-Su_fld = np.loadtxt('interpolation_results/Su_interpolated.txt')
-B_fld = np.loadtxt('interpolation_results/B_interpolated.txt')
-Y_fld = np.loadtxt('interpolation_results/Y_interpolated.txt')
-
 # -----------------------------------------------------------------------------
 # Loading data from accu-prior.txt , density-prior.txt ... in "input_data" file
 # -----------------------------------------------------------------------------
@@ -47,6 +33,73 @@ thickness = 3767.
 yamls = open('parameters.yml').read()
 para = yaml.load(yamls, Loader=yaml.FullLoader)
 globals().update(para)
+
+# -----------------------------------------------------
+# Loading files for Geographic data, arrays creations
+# -----------------------------------------------------
+
+# FIXME: use data directory as argument instead of fixed input_data directory
+# Steady accumulation
+x_a0 = np.loadtxt('input_data/a0_geodata.txt', usecols=(0,))
+a0_measure = np.loadtxt('input_data/a0_geodata.txt', usecols=(1,))
+
+# Melting
+x_m = np.loadtxt('input_data/m_geodata.txt', usecols=(0,))
+m_measure = np.loadtxt('input_data/m_geodata.txt', usecols=(1,))
+
+# Sliding rate
+x_s = np.loadtxt('input_data/s_geodata.txt', usecols=(0,))
+s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
+
+# Lliboutry parameter
+x_p = np.loadtxt('input_data/p_geodata.txt', usecols=(0,))
+p_measure = np.loadtxt('input_data/p_geodata.txt', usecols=(1,))
+
+
+# Surface and Bedrock
+x_Salamatin = np.loadtxt('input_data/Geographic_data_from_Salamatin_et_al.txt',
+                         usecols=(1,))
+Su_measure = np.loadtxt('input_data/Geographic_data_from_Salamatin_et_al.txt',
+                        usecols=(2,))
+B_measure = np.loadtxt('input_data/Geographic_data_from_Salamatin_et_al.txt',
+                       usecols=(3,))
+
+# Tube width
+x_Y = np.loadtxt('input_data/Y_geodata.txt', usecols=(0,))
+Y_measure = np.loadtxt('input_data/Y_geodata.txt', usecols=(1,))
+
+# --------------------
+# Interpolation
+# --------------------
+
+x_fld = np.arange(x_right+1)
+
+a0_fld = np.interp(x_fld, x_a0, a0_measure)
+m_fld = np.interp(x_fld, x_m, m_measure)
+s_fld = np.interp(x_fld, x_s, s_measure)
+p_fld = np.interp(x_fld, x_p, p_measure)
+Su_fld = np.interp(x_fld, x_Salamatin, Su_measure)
+B_fld = np.interp(x_fld, x_Salamatin, B_measure)
+Y_fld = np.interp(x_fld, x_Y, Y_measure)
+
+# Calcul du flux total Q
+
+Q_fld = np.zeros(len(x_fld))
+
+for i in range(1, len(Q_fld)):
+    Q_fld[i] = Q_fld[i-1] + (x_fld[i]-x_fld[i-1]) * 1000 * a0_fld[i-1] * \
+        Y_fld[i-1] + 0.5 * (x_fld[i]-x_fld[i-1]) * 1000 * \
+        ((a0_fld[i]-a0_fld[i-1]) * Y_fld[i-1] + (Y_fld[i]-Y_fld[i-1])
+            * a0_fld[i-1]) + (1./3) * (x_fld[i]-x_fld[i-1]) * 1000 * \
+        (a0_fld[i]-a0_fld[i-1]) * (Y_fld[i]-Y_fld[i-1])
+
+# Calcul du "basal melting flux" Qm
+
+Qm_fld = [0]*len(x_fld)
+
+for i in range(1, len(Qm_fld)):
+    Qm_fld[i] = Qm_fld[i-1] + 0.5 * (m_fld[i]+m_fld[i-1]) * 0.5 *\
+        (Y_fld[i]+Y_fld[i-1]) * (x_fld[i]-x_fld[i-1]) * 1000
 
 # ---------------------------------------------------
 # DEPTH - 1D Vostok drill grid for post-processing
