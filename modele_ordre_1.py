@@ -1,6 +1,5 @@
 # TODO: make sure the interpolated values for a, Y and Q are consistent.
 
-from __future__ import division
 import sys
 import numpy as np
 from scipy.interpolate import interp1d
@@ -21,9 +20,9 @@ Su_fld = np.loadtxt('interpolation_results/Su_interpolated.txt')
 B_fld = np.loadtxt('interpolation_results/B_interpolated.txt')
 Y_fld = np.loadtxt('interpolation_results/Y_interpolated.txt')
 
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Loading data from accu-prior.txt , density-prior.txt ... in "input_data" file
-# -------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 deut = np.loadtxt('input_data/deuterium.txt')
 density_readarray = np.loadtxt('input_data/density-prior.txt')
@@ -111,6 +110,7 @@ Qm = np.interp(Q, Q_fld, Qm_fld)
 Y = np.interp(x, x_fld, Y_fld)
 S = np.interp(x, x_fld, Su_fld)
 B = np.interp(x, x_fld, B_fld)
+# s = np.interp(x, x_fld, s_fld)
 
 B[0] = B[1]  # Altitude du socle constante au niveau du dôme
 S[0] = S[1]  # Altitude de la surface constante au niveau du dôme
