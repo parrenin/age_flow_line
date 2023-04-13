@@ -1,5 +1,4 @@
 import	numpy	as	np 
-from	scipy.interpolate	import	interp1d 
 import yaml
 
 # Default values for parameters, to prevent spyder errors
@@ -53,14 +52,13 @@ Y_measure = np.loadtxt('input_data/Y_geodata.txt', usecols=(1,))
 
 x = np.arange(x_right+1)
 
-# FIXME: Use np.interp instead of interp1d
-a0	=	interp1d (x_a0 , a0_measure) (x) 
-m	=	interp1d (x_m , m_measure) (x)
-s	=	interp1d ( x_s , s_measure) (x)
-p	=	interp1d ( x_p , p_measure) (x)
-Su	=	interp1d ( x_Salamatin , Su_measure) (x)
-B	=	interp1d ( x_Salamatin , B_measure) (x)
-Y	=	interp1d ( x_Y , Y_measure) (x)    
+a0	=	np.interp(x, x_a0, a0_measure) 
+m	=	np.interp(x, x_m, m_measure)
+s	=	np.interp(x, x_s, s_measure)
+p	=	np.interp(x, x_p, p_measure)
+Su	=	np.interp(x, x_Salamatin, Su_measure)
+B	=	np.interp(x, x_Salamatin , B_measure)
+Y	=	np.interp(x, x_Y , Y_measure)    
 
 
 
