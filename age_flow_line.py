@@ -42,7 +42,6 @@ beta = 0.015
 thickness = 3767.
 create_figs = True
 
-# FIXME: put the YAML file into the experiment directory
 yamls = open(datadir+'parameters.yml').read()
 para = yaml.load(yamls, Loader=yaml.FullLoader)
 globals().update(para)
@@ -50,8 +49,6 @@ globals().update(para)
 # -----------------------------------------------------
 # Loading files for Geographic data, arrays creations
 # -----------------------------------------------------
-
-# FIXME: use data directory as argument instead of fixed input_data directory
 
 # Steady accumulation
 x_a0, a0_measure = np.loadtxt(datadir+'accumulation.txt', unpack=True)
@@ -195,7 +192,7 @@ S_ie = S - DELTA_H
 # Melting
 # --------------------------------------------------
 
-# FIXME: we do we interpolate m while we already interpolated Qm?
+# FIXME: why do we interpolate m while we already interpolated Qm?
 m = np.interp(x, x_fld, m_fld)
 
 # ------------------------------------------------------
@@ -214,11 +211,6 @@ theta_min = np.where(Qm[1:] > 0,
 # ------------------------------------------------------
 
 # Lliboutry model for the horizontal flux shape function
-
-# FIXME: we should import p as well!
-# p = 3.0 * np.ones(imax+1)
-
-# s = np.interp(x[1:], x_s_geo, s_measure)
 
 zeta = np.linspace(1, 0, 1001).reshape(1001, 1)
 
@@ -363,7 +355,7 @@ for i in range(1, imax+1):
 
 mat_steady_age[:, 0] = mat_steady_age[:, 1]
 
-
+# FIXME: use polynomes instead of rational fraction
 for j in range(2, imax+2):
     c = (a[j] - a[j-1]) / delta
     d = a[j] - c * pi[j-1]
