@@ -86,7 +86,7 @@ Su_fld = np.interp(x_fld, x_Su, Su_measure)
 B_fld = np.interp(x_fld, x_B, B_measure)
 Y_fld = np.interp(x_fld, x_Y, Y_measure)
 
-# Calcul du flux total Q
+# Computation of total flux Q
 
 Q_fld = np.zeros(len(x_fld))
 
@@ -97,7 +97,7 @@ for i in range(1, len(Q_fld)):
             * a0_fld[i-1]) + (1./3) * (x_fld[i]-x_fld[i-1]) * 1000 * \
         (a0_fld[i]-a0_fld[i-1]) * (Y_fld[i]-Y_fld[i-1])
 
-# Calcul du "basal melting flux" Qm
+# Computation of basal melting flux Qm
 
 Qm_fld = [0]*len(x_fld)
 
@@ -109,6 +109,8 @@ for i in range(1, len(Qm_fld)):
 # DEPTH - 1D Vostok drill grid for post-processing
 # ---------------------------------------------------
 
+# FIXME: Is this fine vertical grid really necessary?
+
 depth_corrected = np.arange(0., max_depth + 0.1, 1.)
 
 depth_mid = (depth_corrected[1:] + depth_corrected[:-1])/2
@@ -118,6 +120,8 @@ depth_inter = (depth_corrected[1:] - depth_corrected[:-1])
 # ---------------------------------------------------------------------------
 # Relative density interpolation with extrapolation of "depth-density" data
 # ---------------------------------------------------------------------------
+
+# FIXME: What should we do with firn density? Maybe just a firn correction?
 
 D_depth = density_readarray[:, 0]
 
@@ -148,7 +152,7 @@ theta = np.linspace(0, - imax * delta,  imax + 1)
 
 Q = Q_fld[-1] * np.exp(pi)  # Q_ref = Q_fld[-1]
 
-# prolongement du vecteur pour les calculs à l'extrémité gauche du maillage
+# We set the zero value for the dome
 Q = np.insert(Q, 0, 0)
 
 # ----------------------------------------------------------
@@ -196,7 +200,7 @@ S_ie = S - DELTA_H
 m = np.interp(x, x_fld, m_fld)
 
 # ------------------------------------------------------
-# Calculs de theta_min et theta_max
+# Computation of theta_min and theta_max
 # ------------------------------------------------------
 
 theta_max = np.zeros(imax+1)
@@ -207,11 +211,13 @@ theta_min = np.where(Qm[1:] > 0,
                      theta[-1] * np.ones((imax+1,)))
 
 # ------------------------------------------------------
-# Routine de calcul de omega(zeta)
+# Computation of omega=fct(zeta)
 # ------------------------------------------------------
 
 # Lliboutry model for the horizontal flux shape function
 
+# FIXME: Is there no better we do invert omega?
+# Maybe a spline would allow to decrease the number of nodes.
 zeta = np.linspace(1, 0, 1001).reshape(1001, 1)
 
 omega = zeta * s + (1-s) * (1 - (p+2)/(p+1) * (1-zeta) +
@@ -242,7 +248,7 @@ mat_omega = np.where(grid[:, 1:] == 1,
                      np.nan)
 
 # -------------------------------------------------------
-# Matrice z_ie
+# Matrix z_ie
 # -------------------------------------------------------
 
 z_ie = np.zeros((imax+1, imax+2))
@@ -256,37 +262,37 @@ z_ie[:, 0] = z_ie[:, 1]
 print('After defining z_ie')
 
 # -------------------------------------------------------
-# Matrice theta_min
+# Matrix theta_min
 # -------------------------------------------------------
 
 mat_theta_min = np.tile(theta_min, (imax+1, 1))
 
 # -------------------------------------------------------
-# Matrice theta
+# Matrix theta
 # -------------------------------------------------------
 
 mat_theta = np.where(grid[:, 1:] == 1, theta.reshape(imax+1, 1), np.nan)
 
 # -------------------------------------------------------
-# Matrice OMEGA : mat_OMEGA
+# Matrix OMEGA: mat_OMEGA
 # -------------------------------------------------------
 
 mat_OMEGA = np.where(grid[:, 1:] == 1, OMEGA.reshape(imax+1, 1), np.nan)
 
 # -------------------------------------------------------
-# Matrice pi : mat_pi
+# Matrix pi: mat_pi
 # -------------------------------------------------------
 
 mat_pi = np.where(grid[:, 1:] == 1, pi, np.nan)
 
 # -------------------------------------------------------
-# Matrice x : mat_x
+# Matrix x: mat_x
 # -------------------------------------------------------
 
 mat_x = np.where(grid == 1, x, np.nan)
 
 # -------------------------------------------------------
-# Matrice depth_ie : mat_depth_ie
+# Matrix depth_ie: mat_depth_ie
 # -------------------------------------------------------
 
 mat_depth_ie = np.where(grid == 1, S_ie - z_ie, np.nan)
@@ -294,7 +300,7 @@ mat_depth_ie = np.where(grid == 1, S_ie - z_ie, np.nan)
 mat_depth_ie[0, :] = 0
 
 # -------------------------------------------------------
-# Matrice du flux q : mat_q
+# Matrix of stream function q: mat_q
 # -------------------------------------------------------
 
 mat_q = np.where(grid[:, 1:] == 1, Q[1:] * mat_OMEGA, np.nan)
@@ -303,7 +309,7 @@ mat_q[:, 0] = mat_q[0, 0]  # ligne de flux verticale au dôme
 
 
 # -------------------------------------------------------
-# Matrice a0 : mat_a0
+# Matrix a0: mat_a0
 # -------------------------------------------------------
 
 mat_a0 = np.zeros((imax+1, imax+1))
@@ -318,7 +324,7 @@ for j in range(1, imax+1):
 print('After defining mat_a0')
 
 # -------------------------------------------------------
-# Matrice x0 : mat_x0
+# Matrix x0: mat_x0
 # -------------------------------------------------------
 
 mat_x0 = np.zeros((imax+1, imax+1+1))
@@ -335,11 +341,11 @@ for j in range(2, imax+1+1):
 print('After defining mat_x0')
 
 # -------------------------------------------------------
-# Matrice STEADY-AGE:
+# Matrix STEADY-AGE:
 # -------------------------------------------------------
 
 # -----------------------------------------------------------------------------
-# Ordre 1
+# First oder computation of age
 # -----------------------------------------------------------------------------
 
 print('Before calculation of steady age matrix.')
@@ -355,7 +361,7 @@ for i in range(1, imax+1):
 
 mat_steady_age[:, 0] = mat_steady_age[:, 1]
 
-# FIXME: use polynomes instead of rational fraction
+# FIXME: use polynomes instead of rational fractions
 for j in range(2, imax+2):
     c = (a[j] - a[j-1]) / delta
     d = a[j] - c * pi[j-1]
@@ -386,7 +392,7 @@ print('After calculation of steady age matrix.')
 # Try to remove loops
 
 # -------------------------------------------------------
-# Matrice de la fonction d'amincissement tau_ie
+# Matrix of thinning function: tau_ie
 # -------------------------------------------------------
 
 tau_ie = np.where(grid[1:, 1:] == 1, (z_ie[:-1, 1:] - z_ie[1:, 1:])
@@ -394,13 +400,15 @@ tau_ie = np.where(grid[1:, 1:] == 1, (z_ie[:-1, 1:] - z_ie[1:, 1:])
                   / mat_a0[:-1, :], np.nan)
 
 # ----------------------------------------------------------
-#  Post-processing: transfert des résulats du modèle sur
-#  la grille 1D du forage Vostok.
+# Post-processing: transfert of the modeling results
+# on the 1D grid of the drilling site
 # ----------------------------------------------------------
 
 # ----------------------------------------------------------
-#  Calcul de theta Vostok IceCore : theta_vic
+#  Computation fo theta for the ice core: theta_vic
 # ----------------------------------------------------------
+
+# FIXME: Rename to theta_ic (V was for Vostok)
 
 if mat_depth_ie[imax, imax+1] < ie_depth[len(ie_depth)-1]:
     sys.exit("\n Attention problème d'interpolation post-processing:\n \
@@ -416,17 +424,18 @@ theta_vic = np.log(np.interp(ie_depth, mat_depth_ie[:, imax+1]
                              [~np.isnan(mat_OMEGA[:, imax])]))
 
 # ----------------------------------------------------------
-#  Calcul steady a0 vostok icecore
+#  Computation steady a0 ice core
 # ----------------------------------------------------------
 
 steady_a0 = np.interp(-theta_vic, -theta[:][~np.isnan(mat_a0[:, imax])],
                       mat_a0[:, imax][~np.isnan(mat_a0[:, imax])])
 
 # ----------------------------------------------------------
-#  Calcul de R(t)
+#  Computation of R(t)
 # ----------------------------------------------------------
 
 R_t = np.exp(beta * (deut - deut[0]))
+
 # FIXME: we should import R from AICC2012 and make it averaged to 1.
 
 # ----------------------------------------------------------
@@ -436,8 +445,10 @@ R_t = np.exp(beta * (deut - deut[0]))
 a0_vic = steady_a0 * R_t
 
 # ----------------------------------------------------------
-#  Calcul steady_age vostok icecore (yr b 1997)
+#  Computation of steady_age vostok icecore
 # ----------------------------------------------------------
+
+# FIXME: we should set the surface age in the YAML file.
 
 steady_age = np.interp(-theta_vic, -theta[:][~np.isnan(mat_steady_age[
     :, imax+1])], mat_steady_age[:, imax+1][~np.isnan(mat_steady_age[
@@ -453,6 +464,7 @@ steady_age_sp = interp1d(-theta[:][~np.isnan(mat_steady_age[:, imax+1])],
 # Cubic spline with derivative constraint at surface
 # On rajoute un point " proche de theta = 0 " afin d'imposer la dérivée
 # Cela peu créer dans certains cas une matrice singulière (problème robustesse)
+# FIXME: Is there not a less dirty solution?
 
 new_theta = np.insert(-theta[:][~np.isnan(mat_steady_age[:, imax+1])], 1,
                       1/1000000)
@@ -463,7 +475,7 @@ chi_0 = np.insert(mat_steady_age[:, imax+1][~np.isnan(mat_steady_age[
 steady_age_sp_2 = interp1d(new_theta, chi_0, kind='cubic')(-theta_vic)
 
 # ----------------------------------------------------------
-#  Calcul Age vostok icecore (yr b 1997)
+#  Computation of Age for the ice core
 # ----------------------------------------------------------
 
 Age = np.cumsum((steady_age[1:] - steady_age[:-1]) / (R_t[:-1]))
@@ -471,13 +483,13 @@ Age = np.cumsum((steady_age[1:] - steady_age[:-1]) / (R_t[:-1]))
 Age = np.insert(Age, 0, steady_age[0])
 
 # ----------------------------------------------------------
-#  Calcul tau_middle vostok icecore (yr b 1997)
+#  Computation of tau_middle for the ice core
 # ----------------------------------------------------------
 
 tau_middle = 1./steady_a0[:-1] / (steady_age[1:] - steady_age[:-1])
 
 # ----------------------------------------------------------
-#  Calcul tau_ie_middle vostok icecore (yr b 1997)
+#  Computation of tau_ie_middle for the ice core
 # ----------------------------------------------------------
 
 tau_ie_middle = (ie_depth[1:] - ie_depth[:-1]) / steady_a0[:-1] / \
