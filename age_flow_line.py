@@ -1,4 +1,5 @@
 # TODO: make sure the interpolated values for a, Y and Q are consistent.
+# FIXME: Convert all comments to English.
 
 import sys
 import numpy as np
@@ -562,7 +563,7 @@ if create_figs:
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$Y \ (m)$', fontsize=18)
     plt.grid()
-    plt.savefig(datadir+'Tube_width_theta_%d.pdf' % imax)
+    plt.savefig(datadir+'tube_width_theta.pdf')
 
     # ---------------------------------------------------
     # Figure 2: Accumulation
@@ -573,7 +574,7 @@ if create_figs:
     plt.legend([r'accumulation: a (m/year)'], loc='best')
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$a \ (m/year)$', fontsize=18)
-    plt.savefig(datadir+'Accumulation_theta_%d.pdf' % imax)
+    plt.savefig(datadir+'accumulation_theta.pdf')
     plt.grid()
 
     # ----------------------------------------
@@ -585,7 +586,7 @@ if create_figs:
     plt.legend([r'melting: m (m/year)'], loc='best')
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$m \ (m/year)$', fontsize=18)
-    plt.savefig(datadir+'Melting_theta_%d.pdf' % imax)
+    plt.savefig(datadir+'melting_theta.pdf')
     plt.grid()
 
     # ----------------------------------------------------------
@@ -598,7 +599,7 @@ if create_figs:
         plt.hlines(mat_theta[i, :], mat_pi[0, :], np.zeros((imax+1,)))
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$\theta$', fontsize=18)
-    plt.savefig(datadir+'Maillage_pi_theta_%d.pdf' % imax)
+    plt.savefig(datadir+'mesh_pi_theta.pdf')
 
     # ----------------------------------------------------------
     # Visualisation du maillage (x, z)
@@ -614,11 +615,13 @@ if create_figs:
     plt.vlines(x, z_ie_min, S_ie)
     plt.xlabel(r'$X$', fontsize=18)
     plt.ylabel(r'$Z$', fontsize=18)
-    plt.savefig(datadir+'Maillage_x_z_%d.pdf' % imax)
+    plt.savefig(datadir+'mesh_x_z.pdf')
 
     # -------------------------------------------------------------------------
     # Visualisation des paramètres de l'écoulement sur le maillage (pi,theta)
     # -------------------------------------------------------------------------
+
+# FIXME: Why do we plot the mesh on this graph?
 
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
@@ -662,11 +665,13 @@ if create_figs:
         ax.plot(pi, data, color=color)
         ax.set_ylabel(yname, color=color)
         ax.tick_params(axis='y', colors=color)
-    plt.savefig(datadir+'flow_parameters_pi_theta_%d.pdf' % imax)
+    plt.savefig(datadir+'flow_parameters_pi_theta.pdf')
 
     # -------------------------------------------------------------------------
     # Visualisation des paramètres de l'écoulement sur le maillage (x,z)
     # -------------------------------------------------------------------------
+
+# FIXME: idem here, why do we plot the mesh?
 
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
@@ -703,7 +708,7 @@ if create_figs:
         ax.plot(x, data, color=color)
         ax.set_ylabel(yname, color=color)
         ax.tick_params(axis='y', colors=color)
-    plt.savefig(datadir+'flow_parameters_x_z_%d.pdf' % imax)
+    plt.savefig(datadir+'flow_parameters_x_z.pdf')
 
     # ----------------------------------------------------------
     # Visualisation des lignes isochrones en (x,z)
@@ -724,7 +729,7 @@ if create_figs:
     ax.plot(x, B, label='Bedrock', color='0')
     ax.grid()
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.savefig(datadir+'lignes_isochrones_x_z_%d.pdf' % imax)
+    plt.savefig(datadir+'isochrones_x_z.pdf')
 
     # ---------------------------------------------------------------------
     # Lignes isochrones en (pi,theta)
@@ -741,18 +746,20 @@ if create_figs:
     ax.set_position([box.x0, box.y0, box.width*0.8, box.height])
     ax.grid()
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.savefig(datadir+'lignes_isochrones_pi_theta_%d.pdf' % imax)
+    plt.savefig(datadir+'isochrones_pi_theta.pdf')
 
     # ---------------------------------------------------------------------
     # Age-Profondeur dans le forage
     # ---------------------------------------------------------------------
+
+# FIXME: we could have several drillings along the flow lines
 
     plt.figure(10)
     plt.plot(Age, depth_corrected, '-')
     plt.gca().invert_yaxis()
     plt.xlabel(r'$age\ (yr\ b \ 1997)$', fontsize=15)
     plt.ylabel(r'$depth \ (m)$', fontsize=15)
-    plt.savefig(datadir+'Age_depth_%d.pdf' % imax)
+    plt.savefig(datadir+'age_depth.pdf')
 
     # ---------------------------------------------------------------------
     # R(t) - Age
@@ -762,7 +769,7 @@ if create_figs:
     plt.plot(Age, R_t, '-')
     plt.xlabel(r'$time \ (yr\ b\ 1997 )$', fontsize=15)
     plt.ylabel(r'$R(t)$', fontsize=15)
-    plt.savefig(datadir+'R_t_age_%d.pdf' % imax)
+    plt.savefig(datadir+'R_temporal_factor.pdf')
 
     # ---------------------------------------------------------------------
     # Fonction d'amincissement
@@ -781,10 +788,13 @@ if create_figs:
     plt.ylabel(r'$depth \ (m)$', fontsize=18)
     plt.legend(loc='upper left')
     plt.grid()
+    plt.savefig(datadir+'thinning_profile.pdf')
 
     # ----------------------------------------------------------
     # Visualisation des lignes de courant
     # ----------------------------------------------------------
+
+# FIXME: For more than 100 lines, it becomes impossible to see.
 
     plt.figure(13, figsize=(15, 7))
     plt.plot(x, S, label='Surface', color='0')
@@ -801,6 +811,7 @@ if create_figs:
     plt.xlabel(r'$X$', fontsize=19)
     plt.ylabel(r'$Z$', fontsize=19)
     plt.grid()
+    plt.savefig(datadir+'stream_lines.pdf')
 
     # ----------------------------------------------------------
     # Ice Origin
@@ -811,7 +822,7 @@ if create_figs:
     plt.gca().invert_yaxis()
     plt.xlabel(r'$ICE\ ORIGIN \ (km)$', fontsize=15)
     plt.ylabel(r'$DEPTH \ (m)$', fontsize=15)
-    plt.savefig(datadir+'ice_origin_%d.pdf' % imax)
+    plt.savefig(datadir+'ice_origin.pdf')
 
     plt.show()
 
