@@ -613,7 +613,7 @@ if create_figs:
     # Visualisation des paramètres de l'écoulement sur le maillage (pi,theta)
     # -------------------------------------------------------------------------
 
-# FIXME: Why do we plot the mesh on this graph?
+# FIXME: Put some axes on the left.
 
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
@@ -627,9 +627,9 @@ if create_figs:
     # Move the last y-axis spine over to the right by 20% of the width
     axes[0].spines['right'].set_position(('axes', 1.01))
     axes[0].spines['right'].set_color('Green')
-    axes[1].spines['right'].set_position(('axes', 1.08))
+    axes[1].spines['right'].set_position(('axes', 1.09))
     axes[1].spines['right'].set_color('Red')
-    axes[2].spines['right'].set_position(('axes', 1.2))
+    axes[2].spines['right'].set_position(('axes', 1.18))
     axes[2].spines['right'].set_color('Blue')
 
     # To make the border of the right-most axis visible, we need to turn the
@@ -646,13 +646,9 @@ if create_figs:
     colors = ('Green', 'Red', 'Blue')
     datas = [Y[1:], a[1:], m[1:]]
     ynames = ['Y (m)', 'a (m/year)', 'm (m/year)']
-    ax.vlines(pi, theta_min, theta_max, linewidth=0.2)
-    for i in range(0, imax+1):
-        ax.hlines(mat_theta[i, :], mat_pi[0, :], np.zeros((imax+1,)),
-                  linewidth=0.2)
     ax.set_xlim(np.amin(theta_min), np.amax(theta_max))
     ax.set_xlabel(r'$\pi$', fontsize=18)
-    ax.set_ylabel(r'$\theta$', fontsize=18)
+    ax.set_yticks([])
     for ax, color, data, yname in zip(axes, colors, datas, ynames):
         ax.plot(pi, data, color=color)
         ax.set_ylabel(yname, color=color)
@@ -663,7 +659,7 @@ if create_figs:
     # Visualisation des paramètres de l'écoulement sur le maillage (x,z)
     # -------------------------------------------------------------------------
 
-# FIXME: idem here, why do we plot the mesh?
+# FIXME: idem here, put some axes on the left.
 
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
@@ -690,11 +686,8 @@ if create_figs:
     axes[2].set_frame_on(True)
     axes[2].patch.set_visible(False)
 
-    for i in range(0, imax+1):
-        ax.plot(x[:], z_ie[i, :],  ls='-', marker='.', color='black')
-    ax.vlines(x, z_ie_min, S_ie)
-    ax.set_xlabel(r'$X$', fontsize=18)
-    ax.set_ylabel(r'$Z$', fontsize=18)
+    ax.set_xlabel('x (km)', fontsize=18)
+    ax.set_yticks([])
 
     for ax, color, data, yname in zip(axes, colors, datas, ynames):
         ax.plot(x, data, color=color)
