@@ -11,12 +11,18 @@ import time
 # Registration of start time
 START_TIME = time.perf_counter()
 
+# Setting experiment directory
+datadir = sys.argv[1]
+if datadir[-1] != '/':
+    datadir = datadir+'/'
+print('Parameters directory is: ', datadir)
+
 # -----------------------------------------------------------------------------
 # Loading data from accu-prior.txt , density-prior.txt ... in "input_data" file
 # -----------------------------------------------------------------------------
 
-deut = np.loadtxt('input_data/deuterium.txt')
-density_readarray = np.loadtxt('input_data/density-prior.txt')
+deut = np.loadtxt(datadir+'deuterium.txt')
+density_readarray = np.loadtxt(datadir+'density-prior.txt')
 
 # x_s_geo = np.loadtxt('input_data/s_geodata.txt', usecols=(0,))
 # s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
@@ -35,7 +41,8 @@ beta = 0.015
 thickness = 3767.
 create_figs = True
 
-yamls = open('parameters.yml').read()
+# FIXME: put the YAML file into the experiment directory
+yamls = open(datadir+'parameters.yml').read()
 para = yaml.load(yamls, Loader=yaml.FullLoader)
 globals().update(para)
 
@@ -46,29 +53,31 @@ globals().update(para)
 # FIXME: use data directory as argument instead of fixed input_data directory
 
 # Steady accumulation
-x_a0, a0_measure = np.loadtxt('input_data/accumulation.txt', unpack=True)
+x_a0, a0_measure = np.loadtxt(datadir+'accumulation.txt', unpack=True)
 
 # Melting
-x_m, m_measure = np.loadtxt('input_data/melting.txt', unpack=True)
+x_m, m_measure = np.loadtxt(datadir+'melting.txt', unpack=True)
 
 # Sliding rate
-x_s, s_measure = np.loadtxt('input_data/sliding.txt', unpack=True)
+x_s, s_measure = np.loadtxt(datadir+'sliding.txt', unpack=True)
 
 # Lliboutry parameter
-x_p, p_measure = np.loadtxt('input_data/p_Lliboutry.txt', unpack=True)
+x_p, p_measure = np.loadtxt(datadir+'p_Lliboutry.txt', unpack=True)
 
 
 # Surface and Bedrock
-x_B, B_measure = np.loadtxt('input_data/bedrock.txt', unpack=True)
-x_Su, Su_measure = np.loadtxt('input_data/surface.txt', unpack=True)
+x_B, B_measure = np.loadtxt(datadir+'bedrock.txt', unpack=True)
+x_Su, Su_measure = np.loadtxt(datadir+'surface.txt', unpack=True)
 
 # Tube width
-x_Y, Y_measure = np.loadtxt('input_data/tube_width.txt', unpack=True)
+x_Y, Y_measure = np.loadtxt(datadir+'tube_width.txt', unpack=True)
 
 # --------------------
 # Interpolation
 # --------------------
 
+# FIXME: Use a parameter for the horizontal step
+# FIXME: Or even better, don't use any parameter and use natural samping
 x_fld = np.arange(x_right+1)
 
 a0_fld = np.interp(x_fld, x_a0, a0_measure)
