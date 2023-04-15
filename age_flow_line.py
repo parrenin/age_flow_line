@@ -562,7 +562,7 @@ if create_figs:
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$Y \ (m)$', fontsize=18)
     plt.grid()
-    plt.savefig('output_figures/Tube_width_theta_%d.pdf' % imax)
+    plt.savefig(datadir+'Tube_width_theta_%d.pdf' % imax)
 
     # ---------------------------------------------------
     # Figure 2: Accumulation
@@ -573,7 +573,7 @@ if create_figs:
     plt.legend([r'accumulation: a (m/year)'], loc='best')
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$a \ (m/year)$', fontsize=18)
-    plt.savefig('output_figures/Accumulation_theta_%d.pdf' % imax)
+    plt.savefig(datadir+'Accumulation_theta_%d.pdf' % imax)
     plt.grid()
 
     # ----------------------------------------
@@ -585,7 +585,7 @@ if create_figs:
     plt.legend([r'melting: m (m/year)'], loc='best')
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$m \ (m/year)$', fontsize=18)
-    plt.savefig('output_figures/Melting_theta_%d.pdf' % imax)
+    plt.savefig(datadir+'Melting_theta_%d.pdf' % imax)
     plt.grid()
 
     # ----------------------------------------------------------
@@ -598,7 +598,7 @@ if create_figs:
         plt.hlines(mat_theta[i, :], mat_pi[0, :], np.zeros((imax+1,)))
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$\theta$', fontsize=18)
-    plt.savefig('output_figures/Maillage_pi_theta_%d.pdf' % imax)
+    plt.savefig(datadir+'Maillage_pi_theta_%d.pdf' % imax)
 
     # ----------------------------------------------------------
     # Visualisation du maillage (x, z)
@@ -614,7 +614,7 @@ if create_figs:
     plt.vlines(x, z_ie_min, S_ie)
     plt.xlabel(r'$X$', fontsize=18)
     plt.ylabel(r'$Z$', fontsize=18)
-    plt.savefig('output_figures/Maillage_x_z_%d.pdf' % imax)
+    plt.savefig(datadir+'Maillage_x_z_%d.pdf' % imax)
 
     # -------------------------------------------------------------------------
     # Visualisation des paramètres de l'écoulement sur le maillage (pi,theta)
@@ -662,7 +662,7 @@ if create_figs:
         ax.plot(pi, data, color=color)
         ax.set_ylabel(yname, color=color)
         ax.tick_params(axis='y', colors=color)
-    plt.savefig('output_figures/flow_parameters_pi_theta_%d.pdf' % imax)
+    plt.savefig(datadir+'flow_parameters_pi_theta_%d.pdf' % imax)
 
     # -------------------------------------------------------------------------
     # Visualisation des paramètres de l'écoulement sur le maillage (x,z)
@@ -703,7 +703,7 @@ if create_figs:
         ax.plot(x, data, color=color)
         ax.set_ylabel(yname, color=color)
         ax.tick_params(axis='y', colors=color)
-    plt.savefig('output_figures/flow_parameters_x_z_%d.pdf' % imax)
+    plt.savefig(datadir+'flow_parameters_x_z_%d.pdf' % imax)
 
     # ----------------------------------------------------------
     # Visualisation des lignes isochrones en (x,z)
@@ -724,7 +724,7 @@ if create_figs:
     ax.plot(x, B, label='Bedrock', color='0')
     ax.grid()
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.savefig('output_figures/lignes_isochrones_x_z_%d.pdf' % imax)
+    plt.savefig(datadir+'lignes_isochrones_x_z_%d.pdf' % imax)
 
     # ---------------------------------------------------------------------
     # Lignes isochrones en (pi,theta)
@@ -741,7 +741,7 @@ if create_figs:
     ax.set_position([box.x0, box.y0, box.width*0.8, box.height])
     ax.grid()
     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.savefig('output_figures/lignes_isochrones_pi_theta_%d.pdf' % imax)
+    plt.savefig(datadir+'lignes_isochrones_pi_theta_%d.pdf' % imax)
 
     # ---------------------------------------------------------------------
     # Age-Profondeur dans le forage
@@ -752,7 +752,7 @@ if create_figs:
     plt.gca().invert_yaxis()
     plt.xlabel(r'$age\ (yr\ b \ 1997)$', fontsize=15)
     plt.ylabel(r'$depth \ (m)$', fontsize=15)
-    plt.savefig('output_figures/Age_depth_%d.pdf' % imax)
+    plt.savefig(datadir+'Age_depth_%d.pdf' % imax)
 
     # ---------------------------------------------------------------------
     # R(t) - Age
@@ -762,7 +762,7 @@ if create_figs:
     plt.plot(Age, R_t, '-')
     plt.xlabel(r'$time \ (yr\ b\ 1997 )$', fontsize=15)
     plt.ylabel(r'$R(t)$', fontsize=15)
-    plt.savefig('output_figures/R_t_age_%d.pdf' % imax)
+    plt.savefig(datadir+'R_t_age_%d.pdf' % imax)
 
     # ---------------------------------------------------------------------
     # Fonction d'amincissement
@@ -811,7 +811,7 @@ if create_figs:
     plt.gca().invert_yaxis()
     plt.xlabel(r'$ICE\ ORIGIN \ (km)$', fontsize=15)
     plt.ylabel(r'$DEPTH \ (m)$', fontsize=15)
-    plt.savefig('output_figures/ice_origin_%d.pdf' % imax)
+    plt.savefig(datadir+'ice_origin_%d.pdf' % imax)
 
     plt.show()
 
