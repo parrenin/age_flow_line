@@ -16,4 +16,4 @@ iso_spacing: 20000 #isochrone spacing in graphs
 
 max_depth: 3310. #Max depth in the drilling
 
-create_figs: False  #If we create figures or not.
+create_figs: True  #If we create figures or not.

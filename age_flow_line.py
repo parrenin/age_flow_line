@@ -44,34 +44,26 @@ globals().update(para)
 # -----------------------------------------------------
 
 # FIXME: use data directory as argument instead of fixed input_data directory
+
 # Steady accumulation
-x_a0 = np.loadtxt('input_data/a0_geodata.txt', usecols=(0,))
-a0_measure = np.loadtxt('input_data/a0_geodata.txt', usecols=(1,))
+x_a0, a0_measure = np.loadtxt('input_data/accumulation.txt', unpack=True)
 
 # Melting
-x_m = np.loadtxt('input_data/m_geodata.txt', usecols=(0,))
-m_measure = np.loadtxt('input_data/m_geodata.txt', usecols=(1,))
+x_m, m_measure = np.loadtxt('input_data/melting.txt', unpack=True)
 
 # Sliding rate
-x_s = np.loadtxt('input_data/s_geodata.txt', usecols=(0,))
-s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
+x_s, s_measure = np.loadtxt('input_data/sliding.txt', unpack=True)
 
 # Lliboutry parameter
-x_p = np.loadtxt('input_data/p_geodata.txt', usecols=(0,))
-p_measure = np.loadtxt('input_data/p_geodata.txt', usecols=(1,))
+x_p, p_measure = np.loadtxt('input_data/p_Lliboutry.txt', unpack=True)
 
 
 # Surface and Bedrock
-x_Salamatin = np.loadtxt('input_data/Geographic_data_from_Salamatin_et_al.txt',
-                         usecols=(1,))
-Su_measure = np.loadtxt('input_data/Geographic_data_from_Salamatin_et_al.txt',
-                        usecols=(2,))
-B_measure = np.loadtxt('input_data/Geographic_data_from_Salamatin_et_al.txt',
-                       usecols=(3,))
+x_B, B_measure = np.loadtxt('input_data/bedrock.txt', unpack=True)
+x_Su, Su_measure = np.loadtxt('input_data/surface.txt', unpack=True)
 
 # Tube width
-x_Y = np.loadtxt('input_data/Y_geodata.txt', usecols=(0,))
-Y_measure = np.loadtxt('input_data/Y_geodata.txt', usecols=(1,))
+x_Y, Y_measure = np.loadtxt('input_data/tube_width.txt', unpack=True)
 
 # --------------------
 # Interpolation
@@ -83,8 +75,8 @@ a0_fld = np.interp(x_fld, x_a0, a0_measure)
 m_fld = np.interp(x_fld, x_m, m_measure)
 s_fld = np.interp(x_fld, x_s, s_measure)
 p_fld = np.interp(x_fld, x_p, p_measure)
-Su_fld = np.interp(x_fld, x_Salamatin, Su_measure)
-B_fld = np.interp(x_fld, x_Salamatin, B_measure)
+Su_fld = np.interp(x_fld, x_Su, Su_measure)
+B_fld = np.interp(x_fld, x_B, B_measure)
 Y_fld = np.interp(x_fld, x_Y, Y_measure)
 
 # Calcul du flux total Q
