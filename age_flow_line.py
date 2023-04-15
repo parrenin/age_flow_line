@@ -613,13 +613,13 @@ if create_figs:
     # Visualisation des paramètres de l'écoulement sur le maillage (pi,theta)
     # -------------------------------------------------------------------------
 
-# FIXME: Put some axes on the left.
+# FIXME: Is this not a bit too complicated?
 
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
 
     # Twin the x-axis twice to make independent y-axes.
-    axes = [ax.twinx(), ax.twinx(), ax.twinx()]
+    axes = [ax.twinx(), ax.twinx()]
 
     # Make some space on the right side for the extra y-axis.
     fig.subplots_adjust(right=0.8)
@@ -629,8 +629,6 @@ if create_figs:
     axes[0].spines['right'].set_color('Green')
     axes[1].spines['right'].set_position(('axes', 1.09))
     axes[1].spines['right'].set_color('Red')
-    axes[2].spines['right'].set_position(('axes', 1.18))
-    axes[2].spines['right'].set_color('Blue')
 
     # To make the border of the right-most axis visible, we need to turn the
     # frame on.
@@ -639,16 +637,15 @@ if create_figs:
     axes[0].patch.set_visible(False)
     axes[1].set_frame_on(True)
     axes[1].patch.set_visible(False)
-    axes[2].set_frame_on(True)
-    axes[2].patch.set_visible(False)
 
     # And finally we get to plot ...
-    colors = ('Green', 'Red', 'Blue')
-    datas = [Y[1:], a[1:], m[1:]]
-    ynames = ['Y (m)', 'a (m/year)', 'm (m/year)']
-    ax.set_xlim(np.amin(theta_min), np.amax(theta_max))
+    colors = ('Green', 'Red')
+    datas = [a[1:], m[1:]]
+    ynames = ['a (m/yr)', 'm (m/yr)']
     ax.set_xlabel(r'$\pi$', fontsize=18)
-    ax.set_yticks([])
+    ax.set_ylabel('Y (relative unit)')
+    ax.plot(pi, Y[1:], color='k')
+
     for ax, color, data, yname in zip(axes, colors, datas, ynames):
         ax.plot(pi, data, color=color)
         ax.set_ylabel(yname, color=color)
@@ -659,22 +656,19 @@ if create_figs:
     # Visualisation des paramètres de l'écoulement sur le maillage (x,z)
     # -------------------------------------------------------------------------
 
-# FIXME: idem here, put some axes on the left.
+# FIXME: idem here, this is a bit complicated.
 
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
     fig.subplots_adjust(right=0.8)
 
-    datas = [Y, a, m]
-    axes = [ax.twinx(), ax.twinx(), ax.twinx()]
+    axes = [ax.twinx(), ax.twinx()]
 
     # Move the last y-axis spine over to the right by 20% of the width
     axes[0].spines['right'].set_position(('axes', 1.01))
     axes[0].spines['right'].set_color('Green')
-    axes[1].spines['right'].set_position(('axes', 1.08))
+    axes[1].spines['right'].set_position(('axes', 1.09))
     axes[1].spines['right'].set_color('Red')
-    axes[2].spines['right'].set_position(('axes', 1.2))
-    axes[2].spines['right'].set_color('Blue')
 
     # To make the border of the right-most axis visible, we need to turn the
     # frame on.
@@ -683,11 +677,12 @@ if create_figs:
     axes[0].patch.set_visible(False)
     axes[1].set_frame_on(True)
     axes[1].patch.set_visible(False)
-    axes[2].set_frame_on(True)
-    axes[2].patch.set_visible(False)
 
+    colors = ('Green', 'Red')
+    datas = [a, m]
     ax.set_xlabel('x (km)', fontsize=18)
-    ax.set_yticks([])
+    ax.set_ylabel('Y (relative unit)')
+    ax.plot(x, Y, color='k')
 
     for ax, color, data, yname in zip(axes, colors, datas, ynames):
         ax.plot(x, data, color=color)
