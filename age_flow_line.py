@@ -560,6 +560,8 @@ mat_x_iso = np.tile(x, (len(Age_iso), 1))
 
 
 if create_figs:
+    
+    # FIXME: add option to choose figures format (pdf, svg, etc.)
 
     # ----------------------------------------
     # Figure 1: Tube width Y
@@ -710,15 +712,17 @@ if create_figs:
     # Display of age and isochrones in (x,z)
     # ----------------------------------------------------------
 
-    fig = plt.figure(8, figsize=(12, 6))
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots(figsize=(12, 6))
+#    ax = fig.add_subplot(111)
 
-    ax.plot(x, S, label='Surface', color='0')
-    ax.plot(x, B, label='Bedrock', color='0')
+    plt.plot(x, S, label='Surface', color='0')
+    plt.plot(x, B, label='Bedrock', color='0')
+
+    # FIXME: Could we plot refrozen ice here?
 
     for i in range(len(Age_iso)):
-        ax.plot(mat_x_iso[i, :], mat_z_iso[i, :], label=str(Age_iso[i])+' yr',
-                color='w')
+        plt.plot(mat_x_iso[i, :], mat_z_iso[i, :], label=str(Age_iso[i])+' yr',
+                 color='w')
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
     cp = plt.contourf(mat_x, mat_z, mat_Age/1000., levels=levels,
@@ -726,31 +730,44 @@ if create_figs:
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
-    cb.set_label('Modeled steady age (kyr)')
+    cb.set_label('Modeled age (kyr)')
     ax.set_xlabel(r'$x$', fontsize=19)
     ax.set_ylabel(r'$z$', fontsize=19)
-    box = ax.get_position()
+#    box = ax.get_position()
 #    ax.set_position([box.x0, box.y0, box.width, box.height])
     ax.grid()
 #    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.savefig(datadir+'age_x_z.pdf')
 
     # ---------------------------------------------------------------------
-    # Lignes isochrones en (pi,theta)
+    # Display of age and isochrones in (pi,theta)
     # ---------------------------------------------------------------------
 
-    fig = plt.figure(9, figsize=(12, 6))
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots(figsize=(12, 6))
+#    ax = fig.add_subplot(111)
+
+    plt.plot(pi, np.zeros_like(S[1:]), label='Surface', color='0')
+    plt.plot(pi, theta_min, label='Bedrock', color='0')
+
+    # FIXME: Could we plot refrozen ice here?
     for i in range(len(Age_iso)):
-        ax.plot(pi, mat_theta_iso[i, 1:], marker='.',
-                label=str(Age_iso[i])+' year', color=plt.cm.cool(30*i))
+        plt.plot(pi, mat_theta_iso[i, 1:],
+                 label=str(Age_iso[i])+' year', color='w')
+    levels = np.arange(0, fig_age_max, fig_age_spacing)
+    levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
+    cp = plt.contourf(mat_pi, mat_theta, mat_Age[:, 1:]/1000., levels=levels,
+                      cmap='jet')
+    cb = plt.colorbar(cp)
+    cb.set_ticks(levels_cb)
+    cb.set_ticklabels(levels_cb)
+    cb.set_label('Modeled age (kyr)')
     ax.set_xlabel(r'$\pi$', fontsize=19)
     ax.set_ylabel(r'$\theta$', fontsize=19)
-    box = ax.get_position()
-    ax.set_position([box.x0, box.y0, box.width*0.8, box.height])
+#    box = ax.get_position()
+#    ax.set_position([box.x0, box.y0, box.width, box.height])
     ax.grid()
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.savefig(datadir+'isochrones_pi_theta.pdf')
+#    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.savefig(datadir+'age_pi_theta.pdf')
 
     # ---------------------------------------------------------------------
     # Age-Profondeur dans le forage
@@ -758,7 +775,7 @@ if create_figs:
 
 # FIXME: we could have several drillings along the flow lines
 
-    plt.figure(10)
+    fig, ax = plt.subplots()
     plt.plot(Age, depth_corrected, '-')
     plt.gca().invert_yaxis()
     plt.xlabel(r'$age\ (yr\ b \ 1997)$', fontsize=15)
@@ -769,7 +786,7 @@ if create_figs:
     # R(t) - Age
     # ---------------------------------------------------------------------
 
-    plt.figure(11)
+    fig, ax = plt.subplots()
     plt.plot(Age, R_t, '-')
     plt.xlabel(r'$time \ (yr\ b\ 1997 )$', fontsize=15)
     plt.ylabel(r'$R(t)$', fontsize=15)
@@ -779,7 +796,7 @@ if create_figs:
     # Fonction d'amincissement
     # ---------------------------------------------------------------------
 
-    plt.figure(12, figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(12, 8))
 
     plt.plot(tau_ie_middle, depth_corrected[:-1], ls='-',
              label=r'$ordre\ 1 - lin\'eaire$')
@@ -800,7 +817,7 @@ if create_figs:
 
 # FIXME: For more than 100 lines, it becomes impossible to see.
 
-    plt.figure(13, figsize=(15, 7))
+    fig, ax = plt.subplots(figsize=(15, 7))
     plt.plot(x, S, label='Surface', color='0')
     for i in range(2, imax+1):  # add a step to plot less trajecories
         plt.plot(x[i:,], np.diagonal(mat_z, i), color='blue')
@@ -821,7 +838,7 @@ if create_figs:
     # Ice Origin
     # ----------------------------------------------------------
 
-    plt.figure(14)
+    fig, ax = plt.subplots()
     plt.plot(mat_x0[:, imax+1], mat_depth[:, imax+1], ls='-', marker='.')
     plt.gca().invert_yaxis()
     plt.xlabel(r'$ICE\ ORIGIN \ (km)$', fontsize=15)
