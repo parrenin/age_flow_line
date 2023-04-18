@@ -39,12 +39,13 @@ delta = 0.08
 x_right = 370
 iso_spacing = 20000.
 iso_max = 1000000.
-beta = 0.015
-thickness = 3767.
-create_figs = True
 fig_age_max = 1000000
 fig_age_spacing = 10000
 fig_age_spacing_labels = 100000
+beta = 0.015
+thickness = 3767.
+create_figs = True
+fig_format = 'pdf'
 
 yamls = open(datadir+'parameters.yml').read()
 para = yaml.load(yamls, Loader=yaml.FullLoader)
@@ -560,21 +561,22 @@ mat_x_iso = np.tile(x, (len(Age_iso), 1))
 
 
 if create_figs:
-    
+
     # FIXME: add option to choose figures format (pdf, svg, etc.)
 
     # ----------------------------------------------------------
     # Visualisation maillage (pi,theta)
     # ----------------------------------------------------------
 
-    plt.figure(4)
+    fig, ax = plt.subplots()
     plt.vlines(pi, theta_min, theta_max, color='k', linewidths=0.1)
     for i in range(0, imax+1):
         plt.hlines(mat_theta[i, :], mat_pi[0, :], np.zeros((imax+1,)),
                    color='k', linewidths=0.1)
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$\theta$', fontsize=18)
-    plt.savefig(datadir+'mesh_pi_theta.pdf')
+    plt.savefig(datadir+'mesh_pi_theta.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
     # Visualisation du maillage (x, z)
@@ -584,19 +586,22 @@ if create_figs:
     for i in range(imax+2):
         z_ie_min[i] = np.asarray(np.amin(z_ie[:, i][~np.isnan(z_ie[:, i])]))
 
-    plt.figure(5, figsize=(15, 5))
+    fig, ax = plt.subplots(figsize=(15, 5))
     for i in range(0, imax+1):
         plt.plot(x[:], z_ie[i, :],  ls='-', color='k', linewidth=0.1)
     plt.vlines(x, z_ie_min, S_ie, color='k', linewidths=0.1)
     plt.xlabel(r'$X$', fontsize=18)
     plt.ylabel(r'$Z$', fontsize=18)
-    plt.savefig(datadir+'mesh_x_z.pdf')
+    plt.savefig(datadir+'mesh_x_z.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     # -------------------------------------------------------------------------
     # Visualisation des paramètres de l'écoulement sur le maillage (pi,theta)
     # -------------------------------------------------------------------------
 
 # FIXME: Is this not a bit too complicated?
+# FIXME: Why not call this figure 'boundary conditions'?
+# And I could make a graph with \omega to deal with s and p
 
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
@@ -633,7 +638,8 @@ if create_figs:
         ax.plot(pi, data, color=color)
         ax.set_ylabel(yname, color=color)
         ax.tick_params(axis='y', colors=color)
-    plt.savefig(datadir+'flow_parameters_pi_theta.pdf')
+    plt.savefig(datadir+'flow_parameters_pi_theta.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     # -------------------------------------------------------------------------
     # Visualisation des paramètres de l'écoulement sur le maillage (x,z)
@@ -671,7 +677,8 @@ if create_figs:
         ax.plot(x, data, color=color)
         ax.set_ylabel(yname, color=color)
         ax.tick_params(axis='y', colors=color)
-    plt.savefig(datadir+'flow_parameters_x_z.pdf')
+    plt.savefig(datadir+'flow_parameters_x_z.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
     # Display of age and isochrones in (x,z)
@@ -702,7 +709,8 @@ if create_figs:
 #    ax.set_position([box.x0, box.y0, box.width, box.height])
     ax.grid()
 #    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.savefig(datadir+'age_x_z.pdf')
+    plt.savefig(datadir+'age_x_z.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     # ---------------------------------------------------------------------
     # Display of age and isochrones in (pi,theta)
@@ -732,7 +740,8 @@ if create_figs:
 #    ax.set_position([box.x0, box.y0, box.width, box.height])
     ax.grid()
 #    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.savefig(datadir+'age_pi_theta.pdf')
+    plt.savefig(datadir+'age_pi_theta.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     # ---------------------------------------------------------------------
     # Age-Profondeur dans le forage
@@ -745,7 +754,8 @@ if create_figs:
     plt.gca().invert_yaxis()
     plt.xlabel(r'$age\ (yr\ b \ 1997)$', fontsize=15)
     plt.ylabel(r'$depth \ (m)$', fontsize=15)
-    plt.savefig(datadir+'age_depth.pdf')
+    plt.savefig(datadir+'age_depth.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     # ---------------------------------------------------------------------
     # R(t) - Age
@@ -755,7 +765,8 @@ if create_figs:
     plt.plot(Age, R_t, '-')
     plt.xlabel(r'$time \ (yr\ b\ 1997 )$', fontsize=15)
     plt.ylabel(r'$R(t)$', fontsize=15)
-    plt.savefig(datadir+'R_temporal_factor.pdf')
+    plt.savefig(datadir+'R_temporal_factor.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     # ---------------------------------------------------------------------
     # Fonction d'amincissement
@@ -774,7 +785,8 @@ if create_figs:
     plt.ylabel(r'$depth \ (m)$', fontsize=18)
     plt.legend(loc='upper left')
     plt.grid()
-    plt.savefig(datadir+'thinning_profile.pdf')
+    plt.savefig(datadir+'thinning_profile.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
     # Visualisation des lignes de courant
@@ -797,7 +809,8 @@ if create_figs:
     plt.xlabel(r'$X$', fontsize=19)
     plt.ylabel(r'$Z$', fontsize=19)
     plt.grid()
-    plt.savefig(datadir+'stream_lines.pdf')
+    plt.savefig(datadir+'stream_lines.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
     # Ice Origin
@@ -808,7 +821,8 @@ if create_figs:
     plt.gca().invert_yaxis()
     plt.xlabel(r'$ICE\ ORIGIN \ (km)$', fontsize=15)
     plt.ylabel(r'$DEPTH \ (m)$', fontsize=15)
-    plt.savefig(datadir+'ice_origin.pdf')
+    plt.savefig(datadir+'ice_origin.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     plt.show()
 
