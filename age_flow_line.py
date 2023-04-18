@@ -39,6 +39,7 @@ delta = 0.08
 x_right = 370
 iso_spacing = 20000.
 iso_max = 1000000.
+traj_step = 10
 fig_age_max = 1000000
 fig_age_spacing = 10000
 fig_age_spacing_labels = 100000
@@ -792,16 +793,14 @@ if create_figs:
     # Visualisation des lignes de courant
     # ----------------------------------------------------------
 
-# FIXME: For more than 100 lines, it becomes impossible to see.
-
     fig, ax = plt.subplots(figsize=(15, 7))
-    # FIXME: We don't exactly go down to the bedrock it seems
-    for i in range(2, imax+1):  # add a step to plot less trajecories
-        plt.plot(x[i:,], np.diagonal(mat_z, i), color='blue', linewidth=0.1)
-        # FIXME: it seems we don't go up to the dome border here:
-        plt.plot(x[2:-i+1,], np.diagonal(mat_z, -i+2)[2:], color='blue',
+    # We don't exactly go down to the bedrock here but this is normal
+    for i in range(0, imax+1, traj_step):
+        plt.plot(x[i+1:,], np.diagonal(mat_z[:, 1:], i), color='blue',
                  linewidth=0.1)
-    plt.plot(x[2:,], np.diagonal(mat_z, 1)[1:], color='blue', linewidth=0.1)
+    for i in range(traj_step, imax+1, traj_step):
+        plt.plot(x[1:-i,], np.diagonal(mat_z[:, 1:], -i), color='blue',
+                 linewidth=0.1)
     plt.vlines(x[0], B[0], S[0], color='blue')  # ice divide
     plt.vlines(x[1], B[1], S[1], color='blue')  # vertical flow
     plt.plot(x, S, label='Surface', color='0')
