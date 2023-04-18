@@ -42,6 +42,9 @@ iso_max = 1000000.
 beta = 0.015
 thickness = 3767.
 create_figs = True
+fig_age_max = 1000000
+fig_age_spacing = 10000
+fig_age_spacing_labels = 100000
 
 yamls = open(datadir+'parameters.yml').read()
 para = yaml.load(yamls, Loader=yaml.FullLoader)
@@ -716,8 +719,8 @@ if create_figs:
     for i in range(len(Age_iso)):
         ax.plot(mat_x_iso[i, :], mat_z_iso[i, :], label=str(Age_iso[i])+' yr',
                 color='w')
-    levels = np.arange(0, 1000, 10)
-    levels_cb = np.arange(0, 1000, 100)
+    levels = np.arange(0, fig_age_max, fig_age_spacing)
+    levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
     cp = plt.contourf(mat_x, mat_z, mat_Age/1000., levels=levels,
                       cmap='jet')
     cb = plt.colorbar(cp)
