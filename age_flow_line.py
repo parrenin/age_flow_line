@@ -38,6 +38,7 @@ imax = 100
 delta = 0.08
 x_right = 370
 iso_spacing = 20000.
+iso_max = 1000000.
 beta = 0.015
 thickness = 3767.
 create_figs = True
@@ -525,7 +526,7 @@ mat_z = S - mat_depth
 #  Calcul matrice Age : mat_Age
 # ----------------------------------------------------------
 
-mat_Age = np.interp(mat_steady_age, np.append(steady_age, 100*steady_age[1]),
+mat_Age = np.interp(mat_steady_age, np.append(steady_age, 100*steady_age[-1]),
                     np.append(Age, 100*Age[-1]))
 
 # ----------------------------------------------------------
@@ -533,10 +534,10 @@ mat_Age = np.interp(mat_steady_age, np.append(steady_age, 100*steady_age[1]),
 # ----------------------------------------------------------
 
 # Lignes isochrones avec un pas constant
-Age_iso = np.arange(iso_spacing, np.amax(Age), iso_spacing)
+Age_iso = np.arange(iso_spacing, iso_max+1., iso_spacing)
 
 steady_age_iso = np.interp(Age_iso, np.append(Age, 100*Age[-1]),
-                           np.append(steady_age, 100*steady_age[1]))
+                           np.append(steady_age, 100*steady_age[-1]))
 
 print('Before mat_theta_iso')
 mat_theta_iso = np.zeros((len(Age_iso), imax+2))
@@ -703,25 +704,33 @@ if create_figs:
     plt.savefig(datadir+'flow_parameters_x_z.pdf')
 
     # ----------------------------------------------------------
-    # Visualisation des lignes isochrones en (x,z)
+    # Display of age and isochrones in (x,z)
     # ----------------------------------------------------------
 
     fig = plt.figure(8, figsize=(12, 6))
     ax = fig.add_subplot(111)
 
     ax.plot(x, S, label='Surface', color='0')
+    ax.plot(x, B, label='Bedrock', color='0')
 
     for i in range(len(Age_iso)):
         ax.plot(mat_x_iso[i, :], mat_z_iso[i, :], label=str(Age_iso[i])+' yr',
-                color=plt.cm.cool(20*i))
+                color='w')
+    levels = np.arange(0, 1000, 10)
+    levels_cb = np.arange(0, 1000, 100)
+    cp = plt.contourf(mat_x, mat_z, mat_Age/1000., levels=levels,
+                      cmap='jet')
+    cb = plt.colorbar(cp)
+    cb.set_ticks(levels_cb)
+    cb.set_ticklabels(levels_cb)
+    cb.set_label('Modeled steady age (kyr)')
     ax.set_xlabel(r'$x$', fontsize=19)
     ax.set_ylabel(r'$z$', fontsize=19)
     box = ax.get_position()
-    ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-    ax.plot(x, B, label='Bedrock', color='0')
+#    ax.set_position([box.x0, box.y0, box.width, box.height])
     ax.grid()
-    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
-    plt.savefig(datadir+'isochrones_x_z.pdf')
+#    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.savefig(datadir+'age_x_z.pdf')
 
     # ---------------------------------------------------------------------
     # Lignes isochrones en (pi,theta)

@@ -12,7 +12,8 @@ thickness: 3767
 
 x_right: 370 #Horizontal coordinate of right border, in km
 
-iso_spacing: 20000 #isochrone spacing in graphs
+iso_spacing: 100000 #isochrone spacing in graphs
+iso_max: 600000  #max age of isochrones
 
 max_depth: 3310. #Max depth in the drilling
 
