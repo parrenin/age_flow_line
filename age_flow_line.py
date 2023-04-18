@@ -179,8 +179,8 @@ Qm = np.interp(Q, Q_fld, Qm_fld)
 Y = np.interp(x, x_fld, Y_fld)
 S = np.interp(x, x_fld, Su_fld)
 B = np.interp(x, x_fld, B_fld)
-s = np.interp(x[1:], x_fld, s_fld)
-p = np.interp(x[1:], x_fld, p_fld)
+s = np.interp(x, x_fld, s_fld)
+p = np.interp(x, x_fld, p_fld)
 
 B[0] = B[1]  # Altitude du socle constante au niveau du dôme
 S[0] = S[1]  # Altitude de la surface constante au niveau du dôme
@@ -248,10 +248,13 @@ print('After defining grid boolean')
 # Matrice omega : mat_omega
 # -------------------------------------------------------
 
-mat_omega = np.where(grid[:, 1:] == 1,
-                     (np.dot(OMEGA.reshape(imax+1, 1),
+mat_omega = np.zeros((imax+1, imax+2))
+
+mat_omega[:, 1:] = np.where(grid[:, 1:] == 1,
+                            (np.dot(OMEGA.reshape(imax+1, 1),
                              Q[1:].reshape(1, imax+1))-Qm[1:])/(Q[1:]-Qm[1:]),
-                     np.nan)
+                            np.nan)
+mat_omega[:, 0] = mat_omega[:, 1]
 
 # -------------------------------------------------------
 # Matrix z_ie
@@ -260,10 +263,11 @@ mat_omega = np.where(grid[:, 1:] == 1,
 z_ie = np.zeros((imax+1, imax+2))
 
 print('Before defining z_ie')
-for j in range(0, imax+1):
-    inter = np.interp(-mat_omega[:, j], -omega[:, j].flatten(), zeta.flatten())
-    z_ie[:, j+1] = np.where(grid[:, j+1] == 1, B[j+1]+inter*(S_ie[j+1]-B[j+1]),
-                            np.nan)
+for j in range(1, imax+2):
+    inter = np.interp(-mat_omega[:, j], -omega[:, j].flatten(),
+                      zeta.flatten())
+    z_ie[:, j] = np.where(grid[:, j] == 1, B[j]+inter*(S_ie[j]-B[j]),
+                          np.nan)
 z_ie[:, 0] = z_ie[:, 1]
 print('After defining z_ie')
 
@@ -682,7 +686,7 @@ if create_figs:
     levels = np.arange(0, 1.01, 0.01)
     levels_cb = np.arange(0, 1.1, 0.1)
     # FIXME: mat_omega does not go to the dome
-    cp = plt.contourf(mat_x[:, 1:], mat_z[:, 1:], mat_omega, levels=levels,
+    cp = plt.contourf(mat_x, mat_z, mat_omega, levels=levels,
                       cmap='jet')
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
