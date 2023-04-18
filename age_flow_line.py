@@ -672,6 +672,28 @@ if create_figs:
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
+    # Display of iso-omega lines
+    # ----------------------------------------------------------
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    for i in range(0, imax+1):
+        # FIXME: This is iso-Omega, not iso-omega lines.
+        plt.plot(x[:], z_ie[i, :],  ls='-', color='k', linewidth=0.1)
+    levels = np.arange(0, 1.01, 0.01)
+    levels_cb = np.arange(0, 1.1, 0.1)
+    # FIXME: mat_omega does not go to the dome
+    cp = plt.contourf(mat_x[:, 1:], mat_z[:, 1:], mat_omega, levels=levels,
+                      cmap='jet')
+    cb = plt.colorbar(cp)
+    cb.set_ticks(levels_cb)
+    cb.set_ticklabels(levels_cb)
+    cb.set_label('Modeled age (kyr)')
+    # ax.xlabel(r'$X$', fontsize=18)
+    # ax.ylabel(r'$Z$', fontsize=18)
+    plt.savefig(datadir+'iso-omega_lines.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+
+    # ----------------------------------------------------------
     # Display of age and isochrones in (x,z)
     # ----------------------------------------------------------
 
