@@ -563,10 +563,8 @@ mat_x_iso = np.tile(x, (len(Age_iso), 1))
 
 if create_figs:
 
-    # FIXME: add option to choose figures format (pdf, svg, etc.)
-
     # ----------------------------------------------------------
-    # Visualisation maillage (pi,theta)
+    # Display of (pi,theta) mesh
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots()
@@ -580,7 +578,7 @@ if create_figs:
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
-    # Visualisation du maillage (x, z)
+    # Display of (x, z) mesh
     # ----------------------------------------------------------
 
     z_ie_min = np.zeros((imax+2))
@@ -597,17 +595,16 @@ if create_figs:
                 format=fig_format, bbox_inches='tight')
 
     # -------------------------------------------------------------------------
-    # Visualisation des paramètres de l'écoulement sur le maillage (pi,theta)
+    # Boundary conditions of the flow in (pi,theta)
     # -------------------------------------------------------------------------
 
 # FIXME: Is this not a bit too complicated?
-# FIXME: Why not call this figure 'boundary conditions'?
 # And I could make a graph with \omega to deal with s and p
 
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
 
-    # Twin the x-axis twice to make independent y-axes.
+    # Twin the x-axis to make independent y-axes.
     axes = [ax.twinx(), ax.twinx()]
 
     # Make some space on the right side for the extra y-axis.
@@ -619,9 +616,6 @@ if create_figs:
     axes[1].spines['right'].set_position(('axes', 1.09))
     axes[1].spines['right'].set_color('Red')
 
-    # To make the border of the right-most axis visible, we need to turn the
-    # frame on.
-    # This hides the other plots, however, so we need to turn its fill off.
     axes[0].set_frame_on(True)
     axes[0].patch.set_visible(False)
     axes[1].set_frame_on(True)
@@ -639,11 +633,11 @@ if create_figs:
         ax.plot(pi, data, color=color)
         ax.set_ylabel(yname, color=color)
         ax.tick_params(axis='y', colors=color)
-    plt.savefig(datadir+'flow_parameters_pi_theta.'+fig_format,
+    plt.savefig(datadir+'boundary_conditions_pi_theta.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # -------------------------------------------------------------------------
-    # Visualisation des paramètres de l'écoulement sur le maillage (x,z)
+    # Boundary conditions of the flow in (x,z)
     # -------------------------------------------------------------------------
 
 # FIXME: idem here, this is a bit complicated.
@@ -654,15 +648,11 @@ if create_figs:
 
     axes = [ax.twinx(), ax.twinx()]
 
-    # Move the last y-axis spine over to the right by 20% of the width
     axes[0].spines['right'].set_position(('axes', 1.01))
     axes[0].spines['right'].set_color('Green')
     axes[1].spines['right'].set_position(('axes', 1.09))
     axes[1].spines['right'].set_color('Red')
 
-    # To make the border of the right-most axis visible, we need to turn the
-    # frame on.
-    # This hides the other plots, however, so we need to turn its fill off.
     axes[0].set_frame_on(True)
     axes[0].patch.set_visible(False)
     axes[1].set_frame_on(True)
@@ -678,7 +668,7 @@ if create_figs:
         ax.plot(x, data, color=color)
         ax.set_ylabel(yname, color=color)
         ax.tick_params(axis='y', colors=color)
-    plt.savefig(datadir+'flow_parameters_x_z.'+fig_format,
+    plt.savefig(datadir+'boundary_conditions_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
@@ -745,7 +735,7 @@ if create_figs:
                 format=fig_format, bbox_inches='tight')
 
     # ---------------------------------------------------------------------
-    # Age-Profondeur dans le forage
+    # Age-depth in the drilling
     # ---------------------------------------------------------------------
 
 # FIXME: we could have several drillings along the flow lines
@@ -770,7 +760,7 @@ if create_figs:
                 format=fig_format, bbox_inches='tight')
 
     # ---------------------------------------------------------------------
-    # Fonction d'amincissement
+    # Thinning function
     # ---------------------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(12, 8))
@@ -790,7 +780,7 @@ if create_figs:
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
-    # Visualisation des lignes de courant
+    # Display of stream lines
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(15, 7))
