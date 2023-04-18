@@ -563,50 +563,15 @@ if create_figs:
     
     # FIXME: add option to choose figures format (pdf, svg, etc.)
 
-    # ----------------------------------------
-    # Figure 1: Tube width Y
-    # ----------------------------------------
-
-    plt.figure(1)
-    plt.plot(pi, Y[1:], '-')
-    plt.legend([r'Tube width: Y (m)'], loc='best')
-    plt.xlabel(r'$\pi$', fontsize=18)
-    plt.ylabel(r'$Y \ (m)$', fontsize=18)
-    plt.grid()
-    plt.savefig(datadir+'tube_width_theta.pdf')
-
-    # ---------------------------------------------------
-    # Figure 2: Accumulation
-    # ---------------------------------------------------
-
-    plt.figure(2)
-    plt.plot(pi, a[1:], '-')
-    plt.legend([r'accumulation: a (m/year)'], loc='best')
-    plt.xlabel(r'$\pi$', fontsize=18)
-    plt.ylabel(r'$a \ (m/year)$', fontsize=18)
-    plt.savefig(datadir+'accumulation_theta.pdf')
-    plt.grid()
-
-    # ----------------------------------------
-    # Figure 3: Melting rate
-    # ----------------------------------------
-
-    plt.figure(3)
-    plt.plot(pi, m[1:], '-')
-    plt.legend([r'melting: m (m/year)'], loc='best')
-    plt.xlabel(r'$\pi$', fontsize=18)
-    plt.ylabel(r'$m \ (m/year)$', fontsize=18)
-    plt.savefig(datadir+'melting_theta.pdf')
-    plt.grid()
-
     # ----------------------------------------------------------
     # Visualisation maillage (pi,theta)
     # ----------------------------------------------------------
 
     plt.figure(4)
-    plt.vlines(pi, theta_min, theta_max)
+    plt.vlines(pi, theta_min, theta_max, color='k', linewidths=0.1)
     for i in range(0, imax+1):
-        plt.hlines(mat_theta[i, :], mat_pi[0, :], np.zeros((imax+1,)))
+        plt.hlines(mat_theta[i, :], mat_pi[0, :], np.zeros((imax+1,)),
+                   color='k', linewidths=0.1)
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$\theta$', fontsize=18)
     plt.savefig(datadir+'mesh_pi_theta.pdf')
@@ -621,8 +586,8 @@ if create_figs:
 
     plt.figure(5, figsize=(15, 5))
     for i in range(0, imax+1):
-        plt.plot(x[:], z_ie[i, :],  ls='-', marker='.', color='black')
-    plt.vlines(x, z_ie_min, S_ie)
+        plt.plot(x[:], z_ie[i, :],  ls='-', color='k', linewidth=0.1)
+    plt.vlines(x, z_ie_min, S_ie, color='k', linewidths=0.1)
     plt.xlabel(r'$X$', fontsize=18)
     plt.ylabel(r'$Z$', fontsize=18)
     plt.savefig(datadir+'mesh_x_z.pdf')
