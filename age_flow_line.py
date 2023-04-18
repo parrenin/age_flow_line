@@ -680,18 +680,19 @@ if create_figs:
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(12, 6))
-    for i in range(0, imax+1):
-        # FIXME: This is iso-Omega, not iso-omega lines.
-        plt.plot(x[:], z_ie[i, :],  ls='-', color='k', linewidth=0.1)
+    plt.plot(x, S, label='Surface', color='0')
+    plt.plot(x, B, label='Bedrock', color='0')
     levels = np.arange(0, 1.01, 0.01)
-    levels_cb = np.arange(0, 1.1, 0.1)
-    # FIXME: mat_omega does not go to the dome
+    levels_cb = np.arange(0, 11, 1)/10.
+    # FIXME: mat_omega is not displayed on the accretion ice.
     cp = plt.contourf(mat_x, mat_z, mat_omega, levels=levels,
                       cmap='jet')
+    cp2 = plt.contour(mat_x, mat_z, mat_omega, levels=levels_cb,
+                      colors='k')
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
-    cb.set_label('Modeled age (kyr)')
+    cb.set_label(r'$\omega$')
     # ax.xlabel(r'$X$', fontsize=18)
     # ax.ylabel(r'$Z$', fontsize=18)
     plt.savefig(datadir+'iso-omega_lines.'+fig_format,
