@@ -795,15 +795,18 @@ if create_figs:
 # FIXME: For more than 100 lines, it becomes impossible to see.
 
     fig, ax = plt.subplots(figsize=(15, 7))
-    plt.plot(x, S, label='Surface', color='0')
+    # FIXME: We don't exactly go down to the bedrock it seems
     for i in range(2, imax+1):  # add a step to plot less trajecories
-        plt.plot(x[i:,], np.diagonal(mat_z, i), color='blue')
-        plt.plot(x[2:-i+1,], np.diagonal(mat_z, -i+2)[2:], color='blue')
-    plt.plot(x[2:,], np.diagonal(mat_z, 1)[1:], color='blue')
+        plt.plot(x[i:,], np.diagonal(mat_z, i), color='blue', linewidth=0.1)
+        # FIXME: it seems we don't go up to the dome border here:
+        plt.plot(x[2:-i+1,], np.diagonal(mat_z, -i+2)[2:], color='blue',
+                 linewidth=0.1)
+    plt.plot(x[2:,], np.diagonal(mat_z, 1)[1:], color='blue', linewidth=0.1)
     plt.vlines(x[0], B[0], S[0], color='blue')  # ice divide
     plt.vlines(x[1], B[1], S[1], color='blue')  # vertical flow
-    plt.plot(0, 0, label="Trajectoires", color='blue')
-    plt.plot(x, B, label='Socle', color='0')
+    plt.plot(x, S, label='Surface', color='0')
+    plt.plot(0, 0, label="Trajectories", color='blue')
+    plt.plot(x, B, label='Bedrock', color='0')
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.xlim([-5, x[imax+1] + 5])
     plt.xlabel(r'$X$', fontsize=19)
