@@ -502,47 +502,46 @@ tau_middle = 1./steady_a0[:-1] / (steady_age[1:] - steady_age[:-1])
 #  Computation of tau_ie_middle for the ice core
 # ----------------------------------------------------------
 
+# FIXME: check what is the most natural approach for thining
+
 tau_ie_middle = (ie_depth[1:] - ie_depth[:-1]) / steady_a0[:-1] / \
                 (steady_age[1:] - steady_age[:-1])
 
-# Tau_ie avec l'interpolation "cubique-spline naturel" de l'âge stationnaire
+# Tau_ie with "natural cubic spline"
 
 tau_ie_middle_sp = (ie_depth[1:] - ie_depth[:-1]) / steady_a0[:-1] / \
                    (steady_age_sp[1:] - steady_age_sp[:-1])
 
-# Tau_ie avec l'interpolation "cubique-spline- dérivée imposée"
-# de l'âge stationnaire
+# Tau_ie with "cubic-spline - imposed derivative"
 
 tau_ie_middle_sp_2 = (ie_depth[1:] - ie_depth[:-1]) / steady_a0[:-1] / \
                      (steady_age_sp_2[1:] - steady_age_sp_2[:-1])
 
 # ----------------------------------------------------------
-#  Calcul matrice depth: mat_depth
+#  Computation of depth matrix: mat_depth
 # ----------------------------------------------------------
 
 mat_depth = np.interp(mat_depth_ie, np.append(ie_depth, ie_depth[-1]+10000.),
                       np.append(depth_corrected, depth_corrected[-1]+10000.))
 
-# "x_new" out of range --> linear extrapolation
-
 # ----------------------------------------------------------
-#  Calcul matrice z : mat_z
+#  Computation of z matrix: mat_z
 # ----------------------------------------------------------
 
 mat_z = S - mat_depth
 
 # ----------------------------------------------------------
-#  Calcul matrice Age : mat_Age
+#  Computation age matrix: mat_Age
 # ----------------------------------------------------------
 
 mat_Age = np.interp(mat_steady_age, np.append(steady_age, 100*steady_age[-1]),
                     np.append(Age, 100*Age[-1]))
 
 # ----------------------------------------------------------
-#  Calcul des isochrones pour des ages données
+#  Computation of isochrones
 # ----------------------------------------------------------
 
-# Lignes isochrones avec un pas constant
+# Isochrones with constant step
 Age_iso = np.arange(iso_spacing, iso_max+1., iso_spacing)
 
 steady_age_iso = np.interp(Age_iso, np.append(Age, 100*Age[-1]),
