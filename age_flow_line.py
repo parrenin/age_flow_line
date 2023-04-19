@@ -37,8 +37,6 @@ max_depth = 3310.
 imax = 100
 delta = 0.08
 x_right = 370
-iso_spacing = 20000.
-iso_max = 1000000.
 traj_step = 10
 fig_age_max = 1000000
 fig_age_spacing = 10000
@@ -537,32 +535,9 @@ mat_z = S - mat_depth
 mat_Age = np.interp(mat_steady_age, np.append(steady_age, 100*steady_age[-1]),
                     np.append(Age, 100*Age[-1]))
 
-# ----------------------------------------------------------
-#  Computation of isochrones
-# ----------------------------------------------------------
-
-# Isochrones with constant step
-Age_iso = np.arange(iso_spacing, iso_max+1., iso_spacing)
-
-steady_age_iso = np.interp(Age_iso, np.append(Age, 100*Age[-1]),
-                           np.append(steady_age, 100*steady_age[-1]))
-
-print('Before mat_theta_iso')
-mat_theta_iso = np.zeros((len(Age_iso), imax+2))
-for j in range(1, imax+2):
-    mat_theta_iso[:, j] = np.interp(steady_age_iso[:], mat_steady_age[:, j],
-                                    mat_theta[:, j-1])
-mat_theta_iso[:, 0] = mat_theta_iso[:, 1]
-
-print('Before mat_z_iso')
-mat_z_iso = np.empty_like(mat_theta_iso)
-for j in range(1, imax+2):
-    mat_z_iso[:, j] = np.interp(-np.exp(mat_theta_iso[:, j]), -OMEGA,
-                                mat_z[:, j])
-mat_z_iso[:, 0] = mat_z_iso[:, 1]
-
-mat_x_iso = np.tile(x, (len(Age_iso), 1))
-
+# -----------
+# FIGURES
+# -----------
 
 if create_figs:
 
@@ -709,13 +684,12 @@ if create_figs:
 
     # FIXME: Could we plot refrozen ice here?
 
-    for i in range(len(Age_iso)):
-        plt.plot(mat_x_iso[i, :], mat_z_iso[i, :], label=str(Age_iso[i])+' yr',
-                 color='w')
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
     cp = plt.contourf(mat_x, mat_z, mat_Age/1000., levels=levels,
                       cmap='jet')
+    cp2 = plt.contour(mat_x, mat_z, mat_Age/1000., levels=levels_cb,
+                      colors='k')
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
@@ -740,13 +714,13 @@ if create_figs:
     plt.plot(pi, theta_min, label='Bedrock', color='0')
 
     # FIXME: Could we plot refrozen ice here?
-    for i in range(len(Age_iso)):
-        plt.plot(pi, mat_theta_iso[i, 1:],
-                 label=str(Age_iso[i])+' year', color='w')
+
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
     cp = plt.contourf(mat_pi, mat_theta, mat_Age[:, 1:]/1000., levels=levels,
                       cmap='jet')
+    cp2 = plt.contour(mat_pi, mat_theta, mat_Age[:, 1:]/1000.,
+                      levels=levels_cb, colors='k')
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)

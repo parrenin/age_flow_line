@@ -12,9 +12,6 @@ thickness: 3767
 
 x_right: 370 #Horizontal coordinate of right border, in km
 
-iso_spacing: 100000 #isochrone spacing in graphs
-iso_max: 600000  #max age of isochrones
-
 fig_age_max: 1000 #max age (kyr) for the age contour plots
 fig_age_spacing: 10 #spacing for the age (kyr) contour plots
 fig_age_spacing_labels: 100 #spacing for the labels (kyr) of the age color bars
