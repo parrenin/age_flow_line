@@ -665,7 +665,8 @@ if create_figs:
     plt.plot(x, B, label='Bedrock', color='0')
     levels = np.arange(0, 1.01, 0.01)
     levels_cb = np.arange(0, 11, 1)/10.
-    # FIXME: mat_omega is not displayed on the accretion ice.
+    # FIXME: mat_omega is not displayed on the accretion ice, is this normal?
+    # There is no node on the bedrock, so the color does not go down there.
     cp = plt.contourf(mat_x, mat_z, mat_omega, levels=levels,
                       cmap='jet')
     cp2 = plt.contour(mat_x, mat_z, mat_omega, levels=levels_cb,
@@ -741,51 +742,6 @@ if create_figs:
     plt.savefig(datadir+'age_pi_theta.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
-    # ---------------------------------------------------------------------
-    # Age-depth in the drilling
-    # ---------------------------------------------------------------------
-
-# FIXME: we could have several drillings along the flow line
-
-    fig, ax = plt.subplots()
-    plt.plot(Age, depth_corrected, '-')
-    plt.gca().invert_yaxis()
-    plt.xlabel('age (yr)', fontsize=15)
-    plt.ylabel(r'$depth \ (m)$', fontsize=15)
-    plt.savefig(datadir+'age_depth.'+fig_format,
-                format=fig_format, bbox_inches='tight')
-
-    # ---------------------------------------------------------------------
-    # R(t) - Age
-    # ---------------------------------------------------------------------
-
-    fig, ax = plt.subplots()
-    plt.stairs(R[:-1], age_R/1000, baseline=None)
-    plt.xlabel('time (kyr)', fontsize=15)
-    plt.ylabel(r'$R(t)$', fontsize=15)
-    plt.savefig(datadir+'R_temporal_factor.'+fig_format,
-                format=fig_format, bbox_inches='tight')
-
-    # ---------------------------------------------------------------------
-    # Thinning function
-    # ---------------------------------------------------------------------
-
-    fig, ax = plt.subplots(figsize=(12, 8))
-
-    plt.plot(tau_ie_middle, depth_corrected[:-1], ls='-',
-             label=r'$ordre\ 1 - lin\'eaire$')
-    plt.plot(tau_ie_middle_sp, depth_corrected[:-1], ls='-',
-             label=r'$ordre\ 1 - spline\ cubique$')
-    plt.plot(tau_ie_middle_sp_2, depth_corrected[:-1], ls='-',
-             label=r'$ordre\ 1 - spline\ cubique - d\'eriv\'ee\ impos\'ee$')
-    plt.ylim([max(depth_corrected), -200.])
-    plt.xlabel(r'$\tau_{ie}$ (yr b1997)', fontsize=18)
-    plt.ylabel('depth (m)', fontsize=18)
-    plt.legend(loc='upper left')
-    plt.grid()
-    plt.savefig(datadir+'thinning_profile.'+fig_format,
-                format=fig_format, bbox_inches='tight')
-
     # ----------------------------------------------------------
     # Display of stream lines
     # ----------------------------------------------------------
@@ -813,16 +769,48 @@ if create_figs:
     plt.savefig(datadir+'stream_lines.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
-    # ----------------------------------------------------------
-    # Ice Origin
-    # ----------------------------------------------------------
+    # ---------------------------------------------------------------------
+    # R(t) - Age
+    # ---------------------------------------------------------------------
 
     fig, ax = plt.subplots()
-    plt.plot(mat_x0[:, imax+1], mat_depth[:, imax+1], color='k')
-    plt.gca().invert_yaxis()
-    plt.xlabel(r'$x$ origin (km)', fontsize=15)
-    plt.ylabel('depth (m)', fontsize=15)
-    plt.savefig(datadir+'ice_origin.'+fig_format,
+    plt.stairs(R[:-1], age_R/1000, baseline=None)
+    plt.xlabel('time (kyr)', fontsize=15)
+    plt.ylabel(r'$R(t)$', fontsize=15)
+    plt.savefig(datadir+'R_temporal_factor.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+
+    # ----------------------------------------------------------
+    # Graphs vs depth for the ice core
+    # ----------------------------------------------------------
+
+# FIXME: We could have several drillings along the flow line.
+
+    fig, ax = plt.subplots(figsize=(7, 7))
+    ax.set_ylabel('depth (m)')
+    ax.invert_yaxis()
+
+    ax.plot(mat_x0[:, imax+1], mat_depth[:, imax+1], color='r')
+    ax.set_xlabel(r'$x$ origin (km)', color='r')
+    ax.spines['bottom'].set_color('r')
+    ax.tick_params(axis='x', colors='r')
+
+    ax2 = ax.twiny()
+    ax2.spines.bottom.set_visible(False)
+    ax2.plot(Age/1000, depth_corrected, color='b')
+    ax2.set_xlabel('age (kyr)', color='b')
+    ax2.spines['top'].set_color('b')
+    ax2.tick_params(axis='x', colors='b')
+
+    ax3 = ax.twiny()
+    ax3.spines['top'].set_position(('axes', 1.1))
+    ax3.spines.bottom.set_visible(False)
+    ax3.plot(tau_ie_middle_sp_2, depth_corrected[:-1], color='g')
+    ax3.set_xlabel('thinning function (no unit)', color='g')
+    ax3.spines['top'].set_color('g')
+    ax3.tick_params(axis='x', colors='g')
+
+    plt.savefig(datadir+'ice_core_vs_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     plt.show()
