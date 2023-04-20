@@ -22,7 +22,8 @@ print('Parameters directory is: ', datadir)
 # Loading data from accu-prior.txt , density-prior.txt ... in "input_data" file
 # -----------------------------------------------------------------------------
 
-deut = np.loadtxt(datadir+'deuterium.txt')
+# deut = np.loadtxt(datadir+'deuterium.txt')
+age_R, R = np.loadtxt(datadir+'temporal_factor.txt', unpack=True)
 density_readarray = np.loadtxt(datadir+'density-prior.txt')
 
 # x_s_geo = np.loadtxt('input_data/s_geodata.txt', usecols=(0,))
@@ -438,21 +439,6 @@ steady_a0 = np.interp(-theta_ic, -theta[:][~np.isnan(mat_a0[:, imax])],
                       mat_a0[:, imax][~np.isnan(mat_a0[:, imax])])
 
 # ----------------------------------------------------------
-#  Computation of R(t)
-# ----------------------------------------------------------
-
-# FIXME: we should import R from AICC2012 and make it averaged to 1.
-# FIXME: And this is wrong, since we don't correct for upstream effects.
-
-R_t = np.exp(beta * (deut - deut[0]))
-
-# ----------------------------------------------------------
-#  a0_vic
-# ----------------------------------------------------------
-
-a0_vic = steady_a0 * R_t
-
-# ----------------------------------------------------------
 #  Computation of steady_age vostok icecore
 # ----------------------------------------------------------
 
@@ -482,13 +468,29 @@ chi_0 = np.insert(mat_steady_age[:, imax+1][~np.isnan(mat_steady_age[
 
 steady_age_sp_2 = interp1d(new_theta, chi_0, kind='cubic')(-theta_ic)
 
+# -------------------------------
+# Computation of steady_age_R
+# -------------------------------
+
+steady_age_R = np.concatenate((np.array([age_R[0]]),
+                               (age_R[1:] - age_R[:-1]) * R[:-1]))
+steady_age_R = np.cumsum(steady_age_R)
+
 # ----------------------------------------------------------
 #  Computation of Age for the ice core
 # ----------------------------------------------------------
 
-Age = np.cumsum((steady_age[1:] - steady_age[:-1]) / (R_t[:-1]))
+# FIXME: Why "Age" has a capital "A" and not "steady_age"?
 
-Age = np.insert(Age, 0, steady_age[0])
+Age = np.interp(steady_age, steady_age_R, age_R)
+
+# ----------------------------------------------------------
+#  a0_ic
+# ----------------------------------------------------------
+
+# FIXME: We should not do a linear interpolation here.
+
+a0_ic = steady_a0 * np.interp(steady_age, steady_age_R, R)
 
 # ----------------------------------------------------------
 #  Computation of tau_middle for the ice core
@@ -532,12 +534,17 @@ mat_z = S - mat_depth
 #  Computation age matrix: mat_Age
 # ----------------------------------------------------------
 
-mat_Age = np.interp(mat_steady_age, np.append(steady_age, 100*steady_age[-1]),
-                    np.append(Age, 100*Age[-1]))
+# FIXME: What happens if age_R[0] is after age_surf?
+
+mat_Age = np.interp(mat_steady_age, np.append(steady_age_R,
+                                              100*steady_age_R[-1]),
+                    np.append(age_R, 100*age_R[-1]))
 
 # -----------
 # FIGURES
 # -----------
+
+# FIXME: We could plot a0_steady and a0_ic
 
 if create_figs:
 
@@ -752,9 +759,11 @@ if create_figs:
     # R(t) - Age
     # ---------------------------------------------------------------------
 
+# FIXME: plot with staircase
+
     fig, ax = plt.subplots()
-    plt.plot(Age, R_t, '-')
-    plt.xlabel('time (yr)', fontsize=15)
+    plt.plot(age_R/1000, R, '-')
+    plt.xlabel('time (kyr)', fontsize=15)
     plt.ylabel(r'$R(t)$', fontsize=15)
     plt.savefig(datadir+'R_temporal_factor.'+fig_format,
                 format=fig_format, bbox_inches='tight')
