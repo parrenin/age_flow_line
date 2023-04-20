@@ -1,5 +1,5 @@
 # TODO: make sure the interpolated values for a, Y and Q are consistent.
-# FIXME: Convert all comments to English.
+# FIXME: there is no output in the program. Maybe output at least for the core.
 
 import sys
 import numpy as np
@@ -220,7 +220,7 @@ theta_min = np.where(Qm[1:] > 0,
 
 # Lliboutry model for the horizontal flux shape function
 
-# FIXME: Is there no better we do invert omega?
+# FIXME: Is there no better way to invert omega?
 # Maybe a spline would allow to decrease the number of nodes.
 zeta = np.linspace(1, 0, 1001).reshape(1001, 1)
 
@@ -369,7 +369,6 @@ for i in range(1, imax+1):
 
 mat_steady_age[:, 0] = mat_steady_age[:, 1]
 
-# FIXME: use polynomes instead of rational fractions
 for j in range(2, imax+2):
     c = (a[j] - a[j-1]) / delta
     d = a[j] - c * pi[j-1]
@@ -384,12 +383,14 @@ for j in range(2, imax+2):
                                           / 2 + f * delta), np.nan)
     else:
         mat_steady_age[1:, j] = np.where(grid[1:, j] == 1,
-                                         mat_steady_age[:-1,j-1] + (e*pi[j-1]
-                                          + f)*log(abs(c*pi[j-1]+d))/c -
+                                         mat_steady_age[:-1, j-1] + (e*pi[j-1]
+                                         + f)*log(abs(c*pi[j-1] + d))/c -
                                          (e * pi[j-2] + f) * log(abs(c*pi[j-2]
-                                         + d)) / c -(e/c)*((pi[j-1] + d/c) *
+                                                                     + d))
+                                         / c - (e/c)*((pi[j-1] + d/c) *
                                          log(abs(c * pi[j-1] + d))-(pi[j-2] +
-                                         d/c)*log(abs(c*pi[j-2]+d))-delta),
+                                                                    d/c)
+                                         * log(abs(c * pi[j-2] + d)) - delta),
                                          np.nan)
 
 print('After calculation of steady age matrix.')
@@ -413,10 +414,8 @@ tau_ie = np.where(grid[1:, 1:] == 1, (z_ie[:-1, 1:] - z_ie[1:, 1:])
 # ----------------------------------------------------------
 
 # ----------------------------------------------------------
-#  Computation fo theta for the ice core: theta_vic
+#  Computation fo theta for the ice core: theta_ic
 # ----------------------------------------------------------
-
-# FIXME: Rename to theta_ic (V was for Vostok)
 
 if mat_depth_ie[imax, imax+1] < ie_depth[len(ie_depth)-1]:
     sys.exit("\n Attention problème d'interpolation post-processing:\n \
@@ -426,16 +425,16 @@ if mat_depth_ie[imax, imax+1] < ie_depth[len(ie_depth)-1]:
         du maillage sur toute la hauteur du forage Vostok il faut augmenter\n \
         le nombre de noeuds du maillage.")
 
-theta_vic = np.log(np.interp(ie_depth, mat_depth_ie[:, imax+1]
-                             [~np.isnan(mat_depth_ie[:, imax+1])],
-                             mat_OMEGA[:, imax]
-                             [~np.isnan(mat_OMEGA[:, imax])]))
+theta_ic = np.log(np.interp(ie_depth, mat_depth_ie[:, imax+1]
+                            [~np.isnan(mat_depth_ie[:, imax+1])],
+                            mat_OMEGA[:, imax]
+                            [~np.isnan(mat_OMEGA[:, imax])]))
 
 # ----------------------------------------------------------
 #  Computation steady a0 ice core
 # ----------------------------------------------------------
 
-steady_a0 = np.interp(-theta_vic, -theta[:][~np.isnan(mat_a0[:, imax])],
+steady_a0 = np.interp(-theta_ic, -theta[:][~np.isnan(mat_a0[:, imax])],
                       mat_a0[:, imax][~np.isnan(mat_a0[:, imax])])
 
 # ----------------------------------------------------------
@@ -458,7 +457,7 @@ a0_vic = steady_a0 * R_t
 
 # FIXME: we should set the surface age in the YAML file.
 
-steady_age = np.interp(-theta_vic, -theta[:][~np.isnan(mat_steady_age[
+steady_age = np.interp(-theta_ic, -theta[:][~np.isnan(mat_steady_age[
     :, imax+1])], mat_steady_age[:, imax+1][~np.isnan(mat_steady_age[
         :, imax+1])])
 
@@ -467,7 +466,7 @@ steady_age = np.interp(-theta_vic, -theta[:][~np.isnan(mat_steady_age[
 
 steady_age_sp = interp1d(-theta[:][~np.isnan(mat_steady_age[:, imax+1])],
                          mat_steady_age[:, imax+1][~np.isnan(mat_steady_age[
-                             :, imax+1])], kind='cubic')(-theta_vic)
+                             :, imax+1])], kind='cubic')(-theta_ic)
 
 # Cubic spline with derivative constraint at surface
 # On rajoute un point " proche de theta = 0 " afin d'imposer la dérivée
@@ -478,9 +477,9 @@ new_theta = np.insert(-theta[:][~np.isnan(mat_steady_age[:, imax+1])], 1,
                       1/1000000)
 chi_0 = np.insert(mat_steady_age[:, imax+1][~np.isnan(mat_steady_age[
     :, imax+1])], 1, 0.+1/(steady_a0[0])*(ie_depth[1] - ie_depth[0]) /
-    (theta_vic[0] - theta_vic[1]) * 1/1000000)
+    (theta_ic[0] - theta_ic[1]) * 1/1000000)
 
-steady_age_sp_2 = interp1d(new_theta, chi_0, kind='cubic')(-theta_vic)
+steady_age_sp_2 = interp1d(new_theta, chi_0, kind='cubic')(-theta_ic)
 
 # ----------------------------------------------------------
 #  Computation of Age for the ice core
