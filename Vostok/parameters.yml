@@ -1,7 +1,7 @@
 # Discretization relative step
 delta: 0.08
 
-# Number of nodes following \pi and \theta
+# Number of intervals in the (\pi, \theta) mesh
 imax: 100
 
 #Parameter for glacial/interglacial accumulation change

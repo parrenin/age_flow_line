@@ -441,9 +441,10 @@ steady_a0 = np.interp(-theta_ic, -theta[:][~np.isnan(mat_a0[:, imax])],
 #  Computation of R(t)
 # ----------------------------------------------------------
 
-R_t = np.exp(beta * (deut - deut[0]))
-
 # FIXME: we should import R from AICC2012 and make it averaged to 1.
+# FIXME: And this is wrong, since we don't correct for upstream effects.
+
+R_t = np.exp(beta * (deut - deut[0]))
 
 # ----------------------------------------------------------
 #  a0_vic
@@ -566,8 +567,8 @@ if create_figs:
     for i in range(0, imax+1):
         plt.plot(x[:], z_ie[i, :],  ls='-', color='k', linewidth=0.1)
     plt.vlines(x, z_ie_min, S_ie, color='k', linewidths=0.1)
-    plt.xlabel(r'$X$', fontsize=18)
-    plt.ylabel(r'$Z$', fontsize=18)
+    plt.xlabel(r'$x$ (km)', fontsize=18)
+    plt.ylabel(r'$z$ (m)', fontsize=18)
     plt.savefig(datadir+'mesh_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -576,7 +577,6 @@ if create_figs:
     # -------------------------------------------------------------------------
 
 # FIXME: Is this not a bit too complicated?
-# And I could make a graph with \omega to deal with s and p
 
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
@@ -637,6 +637,7 @@ if create_figs:
 
     colors = ('Green', 'Red')
     datas = [a, m]
+    ynames = ['a (m/yr)', 'm (m/yr)']
     ax.set_xlabel('x (km)', fontsize=18)
     ax.set_ylabel('Y (relative unit)')
     ax.plot(x, Y, color='k')
@@ -649,7 +650,7 @@ if create_figs:
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
-    # Display of iso-omega lines
+    # Display of iso-omega lines in (x, z)
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -666,13 +667,13 @@ if create_figs:
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
     cb.set_label(r'$\omega$')
-    # ax.xlabel(r'$X$', fontsize=18)
-    # ax.ylabel(r'$Z$', fontsize=18)
+    ax.set_xlabel(r'$x$ (km)', fontsize=19)
+    ax.set_ylabel(r'$z$ (m)', fontsize=19)
     plt.savefig(datadir+'iso-omega_lines.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
-    # Display of age and isochrones in (x,z)
+    # Display of age and isochrones in (x, z)
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -693,8 +694,8 @@ if create_figs:
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
     cb.set_label('Modeled age (kyr)')
-    ax.set_xlabel(r'$x$', fontsize=19)
-    ax.set_ylabel(r'$z$', fontsize=19)
+    ax.set_xlabel(r'$x$ (km)', fontsize=19)
+    ax.set_ylabel(r'$z$ (m)', fontsize=19)
 #    box = ax.get_position()
 #    ax.set_position([box.x0, box.y0, box.width, box.height])
     ax.grid()
@@ -737,12 +738,12 @@ if create_figs:
     # Age-depth in the drilling
     # ---------------------------------------------------------------------
 
-# FIXME: we could have several drillings along the flow lines
+# FIXME: we could have several drillings along the flow line
 
     fig, ax = plt.subplots()
     plt.plot(Age, depth_corrected, '-')
     plt.gca().invert_yaxis()
-    plt.xlabel(r'$age\ (yr\ b \ 1997)$', fontsize=15)
+    plt.xlabel('age (yr)', fontsize=15)
     plt.ylabel(r'$depth \ (m)$', fontsize=15)
     plt.savefig(datadir+'age_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
@@ -753,7 +754,7 @@ if create_figs:
 
     fig, ax = plt.subplots()
     plt.plot(Age, R_t, '-')
-    plt.xlabel(r'$time \ (yr\ b\ 1997 )$', fontsize=15)
+    plt.xlabel('time (yr)', fontsize=15)
     plt.ylabel(r'$R(t)$', fontsize=15)
     plt.savefig(datadir+'R_temporal_factor.'+fig_format,
                 format=fig_format, bbox_inches='tight')
@@ -771,8 +772,8 @@ if create_figs:
     plt.plot(tau_ie_middle_sp_2, depth_corrected[:-1], ls='-',
              label=r'$ordre\ 1 - spline\ cubique - d\'eriv\'ee\ impos\'ee$')
     plt.ylim([max(depth_corrected), -200.])
-    plt.xlabel(r'$\tau_{ie} \ (yr \ b1997) $', fontsize=18)
-    plt.ylabel(r'$depth \ (m)$', fontsize=18)
+    plt.xlabel(r'$\tau_{ie}$ (yr b1997)', fontsize=18)
+    plt.ylabel('depth (m)', fontsize=18)
     plt.legend(loc='upper left')
     plt.grid()
     plt.savefig(datadir+'thinning_profile.'+fig_format,
@@ -784,9 +785,11 @@ if create_figs:
 
     fig, ax = plt.subplots(figsize=(15, 7))
     # We don't exactly go down to the bedrock here but this is normal
+    # Trajectories that comes from the flank
     for i in range(0, imax+1, traj_step):
         plt.plot(x[i+1:,], np.diagonal(mat_z[:, 1:], i), color='blue',
                  linewidth=0.1)
+    # Trajectories that come from the dome
     for i in range(traj_step, imax+1, traj_step):
         plt.plot(x[1:-i,], np.diagonal(mat_z[:, 1:], -i), color='blue',
                  linewidth=0.1)
@@ -797,8 +800,8 @@ if create_figs:
     plt.plot(x, B, label='Bedrock', color='0')
     plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.xlim([-5, x[imax+1] + 5])
-    plt.xlabel(r'$X$', fontsize=19)
-    plt.ylabel(r'$Z$', fontsize=19)
+    plt.xlabel(r'$x$ (km)', fontsize=19)
+    plt.ylabel(r'$z$ (m)', fontsize=19)
     plt.grid()
     plt.savefig(datadir+'stream_lines.'+fig_format,
                 format=fig_format, bbox_inches='tight')
@@ -808,10 +811,10 @@ if create_figs:
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots()
-    plt.plot(mat_x0[:, imax+1], mat_depth[:, imax+1], ls='-', marker='.')
+    plt.plot(mat_x0[:, imax+1], mat_depth[:, imax+1], color='k')
     plt.gca().invert_yaxis()
-    plt.xlabel(r'$ICE\ ORIGIN \ (km)$', fontsize=15)
-    plt.ylabel(r'$DEPTH \ (m)$', fontsize=15)
+    plt.xlabel(r'$x$ origin (km)', fontsize=15)
+    plt.ylabel('depth (m)', fontsize=15)
     plt.savefig(datadir+'ice_origin.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
