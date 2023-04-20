@@ -759,10 +759,8 @@ if create_figs:
     # R(t) - Age
     # ---------------------------------------------------------------------
 
-# FIXME: plot with staircase
-
     fig, ax = plt.subplots()
-    plt.plot(age_R/1000, R, '-')
+    plt.stairs(R[:-1], age_R/1000, baseline=None)
     plt.xlabel('time (kyr)', fontsize=15)
     plt.ylabel(r'$R(t)$', fontsize=15)
     plt.savefig(datadir+'R_temporal_factor.'+fig_format,
