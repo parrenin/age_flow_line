@@ -35,6 +35,7 @@ density_readarray = np.loadtxt(datadir+'density-prior.txt')
 
 # Default values for parameters, to prevent spyder errors
 max_depth = 3310.
+step_depth = 1.
 imax = 100
 delta = 0.08
 x_right = 370
@@ -114,9 +115,7 @@ for i in range(1, len(Qm_fld)):
 # DEPTH - 1D Vostok drill grid for post-processing
 # ---------------------------------------------------
 
-# FIXME: Is this fine vertical grid really necessary?
-
-depth_corrected = np.arange(0., max_depth + 0.1, 1.)
+depth_corrected = np.arange(0., max_depth + 0.0001, step_depth)
 
 depth_mid = (depth_corrected[1:] + depth_corrected[:-1])/2
 
@@ -415,7 +414,7 @@ tau_ie = np.where(grid[1:, 1:] == 1, (z_ie[:-1, 1:] - z_ie[1:, 1:])
 # ----------------------------------------------------------
 
 # ----------------------------------------------------------
-#  Computation fo theta for the ice core: theta_ic
+#  Computation of theta for the ice core: theta_ic
 # ----------------------------------------------------------
 
 if mat_depth_ie[imax, imax+1] < ie_depth[len(ie_depth)-1]:
@@ -489,6 +488,7 @@ Age = np.interp(steady_age, steady_age_R, age_R)
 # ----------------------------------------------------------
 
 # FIXME: We should not do a linear interpolation here.
+# And therefore, a0_ic should be one element less.
 
 a0_ic = steady_a0 * np.interp(steady_age, steady_age_R, R)
 
@@ -543,8 +543,6 @@ mat_Age = np.interp(mat_steady_age, np.append(steady_age_R,
 # -----------
 # FIGURES
 # -----------
-
-# FIXME: We could plot a0_steady and a0_ic
 
 if create_figs:
 
@@ -812,6 +810,22 @@ if create_figs:
 
     plt.savefig(datadir+'ice_core_vs_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
+
+    # ----------------------------------------------
+    # Graphs vs age for the ice core
+    # ----------------------------------------------
+
+    fig, ax = plt.subplots(figsize=(15, 7))
+    ax.set_xlabel('age (kyr)')
+    ax.set_ylabel('layer thickness (m/yr)')
+    ax.stairs(a0_ic[:-1], Age/1000, baseline=None, label='accumulation')
+    ax.stairs(tau_ie_middle_sp_2 * a0_ic[:-1], Age/1000, baseline=None,
+              label='layer thickness')
+    ax.legend()
+
+    plt.savefig(datadir+'ice_core_vs_age.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+
 
     plt.show()
 
