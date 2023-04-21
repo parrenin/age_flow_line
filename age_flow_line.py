@@ -758,16 +758,26 @@ if create_figs:
     # Rmq: We use plt.contour instead of plotting the individual lines, since
     # it is simpler and slightly faster.
     # Rmq2: We don't exactly go down to the bedrock here but this is normal.
-    plt.contour(mat_x[:, 1:], mat_z[:, 1:], mat_q, colors='b',
-                levels=Q[1::traj_step], linewidths=0.1)
-    plt.contour(mat_x[:, 1:], mat_z[:, 1:], mat_q, colors='b',
-                levels=mat_q[traj_step::traj_step, 0], linewidths=0.1)
+    # Trajectories that come from the surface and traj that come from the dome.
+    levels = np.concatenate((Q[-1:0:-traj_step],
+                             mat_q[traj_step::traj_step, 0]))
+    levels = np.flip(levels[~np.isnan(levels)])
+    color = 'k'
+    lw = 0.2
+    plt.contour(mat_x[:, 1:], mat_z[:, 1:], mat_q, colors=color,
+                levels=levels, linewidths=lw)
+    # Color contour plot.
+    from matplotlib import ticker
+    cp = plt.contourf(mat_x[:, 1:], mat_z[:, 1:], mat_q, levels=levels,
+                      locator=ticker.LogLocator())
+#    cb = plt.colorbar(cp)
     plt.vlines(x[0], B[0], S[0], color='blue')  # ice divide
     plt.vlines(x[1], B[1], S[1], color='blue')  # 1st horizontal node
     plt.plot(x, S, label='Surface', color='0')
-    plt.plot(0, 0, label="Trajectories", color='blue')
+    # Fake plot for the legend
+    plt.plot(0, 0, label="Trajectories", color=color, linewidth=lw)
     plt.plot(x, B, label='Bedrock', color='0')
-    plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    plt.legend(loc='lower left')
     plt.xlim([-5, x[imax+1] + 5])
     plt.xlabel(r'$x$ (km)', fontsize=19)
     plt.ylabel(r'$z$ (m)', fontsize=19)
