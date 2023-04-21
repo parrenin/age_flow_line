@@ -237,8 +237,8 @@ grid = np.ones((imax + 1, imax + 2))
 
 grid[:, 0] = grid[:, 1] = np.where(theta >= theta_min[0], 1, 0)
 
-
 print('Before defining grid boolean')
+# imax+2 here so that we stop at imax+1
 for j in range(2, imax+2):
     grid[2:, j] = np.where(np.logical_and(theta[2:] >= theta_min[j-1],
                                           grid[1:-1, j-1] == 1), 1, 0)
@@ -392,17 +392,9 @@ for j in range(2, imax+2):
                                          * log(abs(c * pi[j-2] + d)) - delta),
                                          np.nan)
 
-# Updating grid, mat_theta and theta_min
-
-grid = np.where(np.isnan(mat_steady_age), 0, 1)
-# FIXME: We should probably update other matrices here.
-mat_theta = np.where(grid[:, 1:] == 1, mat_theta, np.nan)
+# Theta_min and z_ie_min
 # FIXME: theta_min should not be the min of mat_theta, but a theoretical value.
 theta_min = np.nanmin(mat_theta, axis=0)
-
-# Upgrading z_ie and calculating z_ie_min
-
-z_ie = np.where(grid == 1, z_ie, np.nan)
 z_ie_min = np.nanmin(z_ie, axis=0)
 
 print('After calculation of steady age matrix.')
@@ -714,10 +706,7 @@ if create_figs:
     cb.set_label('Modeled age (kyr)')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
-#    box = ax.get_position()
-#    ax.set_position([box.x0, box.y0, box.width, box.height])
     ax.grid()
-#    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.savefig(datadir+'age_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -726,12 +715,9 @@ if create_figs:
     # ---------------------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(12, 6))
-#    ax = fig.add_subplot(111)
 
     plt.plot(pi, np.zeros_like(S[1:]), label='Surface', color='0')
     plt.plot(pi, theta_min, label='Bedrock', color='0')
-
-    # FIXME: Could we plot refrozen ice here?
 
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
@@ -746,10 +732,7 @@ if create_figs:
     cb.set_label('Modeled age (kyr)')
     ax.set_xlabel(r'$\pi$', fontsize=19)
     ax.set_ylabel(r'$\theta$', fontsize=19)
-#    box = ax.get_position()
-#    ax.set_position([box.x0, box.y0, box.width, box.height])
     ax.grid()
-#    ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
     plt.savefig(datadir+'age_pi_theta.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
