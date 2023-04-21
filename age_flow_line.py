@@ -260,6 +260,8 @@ mat_omega[:, 0] = mat_omega[:, 1]
 # Matrix z_ie
 # -------------------------------------------------------
 
+# FIXME: Why z_ie and not mat_z_ie?
+
 z_ie = np.zeros((imax+1, imax+2))
 
 print('Before defining z_ie')
@@ -397,10 +399,17 @@ for j in range(2, imax+2):
                                          * log(abs(c * pi[j-2] + d)) - delta),
                                          np.nan)
 
-# Updating grid matrix and theta_min
+# Updating grid, mat_theta and theta_min
 
 grid = np.where(np.isnan(mat_steady_age), 0, 1)
-theta_min = np.nanmin(mat_theta*grid[:, 1:], axis=0)
+# FIXME: We should probably update other matrices here.
+mat_theta = np.where(grid[:, 1:] == 1, mat_theta, np.nan)
+theta_min = np.nanmin(mat_theta, axis=0)
+
+# Upgrading z_ie and calculating z_ie_min
+
+z_ie = np.where(grid == 1, z_ie, np.nan)
+z_ie_min = np.nanmin(z_ie, axis=0)
 
 print('After calculation of steady age matrix.')
 
@@ -562,9 +571,7 @@ if create_figs:
     fig, ax = plt.subplots()
     plt.vlines(pi, theta_min, theta_max, color='k', linewidths=0.1)
     for i in range(0, imax+1):
-        # FIXME: I think this is wrong, does not take into account the grid
-        plt.hlines(mat_theta[i, :], mat_pi[0, :], np.zeros((imax+1,)),
-                   color='k', linewidths=0.1)
+        plt.plot(pi, mat_theta[i, :], color='k', linewidth=0.1)
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$\theta$', fontsize=18)
     plt.savefig(datadir+'mesh_pi_theta.'+fig_format,
@@ -574,11 +581,10 @@ if create_figs:
     # Display of (x, z) mesh
     # ----------------------------------------------------------
 
-    z_ie_min = np.zeros((imax+2))
-    for i in range(imax+2):
-        z_ie_min[i] = np.asarray(np.amin(z_ie[:, i][~np.isnan(z_ie[:, i])]))
-
     fig, ax = plt.subplots(figsize=(15, 5))
+    plt.plot(x, S_ie, label='Surface', color='0')
+    plt.plot(x, B, label='Bedrock', color='0')
+    # FIXME: The space above the bedrock seems to large vs the grid.
     for i in range(0, imax+1):
         plt.plot(x[:], z_ie[i, :],  ls='-', color='k', linewidth=0.1)
     plt.vlines(x, z_ie_min, S_ie, color='k', linewidths=0.1)
