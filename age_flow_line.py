@@ -274,14 +274,6 @@ z_ie[:, 0] = z_ie[:, 1]
 print('After defining z_ie')
 
 # -------------------------------------------------------
-# Matrix theta_min
-# -------------------------------------------------------
-
-# FIXME: Is this matrix necessary?
-
-mat_theta_min = np.tile(theta_min, (imax+1, 1))
-
-# -------------------------------------------------------
 # Matrix theta
 # -------------------------------------------------------
 
@@ -392,8 +384,8 @@ for j in range(2, imax+2):
                                          * log(abs(c * pi[j-2] + d)) - delta),
                                          np.nan)
 
-# Theta_min and z_ie_min
-# FIXME: theta_min should not be the min of mat_theta, but a theoretical value.
+# Theta_min and z_ie_min, which are the grid min for each vertical profile
+# They are used for plotting the meshes
 theta_min = np.nanmin(mat_theta, axis=0)
 z_ie_min = np.nanmin(z_ie, axis=0)
 
