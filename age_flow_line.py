@@ -207,12 +207,36 @@ m = np.interp(x, x_fld, m_fld)
 # Computation of theta_min and theta_max
 # ------------------------------------------------------
 
+# We just use theta_max for the mesh plot
 theta_max = np.zeros(imax+1)
 
 theta_min = np.where(Qm[1:] > 0,
                      np.maximum(np.log(Qm[1:].clip(min=10**-100)/Q[1:]),
                                 theta[-1] * np.ones((imax+1,))),
                      theta[-1] * np.ones((imax+1,)))
+
+
+# -------------------------------------------------------
+# GRID
+# -------------------------------------------------------
+
+grid = np.ones((imax + 1, imax + 2), dtype=bool)
+
+grid[:, 0] = grid[:, 1] = theta >= theta_min[0]
+
+print('Before defining grid boolean')
+# We need an iteration here, to treat a line after the previous one
+# imax+2 here so that we stop at imax+1
+for j in range(2, imax+2):
+    grid[2:, j] = np.logical_and(theta[2:] >= theta_min[j-1], grid[1:-1, j-1])
+print('After defining grid boolean')
+
+# -------------------------------------------------------
+# Matrix theta
+# -------------------------------------------------------
+
+mat_theta = theta.reshape(imax+1, 1)*np.ones((1, imax+1))
+mat_theta = np.where(grid[:, 1:], mat_theta, np.nan)
 
 # ------------------------------------------------------
 # Computation of omega=fct(zeta)
@@ -228,29 +252,12 @@ omega = zeta * s + (1-s) * (1 - (p+2)/(p+1) * (1-zeta) +
                             1/(p+1) * np.power(1-zeta, p+2))
 
 # -------------------------------------------------------
-# GRID
-# -------------------------------------------------------
-
-grid = np.ones((imax + 1, imax + 2))
-
-# FIXME: Use a boolean here
-
-grid[:, 0] = grid[:, 1] = np.where(theta >= theta_min[0], 1, 0)
-
-print('Before defining grid boolean')
-# imax+2 here so that we stop at imax+1
-for j in range(2, imax+2):
-    grid[2:, j] = np.where(np.logical_and(theta[2:] >= theta_min[j-1],
-                                          grid[1:-1, j-1] == 1), 1, 0)
-print('After defining grid boolean')
-
-# -------------------------------------------------------
 # Matrice omega : mat_omega
 # -------------------------------------------------------
 
 mat_omega = np.zeros((imax+1, imax+2))
 
-mat_omega[:, 1:] = np.where(grid[:, 1:] == 1,
+mat_omega[:, 1:] = np.where(grid[:, 1:],
                             (np.dot(OMEGA.reshape(imax+1, 1),
                              Q[1:].reshape(1, imax+1))-Qm[1:])/(Q[1:]-Qm[1:]),
                             np.nan)
@@ -260,48 +267,40 @@ mat_omega[:, 0] = mat_omega[:, 1]
 # Matrix mat_z_ie
 # -------------------------------------------------------
 
-# FIXME: Why z_ie and not mat_z_ie?
-
 mat_z_ie = np.zeros((imax+1, imax+2))
 
 print('Before defining z_ie')
 for j in range(1, imax+2):
     inter = np.interp(-mat_omega[:, j], -omega[:, j].flatten(),
                       zeta.flatten())
-    mat_z_ie[:, j] = np.where(grid[:, j] == 1, B[j]+inter*(S_ie[j]-B[j]),
+    mat_z_ie[:, j] = np.where(grid[:, j], B[j]+inter*(S_ie[j]-B[j]),
                               np.nan)
 mat_z_ie[:, 0] = mat_z_ie[:, 1]
 print('After defining z_ie')
 
 # -------------------------------------------------------
-# Matrix theta
-# -------------------------------------------------------
-
-mat_theta = np.where(grid[:, 1:] == 1, theta.reshape(imax+1, 1), np.nan)
-
-# -------------------------------------------------------
 # Matrix OMEGA: mat_OMEGA
 # -------------------------------------------------------
 
-mat_OMEGA = np.where(grid[:, 1:] == 1, OMEGA.reshape(imax+1, 1), np.nan)
+mat_OMEGA = np.where(grid[:, 1:], OMEGA.reshape(imax+1, 1), np.nan)
 
 # -------------------------------------------------------
 # Matrix pi: mat_pi
 # -------------------------------------------------------
 
-mat_pi = np.where(grid[:, 1:] == 1, pi, np.nan)
+mat_pi = np.where(grid[:, 1:], pi, np.nan)
 
 # -------------------------------------------------------
 # Matrix x: mat_x
 # -------------------------------------------------------
 
-mat_x = np.where(grid == 1, x, np.nan)
+mat_x = np.where(grid, x, np.nan)
 
 # -------------------------------------------------------
 # Matrix depth_ie: mat_depth_ie
 # -------------------------------------------------------
 
-mat_depth_ie = np.where(grid == 1, S_ie - mat_z_ie, np.nan)
+mat_depth_ie = np.where(grid, S_ie - mat_z_ie, np.nan)
 
 mat_depth_ie[0, :] = 0
 
@@ -309,7 +308,7 @@ mat_depth_ie[0, :] = 0
 # Matrix of stream function q: mat_q
 # -------------------------------------------------------
 
-mat_q = np.where(grid[:, 1:] == 1, Q[1:] * mat_OMEGA, np.nan)
+mat_q = np.where(grid[:, 1:], Q[1:] * mat_OMEGA, np.nan)
 
 # -------------------------------------------------------
 # Matrix a0: mat_a0
@@ -319,11 +318,11 @@ mat_a0 = np.zeros((imax+1, imax+1))
 
 mat_a0[0, :] = a[1:]
 
-mat_a0[1:, 0] = np.where(grid[1:, 1] == 1, mat_a0[0, 0], np.nan)
+mat_a0[1:, 0] = np.where(grid[1:, 1], mat_a0[0, 0], np.nan)
 
 print('Before defining mat_a0')
 for j in range(1, imax+1):
-    mat_a0[1:, j] = np.where(grid[1:, j] == 1, mat_a0[:-1, j-1], np.nan)
+    mat_a0[1:, j] = np.where(grid[1:, j], mat_a0[:-1, j-1], np.nan)
 print('After defining mat_a0')
 
 # -------------------------------------------------------
@@ -332,15 +331,15 @@ print('After defining mat_a0')
 
 mat_x0 = np.zeros((imax+1, imax+1+1))
 
-mat_x0[:, 0] = np.where(grid[:, 0] == 1, 0, np.nan)
+mat_x0[:, 0] = np.where(grid[:, 0], 0, np.nan)
 
 mat_x0[0, 1:] = x[1:]
 
-mat_x0[:, 1] = np.where(grid[:, 1] == 1, mat_x0[0][1]*mat_OMEGA[:, 0], np.nan)
+mat_x0[:, 1] = np.where(grid[:, 1], mat_x0[0][1]*mat_OMEGA[:, 0], np.nan)
 
 print('Before defining mat_x0')
 for j in range(2, imax+1+1):
-    mat_x0[1:, j] = np.where(grid[1:, j] == 1, mat_x0[:-1, j-1], np.nan)
+    mat_x0[1:, j] = np.where(grid[1:, j], mat_x0[:-1, j-1], np.nan)
 print('After defining mat_x0')
 
 # -------------------------------------------------------
@@ -354,7 +353,7 @@ mat_steady_age = np.zeros((imax+1, imax+2))
 # FIXME: Maybe make a matrix with dz/dOmega
 
 for i in range(1, imax+1):
-    if grid[i][1] == 1:
+    if grid[i][1]:
         mat_steady_age[i][1] = mat_steady_age[i-1][1] + delta / a[1] \
             * (mat_z_ie[i-1][1] - mat_z_ie[i][1]) / (OMEGA[i-1] - OMEGA[i])
     else:
@@ -371,13 +370,13 @@ for j in range(2, imax+2):
     f = (mat_z_ie[1:, j] - mat_z_ie[:-1, j]) / (OMEGA[1:] - OMEGA[:-1]) -\
         e * pi[j-1]
     if c == 0:
-        mat_steady_age[1:, j] = np.where(grid[1:, j] == 1,
+        mat_steady_age[1:, j] = np.where(grid[1:, j],
                                          mat_steady_age[:-1, j-1] + (1 / d) *
                                          (e * (pi[j-1]*pi[j-1] -
                                           pi[j-2]*pi[j-2])
                                           / 2 + f * delta), np.nan)
     else:
-        mat_steady_age[1:, j] = np.where(grid[1:, j] == 1,
+        mat_steady_age[1:, j] = np.where(grid[1:, j],
                                          mat_steady_age[:-1, j-1] + (e*pi[j-1]
                                          + f)*log(abs(c*pi[j-1] + d))/c -
                                          (e * pi[j-2] + f) * log(abs(c*pi[j-2]
@@ -404,7 +403,7 @@ print('After calculation of steady age matrix.')
 # Matrix of thinning function: tau_ie
 # -------------------------------------------------------
 
-tau_ie = np.where(grid[1:, 1:] == 1, (mat_z_ie[:-1, 1:] - mat_z_ie[1:, 1:])
+tau_ie = np.where(grid[1:, 1:], (mat_z_ie[:-1, 1:] - mat_z_ie[1:, 1:])
                   / (mat_steady_age[1:, 1:] - mat_steady_age[:-1, 1:])
                   / mat_a0[:-1, :], np.nan)
 
@@ -539,6 +538,8 @@ mat_z = S - mat_depth
 mat_Age = np.interp(mat_steady_age, np.append(steady_age_R,
                                               100*steady_age_R[-1]),
                     np.append(age_R, 100*age_R[-1]))
+
+print('Before creating figures.')
 
 # -----------
 # FIGURES
