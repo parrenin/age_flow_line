@@ -30,7 +30,7 @@ density_readarray = np.loadtxt(datadir+'density-prior.txt')
 # s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
 
 # ---------------------------------------------------------
-# Reading parameters.yml file (imax, delta,...)
+# Reading parameters.yml file (imax, delta, ...)
 # ---------------------------------------------------------
 
 # Default values for parameters, to prevent spyder errors
@@ -233,6 +233,8 @@ omega = zeta * s + (1-s) * (1 - (p+2)/(p+1) * (1-zeta) +
 
 grid = np.ones((imax + 1, imax + 2))
 
+# FIXME: Use a boolean here
+
 grid[:, 0] = grid[:, 1] = np.where(theta >= theta_min[0], 1, 0)
 
 
@@ -272,6 +274,8 @@ print('After defining z_ie')
 # -------------------------------------------------------
 # Matrix theta_min
 # -------------------------------------------------------
+
+# FIXME: Is this matrix necessary?
 
 mat_theta_min = np.tile(theta_min, (imax+1, 1))
 
@@ -392,6 +396,11 @@ for j in range(2, imax+2):
                                                                     d/c)
                                          * log(abs(c * pi[j-2] + d)) - delta),
                                          np.nan)
+
+# Updating grid matrix and theta_min
+
+grid = np.where(np.isnan(mat_steady_age), 0, 1)
+theta_min = np.nanmin(mat_theta*grid[:, 1:], axis=0)
 
 print('After calculation of steady age matrix.')
 
@@ -553,6 +562,7 @@ if create_figs:
     fig, ax = plt.subplots()
     plt.vlines(pi, theta_min, theta_max, color='k', linewidths=0.1)
     for i in range(0, imax+1):
+        # FIXME: I think this is wrong, does not take into account the grid
         plt.hlines(mat_theta[i, :], mat_pi[0, :], np.zeros((imax+1,)),
                    color='k', linewidths=0.1)
     plt.xlabel(r'$\pi$', fontsize=18)
@@ -825,7 +835,6 @@ if create_figs:
 
     plt.savefig(datadir+'ice_core_vs_age.'+fig_format,
                 format=fig_format, bbox_inches='tight')
-
 
     plt.show()
 
