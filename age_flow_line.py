@@ -257,20 +257,20 @@ mat_omega[:, 1:] = np.where(grid[:, 1:] == 1,
 mat_omega[:, 0] = mat_omega[:, 1]
 
 # -------------------------------------------------------
-# Matrix z_ie
+# Matrix mat_z_ie
 # -------------------------------------------------------
 
 # FIXME: Why z_ie and not mat_z_ie?
 
-z_ie = np.zeros((imax+1, imax+2))
+mat_z_ie = np.zeros((imax+1, imax+2))
 
 print('Before defining z_ie')
 for j in range(1, imax+2):
     inter = np.interp(-mat_omega[:, j], -omega[:, j].flatten(),
                       zeta.flatten())
-    z_ie[:, j] = np.where(grid[:, j] == 1, B[j]+inter*(S_ie[j]-B[j]),
-                          np.nan)
-z_ie[:, 0] = z_ie[:, 1]
+    mat_z_ie[:, j] = np.where(grid[:, j] == 1, B[j]+inter*(S_ie[j]-B[j]),
+                              np.nan)
+mat_z_ie[:, 0] = mat_z_ie[:, 1]
 print('After defining z_ie')
 
 # -------------------------------------------------------
@@ -301,7 +301,7 @@ mat_x = np.where(grid == 1, x, np.nan)
 # Matrix depth_ie: mat_depth_ie
 # -------------------------------------------------------
 
-mat_depth_ie = np.where(grid == 1, S_ie - z_ie, np.nan)
+mat_depth_ie = np.where(grid == 1, S_ie - mat_z_ie, np.nan)
 
 mat_depth_ie[0, :] = 0
 
@@ -351,10 +351,12 @@ print('Before calculation of steady age matrix.')
 
 mat_steady_age = np.zeros((imax+1, imax+2))
 
+# FIXME: Maybe make a matrix with dz/dOmega
+
 for i in range(1, imax+1):
     if grid[i][1] == 1:
         mat_steady_age[i][1] = mat_steady_age[i-1][1] + delta / a[1] \
-            * (z_ie[i-1][1] - z_ie[i][1]) / (OMEGA[i-1] - OMEGA[i])
+            * (mat_z_ie[i-1][1] - mat_z_ie[i][1]) / (OMEGA[i-1] - OMEGA[i])
     else:
         mat_steady_age[i][1] = np.nan
 
@@ -363,9 +365,11 @@ mat_steady_age[:, 0] = mat_steady_age[:, 1]
 for j in range(2, imax+2):
     c = (a[j] - a[j-1]) / delta
     d = a[j] - c * pi[j-1]
-    e = ((z_ie[1:, j] - z_ie[:-1, j]) / (OMEGA[1:] - OMEGA[:-1]) -
-         (z_ie[:-1, j-1] - z_ie[1:, j-1]) / (OMEGA[:-1] - OMEGA[1:])) / delta
-    f = (z_ie[1:, j] - z_ie[:-1, j]) / (OMEGA[1:] - OMEGA[:-1]) - e * pi[j-1]
+    e = ((mat_z_ie[1:, j] - mat_z_ie[:-1, j]) / (OMEGA[1:] - OMEGA[:-1]) -
+         (mat_z_ie[:-1, j-1] - mat_z_ie[1:, j-1]) / (OMEGA[:-1] - OMEGA[1:]))\
+        / delta
+    f = (mat_z_ie[1:, j] - mat_z_ie[:-1, j]) / (OMEGA[1:] - OMEGA[:-1]) -\
+        e * pi[j-1]
     if c == 0:
         mat_steady_age[1:, j] = np.where(grid[1:, j] == 1,
                                          mat_steady_age[:-1, j-1] + (1 / d) *
@@ -387,7 +391,7 @@ for j in range(2, imax+2):
 # Theta_min and z_ie_min, which are the grid min for each vertical profile
 # They are used for plotting the meshes
 theta_min = np.nanmin(mat_theta, axis=0)
-z_ie_min = np.nanmin(z_ie, axis=0)
+z_ie_min = np.nanmin(mat_z_ie, axis=0)
 
 print('After calculation of steady age matrix.')
 
@@ -400,7 +404,7 @@ print('After calculation of steady age matrix.')
 # Matrix of thinning function: tau_ie
 # -------------------------------------------------------
 
-tau_ie = np.where(grid[1:, 1:] == 1, (z_ie[:-1, 1:] - z_ie[1:, 1:])
+tau_ie = np.where(grid[1:, 1:] == 1, (mat_z_ie[:-1, 1:] - mat_z_ie[1:, 1:])
                   / (mat_steady_age[1:, 1:] - mat_steady_age[:-1, 1:])
                   / mat_a0[:-1, :], np.nan)
 
@@ -564,7 +568,7 @@ if create_figs:
     plt.plot(x, B, label='Bedrock', color='0')
     # FIXME: The space above the bedrock seems to large vs the grid.
     for i in range(0, imax+1):
-        plt.plot(x[:], z_ie[i, :],  ls='-', color='k', linewidth=0.1)
+        plt.plot(x[:], mat_z_ie[i, :],  ls='-', color='k', linewidth=0.1)
     plt.vlines(x, z_ie_min, S_ie, color='k', linewidths=0.1)
     plt.xlabel(r'$x$ (km)', fontsize=18)
     plt.ylabel(r'$z$ (m)', fontsize=18)
