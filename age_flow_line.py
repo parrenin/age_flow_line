@@ -319,9 +319,6 @@ mat_depth_ie[0, :] = 0
 
 mat_q = np.where(grid[:, 1:] == 1, Q[1:] * mat_OMEGA, np.nan)
 
-mat_q[:, 0] = mat_q[0, 0]  # ligne de flux verticale au dôme
-
-
 # -------------------------------------------------------
 # Matrix a0: mat_a0
 # -------------------------------------------------------
@@ -357,10 +354,6 @@ print('After defining mat_x0')
 # -------------------------------------------------------
 # Matrix STEADY-AGE:
 # -------------------------------------------------------
-
-# -----------------------------------------------------------------------------
-# First oder computation of age
-# -----------------------------------------------------------------------------
 
 print('Before calculation of steady age matrix.')
 
@@ -404,6 +397,7 @@ for j in range(2, imax+2):
 grid = np.where(np.isnan(mat_steady_age), 0, 1)
 # FIXME: We should probably update other matrices here.
 mat_theta = np.where(grid[:, 1:] == 1, mat_theta, np.nan)
+# FIXME: theta_min should not be the min of mat_theta, but a theoretical value.
 theta_min = np.nanmin(mat_theta, axis=0)
 
 # Upgrading z_ie and calculating z_ie_min
@@ -761,6 +755,9 @@ if create_figs:
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(15, 7))
+    # Rmq: We could plot stream lines using plt.contour, but it would require
+    # to define the levels, not sure what is faster
+    # plt.contour(mat_x[:, 1:], mat_z[:, 1:], mat_q, colors='b')
     # We don't exactly go down to the bedrock here but this is normal
     # Trajectories that comes from the flank
     for i in range(0, imax+1, traj_step):
@@ -771,7 +768,7 @@ if create_figs:
         plt.plot(x[1:-i,], np.diagonal(mat_z[:, 1:], -i), color='blue',
                  linewidth=0.1)
     plt.vlines(x[0], B[0], S[0], color='blue')  # ice divide
-    plt.vlines(x[1], B[1], S[1], color='blue')  # vertical flow
+    plt.vlines(x[1], B[1], S[1], color='blue')  # 1st horizontal node
     plt.plot(x, S, label='Surface', color='0')
     plt.plot(0, 0, label="Trajectories", color='blue')
     plt.plot(x, B, label='Bedrock', color='0')
