@@ -755,18 +755,13 @@ if create_figs:
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(15, 7))
-    # Rmq: We could plot stream lines using plt.contour, but it would require
-    # to define the levels, not sure what is faster
-    # plt.contour(mat_x[:, 1:], mat_z[:, 1:], mat_q, colors='b')
-    # We don't exactly go down to the bedrock here but this is normal
-    # Trajectories that comes from the flank
-    for i in range(0, imax+1, traj_step):
-        plt.plot(x[i+1:,], np.diagonal(mat_z[:, 1:], i), color='blue',
-                 linewidth=0.1)
-    # Trajectories that come from the dome
-    for i in range(traj_step, imax+1, traj_step):
-        plt.plot(x[1:-i,], np.diagonal(mat_z[:, 1:], -i), color='blue',
-                 linewidth=0.1)
+    # Rmq: We use plt.contour instead of plotting the individual lines, since
+    # it is simpler and slightly faster.
+    # Rmq2: We don't exactly go down to the bedrock here but this is normal.
+    plt.contour(mat_x[:, 1:], mat_z[:, 1:], mat_q, colors='b',
+                levels=Q[1::traj_step], linewidths=0.1)
+    plt.contour(mat_x[:, 1:], mat_z[:, 1:], mat_q, colors='b',
+                levels=mat_q[traj_step::traj_step, 0], linewidths=0.1)
     plt.vlines(x[0], B[0], S[0], color='blue')  # ice divide
     plt.vlines(x[1], B[1], S[1], color='blue')  # 1st horizontal node
     plt.plot(x, S, label='Surface', color='0')
