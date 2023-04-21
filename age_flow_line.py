@@ -315,17 +315,12 @@ mat_q = np.where(grid[:, 1:], Q[1:] * mat_OMEGA, np.nan)
 # Matrix a0: mat_a0
 # -------------------------------------------------------
 
-mat_a0 = np.zeros((imax+1, imax+1))
-
-mat_a0[0, :] = a[1:]
-
-mat_a0[1:, 0] = np.where(grid[1:, 1], mat_a0[0, 0], np.nan)
-
 print('Before defining mat_a0')
-# FIXME: Maybe it is possible to have a matrix operation here,
-# and also for mat_x0 and mat_q, using scipy.linalg.toeplitz
-for j in range(1, imax+1):
-    mat_a0[1:, j] = np.where(grid[1:, j], mat_a0[:-1, j-1], np.nan)
+
+# FIXME: mat_0 does not have the same size as mat_x0
+mat_a0 = np.where(grid[:, 1:], toeplitz(a[1]*np.ones(imax+1), a[1:]),
+                  np.nan)
+
 print('After defining mat_a0')
 
 # -------------------------------------------------------
@@ -334,8 +329,7 @@ print('After defining mat_a0')
 
 print('Before defining mat_x0')
 
-mat_x0 = np.zeros((imax+1, imax+1+1))
-
+mat_x0 = np.zeros((imax+1, imax+2))
 mat_x0[:, 0] = np.where(grid[:, 0], 0, np.nan)
 
 # x0 is not defined when trajectories reach the dome area, so we set to x[1].
@@ -362,6 +356,7 @@ for i in range(1, imax+1):
     else:
         mat_steady_age[i][1] = np.nan
 
+# FIXME: This is actually wrong, since a[0]!=a[1], etc.
 mat_steady_age[:, 0] = mat_steady_age[:, 1]
 
 for j in range(2, imax+2):
@@ -407,7 +402,8 @@ print('After calculation of steady age matrix.')
 # -------------------------------------------------------
 
 # FIXME: We should use mat_tau_ie here
-
+# FIXME: Use a more accurate scheme for thinning.
+# FIXME: At least use an average of two consecutive values of a0.
 tau_ie = np.where(grid[1:, 1:], (mat_z_ie[:-1, 1:] - mat_z_ie[1:, 1:])
                   / (mat_steady_age[1:, 1:] - mat_steady_age[:-1, 1:])
                   / mat_a0[:-1, :], np.nan)
