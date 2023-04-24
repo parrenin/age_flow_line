@@ -579,78 +579,55 @@ if create_figs:
     # Boundary conditions of the flow in (pi,theta)
     # -------------------------------------------------------------------------
 
-# FIXME: Is this not a bit too complicated?
-
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
-
-    # Twin the x-axis to make independent y-axes.
-    axes = [ax.twinx(), ax.twinx()]
-
-    # Make some space on the right side for the extra y-axis.
     fig.subplots_adjust(right=0.8)
-
-    # Move the last y-axis spine over to the right by 20% of the width
-    axes[0].spines['right'].set_position(('axes', 1.01))
-    axes[0].spines['right'].set_color('Green')
-    axes[1].spines['right'].set_position(('axes', 1.09))
-    axes[1].spines['right'].set_color('Red')
-
-    axes[0].set_frame_on(True)
-    axes[0].patch.set_visible(False)
-    axes[1].set_frame_on(True)
-    axes[1].patch.set_visible(False)
-
-    # And finally we get to plot ...
-    colors = ('Green', 'Red')
-    datas = [a[1:], m[1:]]
-    ynames = ['a (m/yr)', 'm (m/yr)']
-    ax.set_xlabel(r'$\pi$', fontsize=18)
+    ax.set_xlabel('x (km)', fontsize=18)
     ax.set_ylabel('Y (relative unit)')
     ax.plot(pi, Y[1:], color='k')
+    ax.spines.right.set_visible(False)
 
-    for ax, color, data, yname in zip(axes, colors, datas, ynames):
-        ax.plot(pi, data, color=color)
-        ax.set_ylabel(yname, color=color)
-        ax.tick_params(axis='y', colors=color)
-    plt.savefig(datadir+'boundary_conditions_pi_theta.'+fig_format,
-                format=fig_format, bbox_inches='tight')
+    color = 'g'
+    ax1 = ax.twinx()
+    ax1.spines['right'].set_position(('axes', 1.))
+    ax1.spines['right'].set_color(color)
+    ax1.plot(pi, a[1:], color=color)
+    ax1.set_ylabel('a (m/yr)', color=color)
+    ax1.tick_params(axis='y', colors=color)
+
+    color = 'r'
+    ax2 = ax.twinx()
+    ax2.spines['right'].set_position(('axes', 1.09))
+    ax2.spines['right'].set_color(color)
+    ax2.plot(pi, m[1:], color=color)
+    ax2.set_ylabel('m (m/yr)', color=color)
+    ax2.tick_params(axis='y', colors=color)
 
     # -------------------------------------------------------------------------
     # Boundary conditions of the flow in (x,z)
     # -------------------------------------------------------------------------
 
-# FIXME: idem here, this is a bit complicated.
-
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
     fig.subplots_adjust(right=0.8)
-
-    axes = [ax.twinx(), ax.twinx()]
-
-    axes[0].spines['right'].set_position(('axes', 1.01))
-    axes[0].spines['right'].set_color('Green')
-    axes[1].spines['right'].set_position(('axes', 1.09))
-    axes[1].spines['right'].set_color('Red')
-
-    axes[0].set_frame_on(True)
-    axes[0].patch.set_visible(False)
-    axes[1].set_frame_on(True)
-    axes[1].patch.set_visible(False)
-
-    colors = ('Green', 'Red')
-    datas = [a, m]
-    ynames = ['a (m/yr)', 'm (m/yr)']
     ax.set_xlabel('x (km)', fontsize=18)
     ax.set_ylabel('Y (relative unit)')
     ax.plot(x, Y, color='k')
+    ax.spines.right.set_visible(False)
 
-    for ax, color, data, yname in zip(axes, colors, datas, ynames):
-        ax.plot(x, data, color=color)
-        ax.set_ylabel(yname, color=color)
-        ax.tick_params(axis='y', colors=color)
-    plt.savefig(datadir+'boundary_conditions_x_z.'+fig_format,
-                format=fig_format, bbox_inches='tight')
+    ax1 = ax.twinx()
+    ax1.spines['right'].set_position(('axes', 1.))
+    ax1.spines['right'].set_color('g')
+    ax1.plot(x, a, color='g')
+    ax1.set_ylabel('a (m/yr)', color='g')
+    ax1.tick_params(axis='y', colors='g')
+
+    ax2 = ax.twinx()
+    ax2.spines['right'].set_position(('axes', 1.09))
+    ax2.spines['right'].set_color('r')
+    ax2.plot(x, m, color='r')
+    ax2.set_ylabel('m (m/yr)', color='r')
+    ax2.tick_params(axis='y', colors='r')
 
     # ----------------------------------------------------------
     # Display of iso-omega lines in (x, z)
@@ -661,7 +638,6 @@ if create_figs:
     plt.plot(x, B, label='Bedrock', color='0')
     levels = np.arange(0, 1.01, 0.01)
     levels_cb = np.arange(0, 11, 1)/10.
-    # FIXME: mat_omega is not displayed on the accretion ice, is this normal?
     # There is no node on the bedrock, so the color does not go down there.
     cp = plt.contourf(mat_x, mat_z, mat_omega, levels=levels,
                       cmap='jet')
