@@ -411,6 +411,8 @@ mat_tau_ie = np.where(grid[1:, 1:], (mat_z_ie[:-1, 1:] - mat_z_ie[1:, 1:])
 # on the 1D grid of the drilling site
 # ----------------------------------------------------------
 
+# FIXME: We could have several drillings along the flow line.
+
 # ----------------------------------------------------------
 #  Computation of theta for the ice core: theta_ic
 # ----------------------------------------------------------
@@ -529,12 +531,12 @@ mat_depth = np.interp(mat_depth_ie, np.append(ie_depth, ie_depth[-1]+10000.),
 mat_z = S - mat_depth
 
 # ----------------------------------------------------------
-#  Computation age matrix: mat_Age
+#  Computation age matrix: mat_age
 # ----------------------------------------------------------
 
 # FIXME: What happens if age_R[0] is after age_surf?
 
-mat_Age = np.interp(mat_steady_age, np.append(steady_age_R,
+mat_age = np.interp(mat_steady_age, np.append(steady_age_R,
                                               100*steady_age_R[-1]),
                     np.append(age_R, 100*age_R[-1]))
 
@@ -566,7 +568,8 @@ if create_figs:
     fig, ax = plt.subplots(figsize=(15, 5))
     plt.plot(x, S_ie, label='Surface', color='0')
     plt.plot(x, B, label='Bedrock', color='0')
-    # FIXME: The space above the bedrock seems to large vs the grid.
+    # The vertical grid step can increase near the bed.
+    # This is due do iso-omega layers being thicker near the bed.
     for i in range(0, imax+1):
         plt.plot(x[:], mat_z_ie[i, :],  ls='-', color='k', linewidth=0.1)
     plt.vlines(x, z_ie_min, S_ie, color='k', linewidths=0.1)
@@ -658,7 +661,6 @@ if create_figs:
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(12, 6))
-#    ax = fig.add_subplot(111)
 
     plt.plot(x, S, label='Surface', color='0')
     plt.plot(x, B, label='Bedrock', color='0')
@@ -667,9 +669,9 @@ if create_figs:
 
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
-    cp = plt.contourf(mat_x, mat_z, mat_Age/1000., levels=levels,
+    cp = plt.contourf(mat_x, mat_z, mat_age/1000., levels=levels,
                       cmap='jet')
-    cp2 = plt.contour(mat_x, mat_z, mat_Age/1000., levels=levels_cb,
+    cp2 = plt.contour(mat_x, mat_z, mat_age/1000., levels=levels_cb,
                       colors='k')
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
@@ -693,9 +695,9 @@ if create_figs:
 
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
-    cp = plt.contourf(mat_pi, mat_theta, mat_Age[:, 1:]/1000., levels=levels,
+    cp = plt.contourf(mat_pi, mat_theta, mat_age[:, 1:]/1000., levels=levels,
                       cmap='jet')
-    cp2 = plt.contour(mat_pi, mat_theta, mat_Age[:, 1:]/1000.,
+    cp2 = plt.contour(mat_pi, mat_theta, mat_age[:, 1:]/1000.,
                       levels=levels_cb, colors='k')
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
@@ -787,8 +789,6 @@ if create_figs:
     # ----------------------------------------------------------
     # Graphs vs depth for the ice core
     # ----------------------------------------------------------
-
-# FIXME: We could have several drillings along the flow line.
 
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.set_ylabel('depth (m)')
