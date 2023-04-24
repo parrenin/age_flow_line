@@ -404,9 +404,9 @@ print('After calculation of steady age matrix.')
 # FIXME: We should use mat_tau_ie here
 # FIXME: Use a more accurate scheme for thinning.
 # FIXME: At least use an average of two consecutive values of a0.
-tau_ie = np.where(grid[1:, 1:], (mat_z_ie[:-1, 1:] - mat_z_ie[1:, 1:])
-                  / (mat_steady_age[1:, 1:] - mat_steady_age[:-1, 1:])
-                  / mat_a0[:-1, :], np.nan)
+mat_tau_ie = np.where(grid[1:, 1:], (mat_z_ie[:-1, 1:] - mat_z_ie[1:, 1:])
+                      / (mat_steady_age[1:, 1:] - mat_steady_age[:-1, 1:])
+                      / mat_a0[:-1, :], np.nan)
 
 # ----------------------------------------------------------
 # Post-processing: transfert of the modeling results
@@ -540,13 +540,13 @@ mat_Age = np.interp(mat_steady_age, np.append(steady_age_R,
                                               100*steady_age_R[-1]),
                     np.append(age_R, 100*age_R[-1]))
 
-print('Before creating figures.')
-
 # -----------
 # FIGURES
 # -----------
 
 if create_figs:
+
+    print('Before creating figures.')
 
     # ----------------------------------------------------------
     # Display of (pi,theta) mesh
