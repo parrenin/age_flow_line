@@ -401,12 +401,11 @@ print('After calculation of steady age matrix.')
 # Matrix of thinning function: tau_ie
 # -------------------------------------------------------
 
-# FIXME: We should use mat_tau_ie here
 # FIXME: Use a more accurate scheme for thinning.
-# FIXME: At least use an average of two consecutive values of a0.
+# FIXME: Make a graph with the thining function
 mat_tau_ie = np.where(grid[1:, 1:], (mat_z_ie[:-1, 1:] - mat_z_ie[1:, 1:])
                       / (mat_steady_age[1:, 1:] - mat_steady_age[:-1, 1:])
-                      / mat_a0[:-1, :], np.nan)
+                      / mat_a0[:-1, :] / mat_a0[1:, :] * 2, np.nan)
 
 # ----------------------------------------------------------
 # Post-processing: transfert of the modeling results
