@@ -402,10 +402,9 @@ print('After calculation of steady age matrix.')
 # -------------------------------------------------------
 
 # FIXME: Use a more accurate scheme for thinning.
-# FIXME: Make a graph with the thining function
 mat_tau_ie = np.where(grid[1:, 1:], (mat_z_ie[:-1, 1:] - mat_z_ie[1:, 1:])
                       / (mat_steady_age[1:, 1:] - mat_steady_age[:-1, 1:])
-                      / mat_a0[:-1, :] / mat_a0[1:, :] * 2, np.nan)
+                      / (mat_a0[:-1, :] + mat_a0[1:, :]) * 2, np.nan)
 
 # ----------------------------------------------------------
 # Post-processing: transfert of the modeling results
@@ -731,6 +730,36 @@ if create_figs:
     ax.set_ylabel(r'$\theta$', fontsize=19)
     ax.grid()
     plt.savefig(datadir+'age_pi_theta.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+
+    # ----------------------------------------------------------
+    # Display of thinning function
+    # ----------------------------------------------------------
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    plt.plot(x, S, label='Surface', color='0')
+    plt.plot(x, B, label='Bedrock', color='0')
+
+    levels = np.arange(0, 1.21, 0.01)
+    levels_cb = np.arange(0, 13, 1)/10.
+    cp = plt.contourf(mat_x[1:, 1:], (mat_z[1:, 1:] + mat_z[:-1, 1:])/2,
+                      mat_tau_ie,
+                      levels=levels,
+                      cmap='jet')
+    cp2 = plt.contour(mat_x[1:, 1:], (mat_z[1:, 1:] + mat_z[:-1, 1:])/2,
+                      mat_tau_ie,
+                      levels=levels_cb,
+                      colors='k')
+    cb = plt.colorbar(cp)
+    cb.set_ticks(levels_cb)
+    cb.set_ticklabels(levels_cb)
+    cb.add_lines(cp2)
+    cb.set_label('Thinning function (no unit))')
+    ax.set_xlabel(r'$x$ (km)', fontsize=19)
+    ax.set_ylabel(r'$z$ (m)', fontsize=19)
+    ax.grid()
+    plt.savefig(datadir+'thinning_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
