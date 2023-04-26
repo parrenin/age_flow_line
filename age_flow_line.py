@@ -638,14 +638,16 @@ if create_figs:
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(12, 6))
-    plt.plot(x, S, label='Surface', color='0')
-    plt.plot(x, B, label='Bedrock', color='0')
+    plt.plot(x[1:], S[1:], label='Surface', color='0')
+    plt.plot(x[1:], B[1:], label='Bedrock', color='0')
     levels = np.arange(0, 1.01, 0.01)
     levels_cb = np.arange(0, 11, 1)/10.
     # There is no node on the bedrock, so the color does not go down there.
-    cp = plt.contourf(mat_x, mat_z, mat_omega, levels=levels,
+    cp = plt.contourf(mat_x[:, 1:], mat_z[:, 1:], mat_omega[:, 1:],
+                      levels=levels,
                       cmap='jet')
-    cp2 = plt.contour(mat_x, mat_z, mat_omega, levels=levels_cb,
+    cp2 = plt.contour(mat_x[:, 1:], mat_z[:, 1:], mat_omega[:, 1:],
+                      levels=levels_cb,
                       colors='k')
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
@@ -663,16 +665,18 @@ if create_figs:
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
-    plt.plot(x, S, label='Surface', color='0')
-    plt.plot(x, B, label='Bedrock', color='0')
+    plt.plot(x[1:], S[1:], label='Surface', color='0')
+    plt.plot(x[1:], B[1:], label='Bedrock', color='0')
 
     # FIXME: Could we plot refrozen ice here?
 
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
-    cp = plt.contourf(mat_x, mat_z, mat_age/1000., levels=levels,
+    cp = plt.contourf(mat_x[:, 1:], mat_z[:, 1:], mat_age[:, 1:]/1000.,
+                      levels=levels,
                       cmap='jet')
-    cp2 = plt.contour(mat_x, mat_z, mat_age/1000., levels=levels_cb,
+    cp2 = plt.contour(mat_x[:, 1:], mat_z[:, 1:], mat_age[:, 1:]/1000.,
+                      levels=levels_cb,
                       colors='k')
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
@@ -717,8 +721,8 @@ if create_figs:
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
-    plt.plot(x, S, label='Surface', color='0')
-    plt.plot(x, B, label='Bedrock', color='0')
+    plt.plot(x[1:], S[1:], label='Surface', color='0')
+    plt.plot(x[1:], B[1:], label='Bedrock', color='0')
 
     levels = np.arange(0, 1.21, 0.01)
     levels_cb = np.arange(0, 13, 1)/10.
