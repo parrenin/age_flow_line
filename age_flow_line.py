@@ -405,6 +405,37 @@ mat_tau_ie = np.where(grid[1:, :], (mat_z_ie[:-1, :] - mat_z_ie[1:, :])
                       / (mat_a0[:-1, :] + mat_a0[1:, :]) * 2, np.nan)
 
 # ----------------------------------------------------------
+#  Computation of depth matrix: mat_depth
+# ----------------------------------------------------------
+
+mat_depth = np.interp(mat_depth_ie, np.append(ie_depth, ie_depth[-1]+10000.),
+                      np.append(depth_corrected, depth_corrected[-1]+10000.))
+
+# ----------------------------------------------------------
+#  Computation of z matrix: mat_z
+# ----------------------------------------------------------
+
+mat_z = S - mat_depth
+
+# -------------------------------
+# Computation of steady_age_R
+# -------------------------------
+
+steady_age_R = np.concatenate((np.array([age_R[0]]),
+                               (age_R[1:] - age_R[:-1]) * R[:-1]))
+steady_age_R = np.cumsum(steady_age_R)
+
+# ----------------------------------------------------------
+#  Computation age matrix: mat_age
+# ----------------------------------------------------------
+
+# Rmq if age_R[0]>age_surf, there is a top layer of age age_R[0]
+# FIXME: we should set the surface age in the YAML file for the age plot.
+mat_age = np.interp(mat_steady_age, np.append(steady_age_R,
+                                              100*steady_age_R[-1]),
+                    np.append(age_R, 100*age_R[-1]))
+
+# ----------------------------------------------------------
 # Post-processing: transfert of the modeling results
 # on the 1D grid of the drilling site
 # ----------------------------------------------------------
@@ -470,14 +501,6 @@ chi_0 = np.insert(mat_steady_age[:, imax][~np.isnan(mat_steady_age[
 
 steady_age_sp_2 = interp1d(new_theta, chi_0, kind='cubic')(-theta_ic)
 
-# -------------------------------
-# Computation of steady_age_R
-# -------------------------------
-
-steady_age_R = np.concatenate((np.array([age_R[0]]),
-                               (age_R[1:] - age_R[:-1]) * R[:-1]))
-steady_age_R = np.cumsum(steady_age_R)
-
 # ----------------------------------------------------------
 #  Computation of Age for the ice core
 # ----------------------------------------------------------
@@ -519,29 +542,6 @@ tau_ie_middle_sp = (ie_depth[1:] - ie_depth[:-1]) / steady_a0[:-1] / \
 
 tau_ie_middle_sp_2 = (ie_depth[1:] - ie_depth[:-1]) / steady_a0[:-1] / \
                      (steady_age_sp_2[1:] - steady_age_sp_2[:-1])
-
-# ----------------------------------------------------------
-#  Computation of depth matrix: mat_depth
-# ----------------------------------------------------------
-
-mat_depth = np.interp(mat_depth_ie, np.append(ie_depth, ie_depth[-1]+10000.),
-                      np.append(depth_corrected, depth_corrected[-1]+10000.))
-
-# ----------------------------------------------------------
-#  Computation of z matrix: mat_z
-# ----------------------------------------------------------
-
-mat_z = S - mat_depth
-
-# ----------------------------------------------------------
-#  Computation age matrix: mat_age
-# ----------------------------------------------------------
-
-# Rmq if age_R[0]>age_surf, there is a top layer of age age_R[0]
-# FIXME: we should set the surface age in the YAML file for the age plot.
-mat_age = np.interp(mat_steady_age, np.append(steady_age_R,
-                                              100*steady_age_R[-1]),
-                    np.append(age_R, 100*age_R[-1]))
 
 # -----------
 # FIGURES
