@@ -226,10 +226,9 @@ grid = np.ones((imax + 1, imax + 1), dtype=bool)
 grid[:, 0] = theta >= theta_min[0]
 
 print('Before defining grid boolean')
-# We need an iteration here, to treat a line after the previous one
-# imax+2 here so that we stop at imax+1
+# We need an iteration here, to treat a column after the previous one
 for j in range(1, imax+1):
-    grid[2:, j] = np.logical_and(theta[2:] >= theta_min[j-1], grid[1:-1, j-1])
+    grid[1:, j] = np.logical_and(theta[1:] >= theta_min[j-1], grid[0:-1, j-1])
 print('After defining grid boolean')
 
 # -------------------------------------------------------
@@ -351,7 +350,7 @@ mat_steady_age[1:, 0] = delta / a[0] * np.cumsum((mat_z_ie[:-1, 0] -
                                                   mat_z_ie[1:, 0]) /
                                                  (OMEGA[:-1] - OMEGA[1:]))
 
-# Here we could also proceed by lines and not by columns
+# Here we could also proceed by lines instead of by columns
 # FIXME: Check these formulas which are complicated
 for j in range(1, imax+1):
     c = (a[j] - a[j-1]) / delta
