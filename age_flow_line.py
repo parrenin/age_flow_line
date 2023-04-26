@@ -567,13 +567,13 @@ if create_figs:
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(15, 5))
-    plt.plot(x, S_ie, label='Surface', color='0')
-    plt.plot(x, B, label='Bedrock', color='0')
+    plt.plot(x[1:], S_ie[1:], label='Surface', color='0')
+    plt.plot(x[1:], B[1:], label='Bedrock', color='0')
     # The vertical grid step can increase near the bed.
     # This is due do iso-omega layers being thicker near the bed.
     for i in range(0, imax+1):
-        plt.plot(x[:], mat_z_ie[i, :],  ls='-', color='k', linewidth=0.1)
-    plt.vlines(x, z_ie_min, S_ie, color='k', linewidths=0.1)
+        plt.plot(x[1:], mat_z_ie[i, 1:],  ls='-', color='k', linewidth=0.1)
+    plt.vlines(x[1:], z_ie_min[1:], S_ie[1:], color='k', linewidths=0.1)
     plt.xlabel(r'$x$ (km)', fontsize=18)
     plt.ylabel(r'$z$ (m)', fontsize=18)
     plt.savefig(datadir+'mesh_x_z.'+fig_format,
