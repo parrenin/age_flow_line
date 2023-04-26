@@ -389,8 +389,8 @@ for j in range(1, imax+1):
 
 # Theta_min and z_ie_min are the grid min for each vertical profile
 # They are used for plotting the meshes
-theta_min = np.nanmin(mat_theta, axis=0)
-z_ie_min = np.nanmin(mat_z_ie, axis=0)
+theta_min_mesh = np.nanmin(mat_theta, axis=0)
+z_ie_min_mesh = np.nanmin(mat_z_ie, axis=0)
 
 print('After calculation of steady age matrix.',
       round(time.perf_counter()-START_TIME, 4), 's.')
@@ -559,7 +559,7 @@ if create_figs:
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots()
-    plt.vlines(pi, theta_min, theta_max, color='k', linewidths=0.1)
+    plt.vlines(pi, theta_min_mesh, theta_max, color='k', linewidths=0.1)
     for i in range(0, imax+1):
         plt.plot(pi, mat_theta[i, :], color='k', linewidth=0.1)
     plt.xlabel(r'$\pi$', fontsize=18)
@@ -578,7 +578,7 @@ if create_figs:
     # This is due do iso-omega layers being thicker near the bed.
     for i in range(0, imax+1):
         plt.plot(x, mat_z_ie[i, :],  ls='-', color='k', linewidth=0.1)
-    plt.vlines(x, z_ie_min, S_ie, color='k', linewidths=0.1)
+    plt.vlines(x, z_ie_min_mesh, S_ie, color='k', linewidths=0.1)
     plt.xlabel(r'$x$ (km)', fontsize=18)
     plt.ylabel(r'$z$ (m)', fontsize=18)
     plt.savefig(datadir+'mesh_x_z.'+fig_format,
@@ -700,8 +700,8 @@ if create_figs:
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
-    plt.plot(pi, np.zeros_like(S), label='Surface', color='0')
-    plt.plot(pi, theta_min, label='Bedrock', color='0')
+    plt.plot(pi, theta_max, label='Surface', color='0')
+    plt.plot(pi, theta_min_mesh, label='Bedrock', color=None)
 
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
