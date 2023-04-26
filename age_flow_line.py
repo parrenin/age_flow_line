@@ -225,11 +225,13 @@ grid = np.ones((imax + 1, imax + 1), dtype=bool)
 
 grid[:, 0] = theta >= theta_min[0]
 
-print('Before defining grid boolean')
+print('Before defining grid boolean',
+      round(time.perf_counter()-START_TIME, 4), 's.')
 # We need an iteration here, to treat a column after the previous one
 for j in range(1, imax+1):
     grid[1:, j] = np.logical_and(theta[1:] >= theta_min[j-1], grid[0:-1, j-1])
-print('After defining grid boolean')
+print('After defining grid boolean ',
+      round(time.perf_counter()-START_TIME, 4), 's.')
 
 # -------------------------------------------------------
 # Matrix theta
@@ -268,13 +270,15 @@ mat_omega = np.where(grid,
 
 mat_z_ie = np.zeros((imax+1, imax+1))
 
-print('Before defining z_ie')
+print('Before defining z_ie',
+      round(time.perf_counter()-START_TIME, 4), 's.')
 for j in range(0, imax+1):
     inter = np.interp(-mat_omega[:, j], -omega[:, j].flatten(),
                       zeta.flatten())
     mat_z_ie[:, j] = np.where(grid[:, j], B[j]+inter*(S_ie[j]-B[j]),
                               np.nan)
-print('After defining z_ie')
+print('After defining z_ie',
+      round(time.perf_counter()-START_TIME, 4), 's.')
 
 # -------------------------------------------------------
 # Matrix OMEGA: mat_OMEGA
@@ -312,19 +316,22 @@ mat_q = np.where(grid, Q * mat_OMEGA, np.nan)
 # Matrix a0: mat_a0
 # -------------------------------------------------------
 
-print('Before defining mat_a0')
+print('Before defining mat_a0',
+      round(time.perf_counter()-START_TIME, 4), 's.')
 
 # FIXME: mat_0 does not have the same size as mat_x0
 mat_a0 = np.where(grid, toeplitz(a[0]*np.ones(imax+1), a),
                   np.nan)
 
-print('After defining mat_a0')
+print('After defining mat_a0',
+      round(time.perf_counter()-START_TIME, 4), 's.')
 
 # -------------------------------------------------------
 # Matrix x0: mat_x0
 # -------------------------------------------------------
 
-print('Before defining mat_x0')
+print('Before defining mat_x0',
+      round(time.perf_counter()-START_TIME, 4), 's.')
 
 mat_x0 = np.zeros((imax+1, imax+1))
 
@@ -333,13 +340,15 @@ mat_x0 = np.zeros((imax+1, imax+1))
 mat_x0 = np.where(grid, toeplitz(x[0]*np.ones(imax+1), x),
                   np.nan)
 
-print('After defining mat_x0')
+print('After defining mat_x0',
+      round(time.perf_counter()-START_TIME, 4), 's.')
 
 # -------------------------------------------------------
 # Matrix STEADY-AGE:
 # -------------------------------------------------------
 
-print('Before calculation of steady age matrix.')
+print('Before calculation of steady age matrix.',
+      round(time.perf_counter()-START_TIME, 4), 's.')
 
 mat_steady_age = np.zeros((imax+1, imax+1))
 
@@ -383,7 +392,8 @@ for j in range(1, imax+1):
 theta_min = np.nanmin(mat_theta, axis=0)
 z_ie_min = np.nanmin(mat_z_ie, axis=0)
 
-print('After calculation of steady age matrix.')
+print('After calculation of steady age matrix.',
+      round(time.perf_counter()-START_TIME, 4), 's.')
 
 # -------------------------------------------------------
 # Matrix of thinning function: tau_ie
@@ -401,6 +411,9 @@ mat_tau_ie = np.where(grid[1:, :], (mat_z_ie[:-1, :] - mat_z_ie[1:, :])
 
 # FIXME: We could have several drillings along the flow line.
 # And each drilling would have its age_surf
+
+print('Before calculating for the ice core',
+      round(time.perf_counter()-START_TIME, 4), 's.')
 
 # ----------------------------------------------------------
 #  Computation of theta for the ice core: theta_ic
@@ -538,7 +551,8 @@ mat_age = np.interp(mat_steady_age, np.append(steady_age_R,
 
 if create_figs:
 
-    print('Before creating figures.')
+    print('Before creating figures.',
+          round(time.perf_counter()-START_TIME, 4), 's.')
 
     # ----------------------------------------------------------
     # Display of (pi,theta) mesh
