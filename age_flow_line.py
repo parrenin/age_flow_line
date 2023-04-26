@@ -347,15 +347,12 @@ mat_steady_age = np.zeros((imax+1, imax+1))
 # FIXME: Maybe make a matrix with dz/dOmega
 
 # Dome boundary condition
-# FIXME: Is it possible to remove this loop?
-for i in range(1, imax+1):
-    if grid[i, 0]:
-        mat_steady_age[i, 0] = mat_steady_age[i-1, 0] + delta / a[0] \
-            * (mat_z_ie[i-1, 0] - mat_z_ie[i, 0]) / (OMEGA[i-1] - OMEGA[i])
-    else:
-        mat_steady_age[i, 0] = np.nan
+mat_steady_age[1:, 0] = delta / a[0] * np.cumsum((mat_z_ie[:-1, 0] -
+                                                  mat_z_ie[1:, 0]) /
+                                                 (OMEGA[:-1] - OMEGA[1:]))
 
-# FIXME: Maybe it makes sense to proceed by line and not by column
+# Here we could also proceed by lines and not by columns
+# FIXME: Check these formulas which are complicated
 for j in range(1, imax+1):
     c = (a[j] - a[j-1]) / delta
     d = a[j] - c * pi[j]
