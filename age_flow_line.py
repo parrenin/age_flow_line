@@ -412,6 +412,7 @@ mat_tau_ie = np.where(grid[1:, 1:], (mat_z_ie[:-1, 1:] - mat_z_ie[1:, 1:])
 # ----------------------------------------------------------
 
 # FIXME: We could have several drillings along the flow line.
+# And each drilling would have its age_surf
 
 # ----------------------------------------------------------
 #  Computation of theta for the ice core: theta_ic
@@ -440,8 +441,6 @@ steady_a0 = np.interp(-theta_ic, -theta[:][~np.isnan(mat_a0[:, imax])],
 # ----------------------------------------------------------
 #  Computation of steady_age vostok icecore
 # ----------------------------------------------------------
-
-# FIXME: we should set the surface age in the YAML file.
 
 steady_age = np.interp(-theta_ic, -theta[:][~np.isnan(mat_steady_age[
     :, imax+1])], mat_steady_age[:, imax+1][~np.isnan(mat_steady_age[
@@ -534,8 +533,8 @@ mat_z = S - mat_depth
 #  Computation age matrix: mat_age
 # ----------------------------------------------------------
 
-# FIXME: What happens if age_R[0] is after age_surf?
-
+# Rmq if age_R[0]>age_surf, there is a top layer of age age_R[0]
+# FIXME: we should set the surface age in the YAML file for the age plot.
 mat_age = np.interp(mat_steady_age, np.append(steady_age_R,
                                               100*steady_age_R[-1]),
                     np.append(age_R, 100*age_R[-1]))
@@ -543,6 +542,8 @@ mat_age = np.interp(mat_steady_age, np.append(steady_age_R,
 # -----------
 # FIGURES
 # -----------
+
+# FIXME: Some graphs are plotted with S_ie and other with S, be consistent.
 
 if create_figs:
 
@@ -761,12 +762,12 @@ if create_figs:
     cp = plt.contourf(mat_x[:, 1:], mat_z[:, 1:], mat_q, levels=levels,
                       locator=ticker.LogLocator())
 #    cb = plt.colorbar(cp)
-    plt.vlines(x[0], B[0], S[0], color='blue')  # ice divide
-    plt.vlines(x[1], B[1], S[1], color='blue')  # 1st horizontal node
-    plt.plot(x, S, label='Surface', color='0')
+    # plt.vlines(x[0], B[0], S[0], color='blue')  # ice divide
+    # plt.vlines(x[1], B[1], S[1], color='blue')  # 1st horizontal node
+    plt.plot(x[1:], S[1:], label='Surface', color='0')
     # Fake plot for the legend
-    plt.plot(0, 0, label="Trajectories", color=color, linewidth=lw)
-    plt.plot(x, B, label='Bedrock', color='0')
+    plt.plot(x[1], B[1], label="Trajectories", color=color, linewidth=lw)
+    plt.plot(x[1:], B[1:], label='Bedrock', color='0')
     plt.legend(loc='lower left')
     plt.xlim([-5, x[imax+1] + 5])
     plt.xlabel(r'$x$ (km)', fontsize=19)
