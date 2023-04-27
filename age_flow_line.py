@@ -100,7 +100,7 @@ x_Y, Y_measure = np.loadtxt(datadir+'tube_width.txt', unpack=True)
 # --------------------
 
 # FIXME: Use a parameter for the horizontal step
-# FIXME: Or even better, don't use any parameter and use natural samping
+# FIXME: Or even better, don't use any parameter and use a natural samping
 x_fld = np.arange(x_right+1)
 
 a0_fld = np.interp(x_fld, x_a0, a0_measure)
@@ -130,31 +130,18 @@ for i in range(1, len(Qm_fld)):
     Qm_fld[i] = Qm_fld[i-1] + 0.5 * (m_fld[i]+m_fld[i-1]) * 0.5 *\
         (Y_fld[i]+Y_fld[i-1]) * (x_fld[i]-x_fld[i-1]) * 1000
 
-# ---------------------------------------------------
-# DEPTH - 1D Vostok drill grid for post-processing
-# ---------------------------------------------------
+# -----------------------------------------------------
+# depth vs ie-depth conversion with density data
+# -----------------------------------------------------
 
-depth_corrected = np.arange(0., max_depth + 0.0001, step_depth)
-
-depth_mid = (depth_corrected[1:] + depth_corrected[:-1])/2
-
-depth_inter = (depth_corrected[1:] - depth_corrected[:-1])
-
-# ---------------------------------------------------------------------------
-# Relative density interpolation with extrapolation of "depth-density" data
-# ---------------------------------------------------------------------------
-
-# FIXME: We should not use a linear interpolation here.
-relative_density = np.interp(depth_mid, D_depth, D_D, right=1.)
-
-ie_depth = np.cumsum(np.concatenate((np.array([0]),
-                                     relative_density * depth_inter)))
+D_depth_ie = np.cumsum(np.concatenate((np.array([0]),
+                                       D_D[:-1] * (D_depth[1:]-D_depth[:-1]))))
 
 # ----------------------------------------------------------
 # DELTA H
 # ----------------------------------------------------------
 
-DELTA_H = depth_corrected[-1] - ie_depth[-1]
+DELTA_H = D_depth[-1] - D_depth_ie[-1]
 
 # ----------------------------------------------------------
 # Mesh generation (pi,theta)
@@ -325,8 +312,9 @@ mat_depth_ie[0, :] = 0
 #  Computation of depth matrix: mat_depth
 # ----------------------------------------------------------
 
-mat_depth = np.interp(mat_depth_ie, np.append(ie_depth, ie_depth[-1]+10000.),
-                      np.append(depth_corrected, depth_corrected[-1]+10000.))
+mat_depth = np.interp(mat_depth_ie, np.append(D_depth_ie,
+                                              D_depth_ie[-1]+10000.),
+                      np.append(D_depth, D_depth[-1]+10000.))
 
 # ----------------------------------------------------------
 #  Computation of z matrix: mat_z
@@ -462,6 +450,22 @@ mat_age = np.interp(mat_steady_age+age_surf,
 
 print('Before calculating for the ice core',
       round(time.perf_counter()-START_TIME, 4), 's.')
+
+# ---------------------------------------------------
+# DEPTH - 1D Vostok drill grid for post-processing
+# ---------------------------------------------------
+
+depth_corrected = np.arange(0., max_depth + 0.0001, step_depth)
+
+depth_mid = (depth_corrected[1:] + depth_corrected[:-1])/2
+
+depth_inter = (depth_corrected[1:] - depth_corrected[:-1])
+
+# ---------------------------------------------------------------------------
+# Relative density interpolation with extrapolation of "depth-density" data
+# ---------------------------------------------------------------------------
+
+ie_depth = np.interp(depth_corrected, D_depth, D_depth_ie)
 
 # ----------------------------------------------------------
 #  Computation of theta for the ice core: theta_ic
