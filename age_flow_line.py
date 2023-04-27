@@ -455,17 +455,13 @@ print('Before calculating for the ice core',
 # DEPTH - 1D Vostok drill grid for post-processing
 # ---------------------------------------------------
 
-depth_corrected = np.arange(0., max_depth + 0.0001, step_depth)
-
-depth_mid = (depth_corrected[1:] + depth_corrected[:-1])/2
-
-depth_inter = (depth_corrected[1:] - depth_corrected[:-1])
+depth_ic = np.arange(0., max_depth + 0.0001, step_depth)
 
 # ---------------------------------------------------------------------------
 # Relative density interpolation with extrapolation of "depth-density" data
 # ---------------------------------------------------------------------------
 
-ie_depth = np.interp(depth_corrected, D_depth, D_depth_ie)
+ie_depth = np.interp(depth_ic, D_depth, D_depth_ie)
 
 # ----------------------------------------------------------
 #  Computation of theta for the ice core: theta_ic
@@ -836,7 +832,7 @@ if create_figs:
 
     ax2 = ax.twiny()
     ax2.spines.bottom.set_visible(False)
-    ax2.plot(age_ic/1000, depth_corrected, color='b')
+    ax2.plot(age_ic/1000, depth_ic, color='b')
     ax2.set_xlabel('age (kyr)', color='b')
     ax2.spines['top'].set_color('b')
     ax2.tick_params(axis='x', colors='b')
@@ -844,7 +840,7 @@ if create_figs:
     ax3 = ax.twiny()
     ax3.spines['top'].set_position(('axes', 1.1))
     ax3.spines.bottom.set_visible(False)
-    ax3.plot(tau_ie_middle_sp_2, depth_corrected[:-1], color='g')
+    ax3.plot(tau_ie_middle_sp_2, depth_ic[:-1], color='g')
     ax3.set_xlabel('thinning function (no unit)', color='g')
     ax3.spines['top'].set_color('g')
     ax3.tick_params(axis='x', colors='g')
