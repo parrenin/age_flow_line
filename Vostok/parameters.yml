@@ -4,8 +4,8 @@ delta: 0.08
 # Number of intervals in the (\pi, \theta) mesh
 imax: 100
 
-#Parameter for glacial/interglacial accumulation change
-beta: 0.015 
+# Define surface age
+age_surf: -50
 
 #Total ice thickness at drilling location
 thickness: 3767 

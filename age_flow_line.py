@@ -39,6 +39,7 @@ max_depth = 3310.
 step_depth = 1.
 imax = 100
 delta = 0.08
+age_surf = -50
 x_right = 370
 traj_step = 10
 fig_age_max = 1000000
@@ -430,18 +431,17 @@ steady_age_R = np.cumsum(steady_age_R)
 # ----------------------------------------------------------
 
 # Rmq if age_R[0]>age_surf, there is a top layer of age age_R[0]
-# FIXME: we should set the surface age in the YAML file for the age plot.
-mat_age = np.interp(mat_steady_age, np.append(steady_age_R,
-                                              100*steady_age_R[-1]),
+mat_age = np.interp(mat_steady_age+age_surf,
+                    np.append(steady_age_R, 100*steady_age_R[-1]),
                     np.append(age_R, 100*age_R[-1]))
 
 # ----------------------------------------------------------
-# Post-processing: transfert of the modeling results
+# Post-processing: transfering of the modeling results
 # on the 1D grid of the drilling site
 # ----------------------------------------------------------
 
 # FIXME: We could have several drillings along the flow line.
-# And each drilling would have its age_surf
+# And each drilling could have its own age_surf
 
 print('Before calculating for the ice core',
       round(time.perf_counter()-START_TIME, 4), 's.')
@@ -506,8 +506,9 @@ steady_age_sp_2 = interp1d(new_theta, chi_0, kind='cubic')(-theta_ic)
 # ----------------------------------------------------------
 
 # FIXME: Why "Age" has a capital "A" and not "steady_age"?
+# And it should be age_ic
 
-Age = np.interp(steady_age, steady_age_R, age_R)
+Age = np.interp(steady_age+age_surf, steady_age_R, age_R)
 
 # ----------------------------------------------------------
 #  a0_ic
