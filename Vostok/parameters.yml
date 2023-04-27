@@ -4,13 +4,11 @@ delta: 0.08
 # Number of intervals in the (\pi, \theta) mesh
 imax: 100
 
+# Horizontal coordinate of right border, in km
+x_right: 370 
+
 # Define surface age
 age_surf: -50
-
-#Total ice thickness at drilling location
-thickness: 3767 
-
-x_right: 370 #Horizontal coordinate of right border, in km
 
 fig_age_max: 1000 #max age (kyr) for the age contour plots
 fig_age_spacing: 10 #spacing for the age (kyr) contour plots

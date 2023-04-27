@@ -63,7 +63,6 @@ fig_age_max = 1000000
 fig_age_spacing = 10000
 fig_age_spacing_labels = 100000
 beta = 0.015
-thickness = 3767.
 create_figs = True
 fig_format = 'pdf'
 
