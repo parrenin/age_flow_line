@@ -2,7 +2,7 @@
 delta: 0.08
 
 # Number of intervals in the (\pi, \theta) mesh
-imax: 100
+imax: 10
 
 # Define surface age
 age_surf: -50

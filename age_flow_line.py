@@ -467,14 +467,8 @@ print('Before calculating for the ice core',
 #  Computation of theta for the ice core: theta_ic
 # ----------------------------------------------------------
 
-# FIXME: Translate this message.
 if mat_depth_ie[imax, imax] < ie_depth[len(ie_depth)-1]:
-    sys.exit("\n Attention problème d'interpolation post-processing:\n \
-        le modèle donne des résultats jusqu'à une profondeur maximale trop \n \
-        faible par rapport à la profondeur maximale du forage Vostok \n \
-        Pour transposer correctement les résultats \n \
-        du maillage sur toute la hauteur du forage Vostok il faut augmenter\n \
-        le nombre de noeuds du maillage.")
+    sys.exit("The mesh does not extend down to the bottom of the core.")
 
 theta_ic = np.log(np.interp(ie_depth, mat_depth_ie[:, imax]
                             [~np.isnan(mat_depth_ie[:, imax])],
@@ -485,7 +479,6 @@ theta_ic = np.log(np.interp(ie_depth, mat_depth_ie[:, imax]
 #  Computation steady a0 ice core
 # ----------------------------------------------------------
 
-# FIXME: Use ic for steady_A0 and steady_age to specify it is for the ice core.
 steady_a0_ic = np.interp(-theta_ic, -theta[:][~np.isnan(mat_a0[:, imax])],
                          mat_a0[:, imax][~np.isnan(mat_a0[:, imax])])
 
@@ -562,8 +555,6 @@ tau_ie_middle_sp_2 = (ie_depth[1:] - ie_depth[:-1]) / aa / \
 # -----------
 # FIGURES
 # -----------
-
-# FIXME: Some graphs are plotted with S_ie and other with S, be consistent.
 
 if create_figs:
 
