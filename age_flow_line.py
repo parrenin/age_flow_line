@@ -683,6 +683,10 @@ if create_figs:
     cp2 = plt.contour(mat_x, mat_z, mat_age/1000.,
                       levels=levels_cb,
                       colors='k')
+    # Corner trajectory
+    level0 = np.array([Q[0]])
+    plt.contour(mat_x, mat_z, mat_q, colors='k', linestyles='dashed',
+                levels=level0, linewidths=1)
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
@@ -709,6 +713,10 @@ if create_figs:
                       cmap='jet')
     cp2 = plt.contour(mat_pi, mat_theta, mat_age/1000.,
                       levels=levels_cb, colors='k')
+    # Corner trajectory
+    level0 = np.array([Q[0]])
+    plt.contour(mat_pi, mat_theta, mat_q, colors='k', linestyles='dashed',
+                levels=level0, linewidths=1)
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
@@ -739,6 +747,10 @@ if create_figs:
                       mat_tau_ie,
                       levels=levels_cb,
                       colors='k')
+    # Corner trajectory
+    level0 = np.array([Q[0]])
+    plt.contour(mat_x, mat_z, mat_q, colors='k', linestyles='dashed',
+                levels=level0, linewidths=1)
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
@@ -766,16 +778,19 @@ if create_figs:
     lw = 0.2
     plt.contour(mat_x, mat_z, mat_q, colors=color,
                 levels=levels, linewidths=lw)
+    # Corner trajectory
+    level0 = np.array([Q[0]])
+    plt.contour(mat_x, mat_z, mat_q, colors='k', linestyles='dashed',
+                levels=level0, linewidths=1)
     # Color contour plot.
     from matplotlib import ticker
     cp = plt.contourf(mat_x, mat_z, mat_q, levels=levels,
                       locator=ticker.LogLocator())
-#    cb = plt.colorbar(cp)
-    # plt.vlines(x[0], B[0], S[0], color='blue')  # ice divide
-    # plt.vlines(x[1], B[1], S[1], color='blue')  # 1st horizontal node
     plt.plot(x, S, label='Surface', color='0')
-    # Fake plot for the legend
+    # Fake plots for the legend
     plt.plot(x, B, label="Trajectories", color=color, linewidth=lw)
+    plt.plot(x, B, label="Corner trajectory", color='k', linewidth=1,
+             linestyle='dashed')
     plt.plot(x, B, label='Bedrock', color='0')
     plt.legend(loc='lower left')
     plt.xlabel(r'$x$ (km)', fontsize=19)
