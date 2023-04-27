@@ -10,6 +10,26 @@ import yaml
 import matplotlib.pyplot as plt
 import time
 
+
+def interp_stair_aver(x_out, x_in, y_in):
+    """Return a staircase interpolation of a (x_in,y_in) series
+    at x_out abscissas with averaging."""
+    x_mod = x_in+0
+    y_mod = y_in+0
+    if x_out[0] < x_in[0]:
+        x_mod = np.concatenate((np.array([x_out[0]]), x_mod))
+        y_mod = np.concatenate((np.array([y_in[0]]), y_mod))
+    if x_out[-1] > x_in[-1]:
+        x_mod = np.concatenate((x_mod, np.array([x_out[-1]])))
+        y_mod = np.concatenate((y_mod, np.array([y_in[-1]])))
+    y_int = np.cumsum(np.concatenate((np.array([0]),
+                                      y_mod[:-1]*(x_mod[1:]-x_mod[:-1]))))
+# Maybe this is suboptimal since we compute twice g(xp[i]):
+    y_out = (np.interp(x_out[1:], x_mod, y_int) -
+             np.interp(x_out[:-1], x_mod, y_int)) / (x_out[1:]-x_out[:-1])
+    return y_out
+
+
 # Registration of start time
 START_TIME = time.perf_counter()
 
@@ -502,7 +522,7 @@ chi_0 = np.insert(mat_steady_age[:, imax][~np.isnan(mat_steady_age[
 steady_age_ic_sp_2 = interp1d(new_theta_ic, chi_0, kind='cubic')(-theta_ic)
 
 # ----------------------------------------------------------
-#  Computation of Age for the ice core
+#  Computation of age for the ice core
 # ----------------------------------------------------------
 
 age_ic = np.interp(steady_age_ic+age_surf, steady_age_R, age_R)
@@ -512,16 +532,16 @@ print('Bottom age for the ice core:', age_ic[-1])
 #  a0_ic
 # ----------------------------------------------------------
 
-# FIXME: We should not do a linear interpolation here.
-# And therefore, a0_ic should be one element less.
-
-a0_ic = steady_a0_ic * np.interp(steady_age_ic, steady_age_R, R)
+# Here, steady_a0_ic is at the node, while a0_ic is for an interval
+a0_ic = (steady_a0_ic[1:]+steady_a0_ic[:-1])/2 *\
+    interp_stair_aver(steady_age_ic, steady_age_R, R)
 
 # ----------------------------------------------------------
 #  Computation of tau_middle for the ice core
 # ----------------------------------------------------------
 
-tau_middle = 1./steady_a0_ic[:-1] / (steady_age_ic[1:] - steady_age_ic[:-1])
+aa = (steady_a0_ic[1:]+steady_a0_ic[:-1]) / 2
+tau_middle = 1./aa / (steady_age_ic[1:] - steady_age_ic[:-1])
 
 # ----------------------------------------------------------
 #  Computation of tau_ie_middle for the ice core
@@ -529,17 +549,17 @@ tau_middle = 1./steady_a0_ic[:-1] / (steady_age_ic[1:] - steady_age_ic[:-1])
 
 # FIXME: check what is the most natural approach for thining
 
-tau_ie_middle = (ie_depth[1:] - ie_depth[:-1]) / steady_a0_ic[:-1] / \
+tau_ie_middle = (ie_depth[1:] - ie_depth[:-1]) / aa / \
                 (steady_age_ic[1:] - steady_age_ic[:-1])
 
 # Tau_ie with "natural cubic spline"
 
-tau_ie_middle_sp = (ie_depth[1:] - ie_depth[:-1]) / steady_a0_ic[:-1] / \
+tau_ie_middle_sp = (ie_depth[1:] - ie_depth[:-1]) / aa / \
                    (steady_age_ic_sp[1:] - steady_age_ic_sp[:-1])
 
 # Tau_ie with "cubic-spline - imposed derivative"
 
-tau_ie_middle_sp_2 = (ie_depth[1:] - ie_depth[:-1]) / steady_a0_ic[:-1] / \
+tau_ie_middle_sp_2 = (ie_depth[1:] - ie_depth[:-1]) / aa / \
                      (steady_age_ic_sp_2[1:] - steady_age_ic_sp_2[:-1])
 
 # -----------
@@ -847,8 +867,8 @@ if create_figs:
     fig, ax = plt.subplots(figsize=(15, 7))
     ax.set_xlabel('age (kyr)')
     ax.set_ylabel('layer thickness (m/yr)')
-    ax.stairs(a0_ic[:-1], age_ic/1000, baseline=None, label='accumulation')
-    ax.stairs(tau_ie_middle_sp_2 * a0_ic[:-1], age_ic/1000, baseline=None,
+    ax.stairs(a0_ic, age_ic/1000, baseline=None, label='accumulation')
+    ax.stairs(tau_ie_middle_sp_2 * a0_ic, age_ic/1000, baseline=None,
               label='layer thickness')
     ax.legend()
 
