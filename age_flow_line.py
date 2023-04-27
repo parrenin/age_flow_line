@@ -469,8 +469,8 @@ theta_ic = np.log(np.interp(ie_depth, mat_depth_ie[:, imax]
 # ----------------------------------------------------------
 
 # FIXME: Use ic for steady_A0 and steady_age to specify it is for the ice core.
-steady_a0 = np.interp(-theta_ic, -theta[:][~np.isnan(mat_a0[:, imax])],
-                      mat_a0[:, imax][~np.isnan(mat_a0[:, imax])])
+steady_a0_ic = np.interp(-theta_ic, -theta[:][~np.isnan(mat_a0[:, imax])],
+                         mat_a0[:, imax][~np.isnan(mat_a0[:, imax])])
 
 # ----------------------------------------------------------
 #  Computation of steady_age vostok icecore
@@ -496,7 +496,7 @@ steady_age_sp = interp1d(-theta[:][~np.isnan(mat_steady_age[:, imax])],
 new_theta = np.insert(-theta[:][~np.isnan(mat_steady_age[:, imax])], 1,
                       1/1000000)
 chi_0 = np.insert(mat_steady_age[:, imax][~np.isnan(mat_steady_age[
-    :, imax])], 1, 0.+1/(steady_a0[0])*(ie_depth[1] - ie_depth[0]) /
+    :, imax])], 1, 0.+1/(steady_a0_ic[0])*(ie_depth[1] - ie_depth[0]) /
     (theta_ic[0] - theta_ic[1]) * 1/1000000)
 
 steady_age_sp_2 = interp1d(new_theta, chi_0, kind='cubic')(-theta_ic)
@@ -517,13 +517,13 @@ Age = np.interp(steady_age+age_surf, steady_age_R, age_R)
 # FIXME: We should not do a linear interpolation here.
 # And therefore, a0_ic should be one element less.
 
-a0_ic = steady_a0 * np.interp(steady_age, steady_age_R, R)
+a0_ic = steady_a0_ic * np.interp(steady_age, steady_age_R, R)
 
 # ----------------------------------------------------------
 #  Computation of tau_middle for the ice core
 # ----------------------------------------------------------
 
-tau_middle = 1./steady_a0[:-1] / (steady_age[1:] - steady_age[:-1])
+tau_middle = 1./steady_a0_ic[:-1] / (steady_age[1:] - steady_age[:-1])
 
 # ----------------------------------------------------------
 #  Computation of tau_ie_middle for the ice core
@@ -531,17 +531,17 @@ tau_middle = 1./steady_a0[:-1] / (steady_age[1:] - steady_age[:-1])
 
 # FIXME: check what is the most natural approach for thining
 
-tau_ie_middle = (ie_depth[1:] - ie_depth[:-1]) / steady_a0[:-1] / \
+tau_ie_middle = (ie_depth[1:] - ie_depth[:-1]) / steady_a0_ic[:-1] / \
                 (steady_age[1:] - steady_age[:-1])
 
 # Tau_ie with "natural cubic spline"
 
-tau_ie_middle_sp = (ie_depth[1:] - ie_depth[:-1]) / steady_a0[:-1] / \
+tau_ie_middle_sp = (ie_depth[1:] - ie_depth[:-1]) / steady_a0_ic[:-1] / \
                    (steady_age_sp[1:] - steady_age_sp[:-1])
 
 # Tau_ie with "cubic-spline - imposed derivative"
 
-tau_ie_middle_sp_2 = (ie_depth[1:] - ie_depth[:-1]) / steady_a0[:-1] / \
+tau_ie_middle_sp_2 = (ie_depth[1:] - ie_depth[:-1]) / steady_a0_ic[:-1] / \
                      (steady_age_sp_2[1:] - steady_age_sp_2[:-1])
 
 # -----------
