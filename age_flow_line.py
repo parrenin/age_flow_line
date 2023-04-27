@@ -109,23 +109,20 @@ m_fld = np.interp(x_fld, x_m, m_measure)
 
 # Computation of total flux Q
 
-Q_fld = np.zeros(len(x_fld))
-
-# FIXME: it should be possible to use a cumsum here
-for i in range(1, len(Q_fld)):
-    Q_fld[i] = Q_fld[i-1] + (x_fld[i]-x_fld[i-1]) * 1000 * a0_fld[i-1] * \
-        Y_fld[i-1] + 0.5 * (x_fld[i]-x_fld[i-1]) * 1000 * \
-        ((a0_fld[i]-a0_fld[i-1]) * Y_fld[i-1] + (Y_fld[i]-Y_fld[i-1])
-            * a0_fld[i-1]) + (1./3) * (x_fld[i]-x_fld[i-1]) * 1000 * \
-        (a0_fld[i]-a0_fld[i-1]) * (Y_fld[i]-Y_fld[i-1])
+dQdx = (x_fld[1:]-x_fld[:-1]) * 1000 * a0_fld[:-1] * \
+    Y_fld[:-1] + 0.5 * (x_fld[1:]-x_fld[:-1]) * 1000 * \
+    ((a0_fld[1:]-a0_fld[:-1]) * Y_fld[:-1] + (Y_fld[1:]-Y_fld[:-1])
+        * a0_fld[:-1]) + (1./3) * (x_fld[1:]-x_fld[:-1]) * 1000 * \
+    (a0_fld[1:]-a0_fld[:-1]) * (Y_fld[1:]-Y_fld[:-1])
+dQdx = np.insert(dQdx, 0, 0)
+Q_fld = np.cumsum(dQdx)
 
 # Computation of basal melting flux Qm
-# FIXME: Idem, use a cumsum here.
-Qm_fld = [0]*len(x_fld)
-
-for i in range(1, len(Qm_fld)):
-    Qm_fld[i] = Qm_fld[i-1] + 0.5 * (m_fld[i]+m_fld[i-1]) * 0.5 *\
-        (Y_fld[i]+Y_fld[i-1]) * (x_fld[i]-x_fld[i-1]) * 1000
+# FIXME: The order is less than for Q_fld
+dQmdx = 0.5 * (m_fld[1:]+m_fld[:-1]) * 0.5 *\
+    (Y_fld[1:]+Y_fld[:-1]) * (x_fld[1:]-x_fld[:-1]) * 1000
+dQmdx = np.insert(dQmdx, 0, 0)
+Qm_fld = np.cumsum(dQmdx)
 
 # ----------------------------------------------------------
 # Mesh generation (pi,theta)
