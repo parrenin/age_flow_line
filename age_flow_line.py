@@ -99,22 +99,19 @@ x_Y, Y_measure = np.loadtxt(datadir+'tube_width.txt', unpack=True)
 # Interpolation
 # --------------------
 
-# FIXME: Use a parameter for the horizontal step
-# FIXME: Or even better, don't use any parameter and use a natural samping
-x_fld = np.arange(x_right+1)
+x_fld = np.concatenate((x_a0, x_m, x_Y))
+x_fld = x_fld[x_fld <= x_right]
+x_fld = np.unique(np.sort(x_fld))
 
 a0_fld = np.interp(x_fld, x_a0, a0_measure)
-m_fld = np.interp(x_fld, x_m, m_measure)
-s_fld = np.interp(x_fld, x_s, s_measure)
-p_fld = np.interp(x_fld, x_p, p_measure)
-Su_fld = np.interp(x_fld, x_Su, Su_measure)
-B_fld = np.interp(x_fld, x_B, B_measure)
 Y_fld = np.interp(x_fld, x_Y, Y_measure)
+m_fld = np.interp(x_fld, x_m, m_measure)
 
 # Computation of total flux Q
 
 Q_fld = np.zeros(len(x_fld))
 
+# FIXME: it should be possible to use a cumsum here
 for i in range(1, len(Q_fld)):
     Q_fld[i] = Q_fld[i-1] + (x_fld[i]-x_fld[i-1]) * 1000 * a0_fld[i-1] * \
         Y_fld[i-1] + 0.5 * (x_fld[i]-x_fld[i-1]) * 1000 * \
@@ -123,25 +120,12 @@ for i in range(1, len(Q_fld)):
         (a0_fld[i]-a0_fld[i-1]) * (Y_fld[i]-Y_fld[i-1])
 
 # Computation of basal melting flux Qm
-
+# FIXME: Idem, use a cumsum here.
 Qm_fld = [0]*len(x_fld)
 
 for i in range(1, len(Qm_fld)):
     Qm_fld[i] = Qm_fld[i-1] + 0.5 * (m_fld[i]+m_fld[i-1]) * 0.5 *\
         (Y_fld[i]+Y_fld[i-1]) * (x_fld[i]-x_fld[i-1]) * 1000
-
-# -----------------------------------------------------
-# depth vs ie-depth conversion with density data
-# -----------------------------------------------------
-
-D_depth_ie = np.cumsum(np.concatenate((np.array([0]),
-                                       D_D[:-1] * (D_depth[1:]-D_depth[:-1]))))
-
-# ----------------------------------------------------------
-# DELTA H
-# ----------------------------------------------------------
-
-DELTA_H = D_depth[-1] - D_depth_ie[-1]
 
 # ----------------------------------------------------------
 # Mesh generation (pi,theta)
@@ -157,9 +141,6 @@ theta = np.linspace(0, - imax * delta,  imax + 1)
 
 Q = Q_fld[-1] * np.exp(pi)  # Q_ref = Q_fld[-1]
 
-# We set the zero value for the dome
-# Q = np.insert(Q, 0, 0)
-
 # ----------------------------------------------------------
 # OMEGA
 # ----------------------------------------------------------
@@ -170,26 +151,34 @@ OMEGA = np.exp(theta)
 # interpolation of flow line data files for x, Qm, ...
 # ----------------------------------------------------------
 
-x_fld = np.arange(x_right+1)
-
-# FIXME : should we interpolate in x or in Q?
+# We need to interpolate x in Q, but then we can interpolate in x.
+# We could also interpolate everything in Q.
 x = np.interp(Q, Q_fld, x_fld)
-Qm = np.interp(Q, Q_fld, Qm_fld)
-Y = np.interp(x, x_fld, Y_fld)
-S = np.interp(x, x_fld, Su_fld)
-B = np.interp(x, x_fld, B_fld)
-s = np.interp(x, x_fld, s_fld)
-p = np.interp(x, x_fld, p_fld)
-
-# B[0] = B[1]  # Altitude du socle constante au niveau du dôme
-# S[0] = S[1]  # Altitude de la surface constante au niveau du dôme
+Qm = np.interp(x, x_fld, Qm_fld)
+Y = np.interp(x, x_Y, Y_measure)
+S = np.interp(x, x_Su, Su_measure)
+B = np.interp(x, x_B, B_measure)
+s = np.interp(x, x_s, s_measure)
+p = np.interp(x, x_p, p_measure)
 
 # --------------------------------------------------
-# Accumulation a(m/yr)
+# Accumulation a (m/yr)
 # --------------------------------------------------
 
-# FIXME: again here, should we interpolate in x or Q?
-a = np.interp(Q, Q_fld, a0_fld)
+a = np.interp(x, x_fld, a0_fld)
+
+# -----------------------------------------------------
+# depth vs ie-depth conversion with density data
+# -----------------------------------------------------
+
+D_depth_ie = np.cumsum(np.concatenate((np.array([0]),
+                                       D_D[:-1] * (D_depth[1:]-D_depth[:-1]))))
+
+# ----------------------------------------------------------
+# DELTA H
+# ----------------------------------------------------------
+
+DELTA_H = D_depth[-1] - D_depth_ie[-1]
 
 # --------------------------------------------------
 # Calcul de la surface ice-equivalent S_ie
@@ -201,7 +190,7 @@ S_ie = S - DELTA_H
 # Melting
 # --------------------------------------------------
 
-# FIXME: why do we interpolate m while we already interpolated Qm?
+# m is just used for the boundary conditions plot.
 m = np.interp(x, x_fld, m_fld)
 
 # ------------------------------------------------------
@@ -335,7 +324,6 @@ mat_q = np.where(grid, Q * mat_OMEGA, np.nan)
 print('Before defining mat_a0',
       round(time.perf_counter()-START_TIME, 4), 's.')
 
-# FIXME: mat_0 does not have the same size as mat_x0
 mat_a0 = np.where(grid, toeplitz(a[0]*np.ones(imax+1), a),
                   np.nan)
 
@@ -379,7 +367,7 @@ mat_steady_age[1:, 0] = delta / a[0] * np.cumsum((mat_z_ie[:-1, 0] -
 # Maybe it would be possible to have a matrix formula with a cumsum filling
 # the diagonals, but is it worth it?
 # FIXME: Check these formulas which are complicated, and maybe use a polynome
-# insteady of a rational fraction.
+# instead of a rational fraction.
 for j in range(1, imax+1):
     c = (a[j] - a[j-1]) / delta
     d = a[j] - c * pi[j]
@@ -447,6 +435,7 @@ mat_age = np.interp(mat_steady_age+age_surf,
 
 # FIXME: We could have several drillings along the flow line.
 # And each drilling could have its own age_surf
+# FIXME: The position of the ice core could be defined in the YAML file
 
 print('Before calculating for the ice core',
       round(time.perf_counter()-START_TIME, 4), 's.')
