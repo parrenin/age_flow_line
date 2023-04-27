@@ -45,7 +45,7 @@ print('Parameters directory is: ', datadir)
 
 # deut = np.loadtxt(datadir+'deuterium.txt')
 age_R, R = np.loadtxt(datadir+'temporal_factor.txt', unpack=True)
-D_depth, D_D = np.loadtxt(datadir+'density.txt', unpack=True)
+D_depth, D_D = np.loadtxt(datadir+'relative_density.txt', unpack=True)
 
 # x_s_geo = np.loadtxt('input_data/s_geodata.txt', usecols=(0,))
 # s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
