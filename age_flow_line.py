@@ -108,19 +108,21 @@ Y_fld = np.interp(x_fld, x_Y, Y_measure)
 m_fld = np.interp(x_fld, x_m, m_measure)
 
 # Computation of total flux Q
-
-dQdx = (x_fld[1:]-x_fld[:-1]) * 1000 * a0_fld[:-1] * \
-    Y_fld[:-1] + 0.5 * (x_fld[1:]-x_fld[:-1]) * 1000 * \
-    ((a0_fld[1:]-a0_fld[:-1]) * Y_fld[:-1] + (Y_fld[1:]-Y_fld[:-1])
-        * a0_fld[:-1]) + (1./3) * (x_fld[1:]-x_fld[:-1]) * 1000 * \
-    (a0_fld[1:]-a0_fld[:-1]) * (Y_fld[1:]-Y_fld[:-1])
+# Formula checked 2023/04/27 by F. Parrenin
+dQdx = (x_fld[1:]-x_fld[:-1]) * 1000 * \
+    (a0_fld[:-1] * Y_fld[:-1] +
+     0.5 * ((a0_fld[1:]-a0_fld[:-1]) * Y_fld[:-1] + (Y_fld[1:]-Y_fld[:-1])
+            * a0_fld[:-1]) +
+     1./3 * (a0_fld[1:]-a0_fld[:-1]) * (Y_fld[1:]-Y_fld[:-1]))
 dQdx = np.insert(dQdx, 0, 0)
 Q_fld = np.cumsum(dQdx)
 
 # Computation of basal melting flux Qm
-# FIXME: The order is less than for Q_fld
-dQmdx = 0.5 * (m_fld[1:]+m_fld[:-1]) * 0.5 *\
-    (Y_fld[1:]+Y_fld[:-1]) * (x_fld[1:]-x_fld[:-1]) * 1000
+dQmdx = (x_fld[1:]-x_fld[:-1]) * 1000 * \
+    (m_fld[:-1] * Y_fld[:-1] +
+     0.5 * ((m_fld[1:]-m_fld[:-1]) * Y_fld[:-1] + (Y_fld[1:]-Y_fld[:-1])
+            * m_fld[:-1]) +
+     1./3 * (m_fld[1:]-m_fld[:-1]) * (Y_fld[1:]-Y_fld[:-1]))
 dQmdx = np.insert(dQmdx, 0, 0)
 Qm_fld = np.cumsum(dQmdx)
 
