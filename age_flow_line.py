@@ -509,6 +509,7 @@ steady_age_sp_2 = interp1d(new_theta, chi_0, kind='cubic')(-theta_ic)
 # And it should be age_ic
 
 Age = np.interp(steady_age+age_surf, steady_age_R, age_R)
+print('Bottom age for the ice core:', Age[-1])
 
 # ----------------------------------------------------------
 #  a0_ic
