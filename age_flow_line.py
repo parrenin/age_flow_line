@@ -1,6 +1,3 @@
-# TODO: make sure the interpolated values for a, Y and Q are consistent.
-# FIXME: there is no output in the program. Maybe output at least for the core.
-
 import sys
 import numpy as np
 from scipy.interpolate import interp1d
@@ -151,19 +148,15 @@ OMEGA = np.exp(theta)
 
 # We need to interpolate x in Q, but then we can interpolate in x.
 # We could also interpolate everything in Q.
+# FIXME: Should we make sure the a, Y and Q are consistent after interpolation?
 x = np.interp(Q, Q_fld, x_fld)
+a = np.interp(x, x_fld, a0_fld)
 Qm = np.interp(x, x_fld, Qm_fld)
 Y = np.interp(x, x_Y, Y_measure)
 S = np.interp(x, x_Su, Su_measure)
 B = np.interp(x, x_B, B_measure)
 s = np.interp(x, x_s, s_measure)
 p = np.interp(x, x_p, p_measure)
-
-# --------------------------------------------------
-# Accumulation a (m/yr)
-# --------------------------------------------------
-
-a = np.interp(x, x_fld, a0_fld)
 
 # -----------------------------------------------------
 # depth vs ie-depth conversion with density data
@@ -229,19 +222,6 @@ print('After defining grid boolean ',
 mat_theta = theta.reshape(imax+1, 1)*np.ones((1, imax+1))
 mat_theta = np.where(grid, mat_theta, np.nan)
 
-# ------------------------------------------------------
-# Computation of omega=fct(zeta)
-# ------------------------------------------------------
-
-# Lliboutry model for the horizontal flux shape function
-
-# FIXME: Is there no better way to invert omega?
-# Maybe a spline would allow to decrease the number of nodes.
-zeta = np.linspace(1, 0, 1001).reshape(1001, 1)
-
-omega = zeta * s + (1-s) * (1 - (p+2)/(p+1) * (1-zeta) +
-                            1/(p+1) * np.power(1-zeta, p+2))
-
 # -------------------------------------------------------
 # Matrice omega : mat_omega
 # -------------------------------------------------------
@@ -253,14 +233,28 @@ mat_omega = np.where(grid,
                              Q.reshape(1, imax+1))-Qm)/(Q-Qm),
                      np.nan)
 
+# ------------------------------------------------------
+# Computation of omega=fct(zeta)
+# ------------------------------------------------------
+
+print('Before defining z_ie',
+      round(time.perf_counter()-START_TIME, 4), 's.')
+
+# Lliboutry model for the horizontal flux shape function
+
+# Rmq: We could try more accurate solutions like pynverse or
+# scipy.optimize.root_scalar, but it will probably be slower.
+zeta = np.linspace(1, 0, 1001).reshape(1001, 1)
+
+omega = zeta * s + (1-s) * (1 - (p+2)/(p+1) * (1-zeta) +
+                            1/(p+1) * np.power(1-zeta, p+2))
+
 # -------------------------------------------------------
 # Matrix mat_z_ie
 # -------------------------------------------------------
 
 mat_z_ie = np.zeros((imax+1, imax+1))
-
-print('Before defining z_ie',
-      round(time.perf_counter()-START_TIME, 4), 's.')
+# Rmq: I don't see a way to prevent the loop here, because of interp.
 for j in range(0, imax+1):
     inter = np.interp(-mat_omega[:, j], -omega[:, j].flatten(),
                       zeta.flatten())
@@ -362,8 +356,8 @@ mat_steady_age[1:, 0] = delta / a[0] * np.cumsum((mat_z_ie[:-1, 0] -
                                                  (OMEGA[:-1] - OMEGA[1:]))
 
 # Here we could also proceed by lines instead of by columns
-# Maybe it would be possible to have a matrix formula with a cumsum filling
-# the diagonals, but is it worth it?
+# FIXME: Maybe it would be possible to have a matrix formula with a cumsum
+# filling the diagonals, but is it worth it?
 # FIXME: Check these formulas which are complicated, and maybe use a polynome
 # instead of a rational fraction.
 for j in range(1, imax+1):
@@ -533,6 +527,8 @@ tau_ie_middle_sp = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
 
 tau_ie_middle_sp_2 = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
                      (steady_age_ic_sp_2[1:] - steady_age_ic_sp_2[:-1])
+
+# FIXME: there is no output in the program. Maybe output at least for the core.
 
 # -----------
 # FIGURES
