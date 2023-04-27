@@ -452,25 +452,20 @@ print('Before calculating for the ice core',
       round(time.perf_counter()-START_TIME, 4), 's.')
 
 # ---------------------------------------------------
-# DEPTH - 1D Vostok drill grid for post-processing
+# Depth_ic and ie_depth_ic along the drilling
 # ---------------------------------------------------
 
 depth_ic = np.arange(0., max_depth + 0.0001, step_depth)
-
-# ---------------------------------------------------------------------------
-# Relative density interpolation with extrapolation of "depth-density" data
-# ---------------------------------------------------------------------------
-
-ie_depth = np.interp(depth_ic, D_depth, D_depth_ie)
+ie_depth_ic = np.interp(depth_ic, D_depth, D_depth_ie)
 
 # ----------------------------------------------------------
 #  Computation of theta for the ice core: theta_ic
 # ----------------------------------------------------------
 
-if mat_depth_ie[imax, imax] < ie_depth[len(ie_depth)-1]:
+if mat_depth_ie[imax, imax] < ie_depth_ic[len(ie_depth_ic)-1]:
     sys.exit("The mesh does not extend down to the bottom of the core.")
 
-theta_ic = np.log(np.interp(ie_depth, mat_depth_ie[:, imax]
+theta_ic = np.log(np.interp(ie_depth_ic, mat_depth_ie[:, imax]
                             [~np.isnan(mat_depth_ie[:, imax])],
                             mat_OMEGA[:, imax]
                             [~np.isnan(mat_OMEGA[:, imax])]))
@@ -506,7 +501,7 @@ steady_age_ic_sp = interp1d(-theta[:][~np.isnan(mat_steady_age[:, imax])],
 new_theta_ic = np.insert(-theta[:][~np.isnan(mat_steady_age[:, imax])], 1,
                          1/1000000)
 chi_0 = np.insert(mat_steady_age[:, imax][~np.isnan(mat_steady_age[
-    :, imax])], 1, 0.+1/(steady_a0_ic[0])*(ie_depth[1] - ie_depth[0]) /
+    :, imax])], 1, 0.+1/(steady_a0_ic[0])*(ie_depth_ic[1] - ie_depth_ic[0]) /
     (theta_ic[0] - theta_ic[1]) * 1/1000000)
 
 steady_age_ic_sp_2 = interp1d(new_theta_ic, chi_0, kind='cubic')(-theta_ic)
@@ -537,19 +532,19 @@ tau_middle = 1./aa / (steady_age_ic[1:] - steady_age_ic[:-1])
 #  Computation of tau_ie_middle for the ice core
 # ----------------------------------------------------------
 
-# FIXME: check what is the most natural approach for thining
+# FIXME: check what is the most natural approach for thinning
 
-tau_ie_middle = (ie_depth[1:] - ie_depth[:-1]) / aa / \
+tau_ie_middle = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
                 (steady_age_ic[1:] - steady_age_ic[:-1])
 
 # Tau_ie with "natural cubic spline"
 
-tau_ie_middle_sp = (ie_depth[1:] - ie_depth[:-1]) / aa / \
+tau_ie_middle_sp = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
                    (steady_age_ic_sp[1:] - steady_age_ic_sp[:-1])
 
 # Tau_ie with "cubic-spline - imposed derivative"
 
-tau_ie_middle_sp_2 = (ie_depth[1:] - ie_depth[:-1]) / aa / \
+tau_ie_middle_sp_2 = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
                      (steady_age_ic_sp_2[1:] - steady_age_ic_sp_2[:-1])
 
 # -----------
