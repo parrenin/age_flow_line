@@ -505,11 +505,8 @@ steady_age_ic_sp_2 = interp1d(new_theta_ic, chi_0, kind='cubic')(-theta_ic)
 #  Computation of Age for the ice core
 # ----------------------------------------------------------
 
-# FIXME: Why "Age" has a capital "A" and not "age_ic"?
-# And it should be age_ic
-
-Age = np.interp(steady_age_ic+age_surf, steady_age_R, age_R)
-print('Bottom age for the ice core:', Age[-1])
+age_ic = np.interp(steady_age_ic+age_surf, steady_age_R, age_R)
+print('Bottom age for the ice core:', age_ic[-1])
 
 # ----------------------------------------------------------
 #  a0_ic
@@ -827,7 +824,7 @@ if create_figs:
 
     ax2 = ax.twiny()
     ax2.spines.bottom.set_visible(False)
-    ax2.plot(Age/1000, depth_corrected, color='b')
+    ax2.plot(age_ic/1000, depth_corrected, color='b')
     ax2.set_xlabel('age (kyr)', color='b')
     ax2.spines['top'].set_color('b')
     ax2.tick_params(axis='x', colors='b')
@@ -850,8 +847,8 @@ if create_figs:
     fig, ax = plt.subplots(figsize=(15, 7))
     ax.set_xlabel('age (kyr)')
     ax.set_ylabel('layer thickness (m/yr)')
-    ax.stairs(a0_ic[:-1], Age/1000, baseline=None, label='accumulation')
-    ax.stairs(tau_ie_middle_sp_2 * a0_ic[:-1], Age/1000, baseline=None,
+    ax.stairs(a0_ic[:-1], age_ic/1000, baseline=None, label='accumulation')
+    ax.stairs(tau_ie_middle_sp_2 * a0_ic[:-1], age_ic/1000, baseline=None,
               label='layer thickness')
     ax.legend()
 
