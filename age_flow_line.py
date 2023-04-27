@@ -249,6 +249,8 @@ grid[:, 0] = theta >= theta_min[0]
 print('Before defining grid boolean',
       round(time.perf_counter()-START_TIME, 4), 's.')
 # We need an iteration here, to treat a column after the previous one
+# Maybe it would be possible to have a matrix formula with logical_and, but is
+# it worth it?
 for j in range(1, imax+1):
     grid[1:, j] = np.logical_and(theta[1:] >= theta_min[j-1], grid[0:-1, j-1])
 print('After defining grid boolean ',
@@ -327,6 +329,19 @@ mat_depth_ie = np.where(grid, S_ie - mat_z_ie, np.nan)
 
 mat_depth_ie[0, :] = 0
 
+# ----------------------------------------------------------
+#  Computation of depth matrix: mat_depth
+# ----------------------------------------------------------
+
+mat_depth = np.interp(mat_depth_ie, np.append(ie_depth, ie_depth[-1]+10000.),
+                      np.append(depth_corrected, depth_corrected[-1]+10000.))
+
+# ----------------------------------------------------------
+#  Computation of z matrix: mat_z
+# ----------------------------------------------------------
+
+mat_z = S - mat_depth
+
 # -------------------------------------------------------
 # Matrix of stream function q: mat_q
 # -------------------------------------------------------
@@ -381,7 +396,10 @@ mat_steady_age[1:, 0] = delta / a[0] * np.cumsum((mat_z_ie[:-1, 0] -
                                                  (OMEGA[:-1] - OMEGA[1:]))
 
 # Here we could also proceed by lines instead of by columns
-# FIXME: Check these formulas which are complicated
+# Maybe it would be possible to have a matrix formula with a cumsum filling
+# the diagonals, but is it worth it?
+# FIXME: Check these formulas which are complicated, and maybe use a polynome
+# insteady of a rational fraction.
 for j in range(1, imax+1):
     c = (a[j] - a[j-1]) / delta
     d = a[j] - c * pi[j]
@@ -424,19 +442,6 @@ print('After calculation of steady age matrix.',
 mat_tau_ie = np.where(grid[1:, :], (mat_z_ie[:-1, :] - mat_z_ie[1:, :])
                       / (mat_steady_age[1:, :] - mat_steady_age[:-1, :])
                       / (mat_a0[:-1, :] + mat_a0[1:, :]) * 2, np.nan)
-
-# ----------------------------------------------------------
-#  Computation of depth matrix: mat_depth
-# ----------------------------------------------------------
-
-mat_depth = np.interp(mat_depth_ie, np.append(ie_depth, ie_depth[-1]+10000.),
-                      np.append(depth_corrected, depth_corrected[-1]+10000.))
-
-# ----------------------------------------------------------
-#  Computation of z matrix: mat_z
-# ----------------------------------------------------------
-
-mat_z = S - mat_depth
 
 # -------------------------------
 # Computation of steady_age_R
