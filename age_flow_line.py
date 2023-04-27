@@ -47,9 +47,6 @@ print('Parameters directory is: ', datadir)
 age_R, R = np.loadtxt(datadir+'temporal_factor.txt', unpack=True)
 D_depth, D_D = np.loadtxt(datadir+'relative_density.txt', unpack=True)
 
-# x_s_geo = np.loadtxt('input_data/s_geodata.txt', usecols=(0,))
-# s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
-
 # ---------------------------------------------------------
 # Reading parameters.yml file (imax, delta, ...)
 # ---------------------------------------------------------
@@ -591,20 +588,20 @@ if create_figs:
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(15, 5))
-    plt.plot(x, S_ie, label='Surface', color='0')
+    plt.plot(x, S, label='Surface', color='0')
     plt.plot(x, B, label='Bedrock', color='0')
     # The vertical grid step can increase near the bed.
     # This is due do iso-omega layers being thicker near the bed.
     for i in range(0, imax+1):
-        plt.plot(x, mat_z_ie[i, :],  ls='-', color='k', linewidth=0.1)
-    plt.vlines(x, z_ie_min_mesh, S_ie, color='k', linewidths=0.1)
+        plt.plot(x, mat_z[i, :],  ls='-', color='k', linewidth=0.1)
+    plt.vlines(x, z_ie_min_mesh, S, color='k', linewidths=0.1)
     plt.xlabel(r'$x$ (km)', fontsize=18)
     plt.ylabel(r'$z$ (m)', fontsize=18)
     plt.savefig(datadir+'mesh_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # -------------------------------------------------------------------------
-    # Boundary conditions of the flow in (pi,theta)
+    # Boundary conditions of the flow in pi
     # -------------------------------------------------------------------------
 
     fig, ax = plt.subplots()
@@ -632,7 +629,7 @@ if create_figs:
     ax2.tick_params(axis='y', colors=color)
 
     # -------------------------------------------------------------------------
-    # Boundary conditions of the flow in (x,z)
+    # Boundary conditions of the flow in x
     # -------------------------------------------------------------------------
 
     fig, ax = plt.subplots()
@@ -689,8 +686,8 @@ if create_figs:
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
-    plt.plot(x[1:], S[1:], label='Surface', color='0')
-    plt.plot(x[1:], B[1:], label='Bedrock', color='0')
+    plt.plot(x, S, label='Surface', color='0')
+    plt.plot(x, B, label='Bedrock', color='0')
 
     # FIXME: Could we plot refrozen ice here?
 
