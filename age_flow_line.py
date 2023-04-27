@@ -493,13 +493,13 @@ steady_age_ic_sp = interp1d(-theta[:][~np.isnan(mat_steady_age[:, imax])],
 # Cela peu créer dans certains cas une matrice singulière (problème robustesse)
 # FIXME: Is there not a less dirty solution?
 
-new_theta = np.insert(-theta[:][~np.isnan(mat_steady_age[:, imax])], 1,
-                      1/1000000)
+new_theta_ic = np.insert(-theta[:][~np.isnan(mat_steady_age[:, imax])], 1,
+                         1/1000000)
 chi_0 = np.insert(mat_steady_age[:, imax][~np.isnan(mat_steady_age[
     :, imax])], 1, 0.+1/(steady_a0_ic[0])*(ie_depth[1] - ie_depth[0]) /
     (theta_ic[0] - theta_ic[1]) * 1/1000000)
 
-steady_age_ic_sp_2 = interp1d(new_theta, chi_0, kind='cubic')(-theta_ic)
+steady_age_ic_sp_2 = interp1d(new_theta_ic, chi_0, kind='cubic')(-theta_ic)
 
 # ----------------------------------------------------------
 #  Computation of Age for the ice core
