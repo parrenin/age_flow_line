@@ -477,15 +477,15 @@ steady_a0_ic = np.interp(-theta_ic, -theta[:][~np.isnan(mat_a0[:, imax])],
 # ----------------------------------------------------------
 
 # FIXME: This is a really bad interpolation scheme.
-steady_age = np.interp(-theta_ic, -theta[:][~np.isnan(mat_steady_age[
+steady_age_ic = np.interp(-theta_ic, -theta[:][~np.isnan(mat_steady_age[
     :, imax])], mat_steady_age[:, imax][~np.isnan(mat_steady_age[
         :, imax])])
 
 
 # Cubic spline without derivative constraint
 
-steady_age_sp = interp1d(-theta[:][~np.isnan(mat_steady_age[:, imax])],
-                         mat_steady_age[:, imax][~np.isnan(mat_steady_age[
+steady_age_ic_sp = interp1d(-theta[:][~np.isnan(mat_steady_age[:, imax])],
+                            mat_steady_age[:, imax][~np.isnan(mat_steady_age[
                              :, imax])], kind='cubic')(-theta_ic)
 
 # Cubic spline with derivative constraint at surface
@@ -499,16 +499,16 @@ chi_0 = np.insert(mat_steady_age[:, imax][~np.isnan(mat_steady_age[
     :, imax])], 1, 0.+1/(steady_a0_ic[0])*(ie_depth[1] - ie_depth[0]) /
     (theta_ic[0] - theta_ic[1]) * 1/1000000)
 
-steady_age_sp_2 = interp1d(new_theta, chi_0, kind='cubic')(-theta_ic)
+steady_age_ic_sp_2 = interp1d(new_theta, chi_0, kind='cubic')(-theta_ic)
 
 # ----------------------------------------------------------
 #  Computation of Age for the ice core
 # ----------------------------------------------------------
 
-# FIXME: Why "Age" has a capital "A" and not "steady_age"?
+# FIXME: Why "Age" has a capital "A" and not "age_ic"?
 # And it should be age_ic
 
-Age = np.interp(steady_age+age_surf, steady_age_R, age_R)
+Age = np.interp(steady_age_ic+age_surf, steady_age_R, age_R)
 print('Bottom age for the ice core:', Age[-1])
 
 # ----------------------------------------------------------
@@ -518,13 +518,13 @@ print('Bottom age for the ice core:', Age[-1])
 # FIXME: We should not do a linear interpolation here.
 # And therefore, a0_ic should be one element less.
 
-a0_ic = steady_a0_ic * np.interp(steady_age, steady_age_R, R)
+a0_ic = steady_a0_ic * np.interp(steady_age_ic, steady_age_R, R)
 
 # ----------------------------------------------------------
 #  Computation of tau_middle for the ice core
 # ----------------------------------------------------------
 
-tau_middle = 1./steady_a0_ic[:-1] / (steady_age[1:] - steady_age[:-1])
+tau_middle = 1./steady_a0_ic[:-1] / (steady_age_ic[1:] - steady_age_ic[:-1])
 
 # ----------------------------------------------------------
 #  Computation of tau_ie_middle for the ice core
@@ -533,17 +533,17 @@ tau_middle = 1./steady_a0_ic[:-1] / (steady_age[1:] - steady_age[:-1])
 # FIXME: check what is the most natural approach for thining
 
 tau_ie_middle = (ie_depth[1:] - ie_depth[:-1]) / steady_a0_ic[:-1] / \
-                (steady_age[1:] - steady_age[:-1])
+                (steady_age_ic[1:] - steady_age_ic[:-1])
 
 # Tau_ie with "natural cubic spline"
 
 tau_ie_middle_sp = (ie_depth[1:] - ie_depth[:-1]) / steady_a0_ic[:-1] / \
-                   (steady_age_sp[1:] - steady_age_sp[:-1])
+                   (steady_age_ic_sp[1:] - steady_age_ic_sp[:-1])
 
 # Tau_ie with "cubic-spline - imposed derivative"
 
 tau_ie_middle_sp_2 = (ie_depth[1:] - ie_depth[:-1]) / steady_a0_ic[:-1] / \
-                     (steady_age_sp_2[1:] - steady_age_sp_2[:-1])
+                     (steady_age_ic_sp_2[1:] - steady_age_ic_sp_2[:-1])
 
 # -----------
 # FIGURES
