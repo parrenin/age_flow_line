@@ -45,7 +45,7 @@ print('Parameters directory is: ', datadir)
 
 # deut = np.loadtxt(datadir+'deuterium.txt')
 age_R, R = np.loadtxt(datadir+'temporal_factor.txt', unpack=True)
-density_readarray = np.loadtxt(datadir+'density-prior.txt')
+D_depth, D_D = np.loadtxt(datadir+'density.txt', unpack=True)
 
 # x_s_geo = np.loadtxt('input_data/s_geodata.txt', usecols=(0,))
 # s_measure = np.loadtxt('input_data/s_geodata.txt', usecols=(1,))
@@ -147,12 +147,7 @@ depth_inter = (depth_corrected[1:] - depth_corrected[:-1])
 # Relative density interpolation with extrapolation of "depth-density" data
 # ---------------------------------------------------------------------------
 
-# FIXME: What should we do with firn density? Maybe just a firn correction?
-
-D_depth = density_readarray[:, 0]
-
-D_D = density_readarray[:, 1]
-
+# FIXME: We should not use a linear interpolation here.
 relative_density = np.interp(depth_mid, D_depth, D_D, right=1.)
 
 ie_depth = np.cumsum(np.concatenate((np.array([0]),
