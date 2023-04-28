@@ -322,8 +322,8 @@ mat_q = np.where(grid, Q * mat_OMEGA, np.nan)
 print('Before defining mat_a0',
       round(time.perf_counter()-START_TIME, 4), 's.')
 
-# a0 is not defined when trajectories reach the dome area, so we set to nan.
-mat_a0 = np.where(grid, toeplitz(np.nan*np.ones(imax+1), a),
+# a0 is not defined when trajectories reach the dome area, so we set to a[0].
+mat_a0 = np.where(grid, toeplitz(a[0]*np.ones(imax+1), a),
                   np.nan)
 
 print('After defining mat_a0',
@@ -338,8 +338,8 @@ print('Before defining mat_x0',
 
 mat_x0 = np.zeros((imax+1, imax+1))
 
-# x0 is not defined when trajectories reach the dome area, so we set to nan.
-mat_x0 = np.where(grid, toeplitz(np.nan*np.ones(imax+1), x),
+# x0 is not defined when trajectories reach the dome area, so we set to x[0].
+mat_x0 = np.where(grid, toeplitz(x[0]*np.ones(imax+1), x),
                   np.nan)
 
 print('After defining mat_x0',
@@ -437,6 +437,7 @@ elif x_ic == x_right:
     # FIXME: There is a nan at the end of ssteady_age, check why
     ssteady_age = mat_steady_age[:, imax][ggrid]
     ttheta = theta[ggrid]
+    xx0 = mat_x0[:, imax][ggrid]
 else:
     i_ic = np.argmax(x[x <= x_ic])
     sys.exit("It is only possible to have x_ic = x_right for now.")
@@ -451,10 +452,12 @@ if mat_depth_ie[imax, imax] < ie_depth_ic[len(ie_depth_ic)-1]:
 theta_ic = np.log(np.interp(ie_depth_ic, ddepth_ie, OOMEGA))
 
 # ----------------------------------------------------------
-#  Computation steady a0 ice core
+#  Computation steady a0 and x0 for the ice core
 # ----------------------------------------------------------
 
-steady_a0_ic = np.interp(theta_ic, ttheta, aa0)
+# Be careful, xp must be in increasing order for np.interp
+steady_a0_ic = np.interp(-theta_ic, -ttheta, aa0)
+x0_ic = np.interp(-theta_ic, -ttheta, xx0)
 
 # ----------------------------------------------------------
 #  Computation of steady_age vostok icecore
@@ -468,7 +471,8 @@ chi_0 = np.insert(ssteady_age, 1,
                   1/(steady_a0_ic[0])*(ie_depth_ic[1] - ie_depth_ic[0]) /
                   (theta_ic[0] - theta_ic[1]) * 1/1000000)
 # FIXME: There is a nan at the end of new_ttheta, see above
-steady_age_ic = interp1d(new_ttheta, chi_0, kind='cubic')(theta_ic)
+steady_age_ic = interp1d(-new_ttheta, chi_0,
+                         assume_sorted=True, kind='cubic')(-theta_ic)
 
 # ----------------------------------------------------------
 #  Computation of age for the ice core
@@ -775,7 +779,7 @@ if create_figs:
     ax.set_ylabel('depth (m)')
     ax.invert_yaxis()
     # FIXME: This is for xright, do it for the core
-    ax.plot(mat_x0[:, imax], mat_depth[:, imax], color='r')
+    ax.plot(x0_ic, depth_ic, color='r')
     ax.set_xlabel(r'$x$ origin (km)', color='r')
     ax.spines['bottom'].set_color('r')
     ax.tick_params(axis='x', colors='r')
