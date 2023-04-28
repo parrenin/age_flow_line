@@ -322,6 +322,8 @@ mat_q = np.where(grid, Q * mat_OMEGA, np.nan)
 print('Before defining mat_a0',
       round(time.perf_counter()-START_TIME, 4), 's.')
 
+# a0 is not defined when trajectories reach the dome area, so we set to a[0].
+# FIXME: Maybe it would be better to put nans?
 mat_a0 = np.where(grid, toeplitz(a[0]*np.ones(imax+1), a),
                   np.nan)
 
@@ -338,7 +340,7 @@ print('Before defining mat_x0',
 mat_x0 = np.zeros((imax+1, imax+1))
 
 # x0 is not defined when trajectories reach the dome area, so we set to x[0].
-# Maybe it would be better to put nans?
+# FIXME: Maybe it would be better to put nans?
 mat_x0 = np.where(grid, toeplitz(x[0]*np.ones(imax+1), x),
                   np.nan)
 
@@ -369,7 +371,8 @@ for i in range(1, imax+1):
         0.5 * (dzdOMEGA[i-1, 1:] - dzdOMEGA[i-1, :-1])/a[:-1] +
         0.5 * dzdOMEGA[i-1, :-1] * (1/a[1:] - 1/a[:-1]) +
         1./3 * (dzdOMEGA[i-1, 1:] - dzdOMEGA[i-1, :-1]) * (1/a[1:] - 1/a[:-1]))
-mat_steady_age = np.where(grid, mat_steady_age, np.nan)
+# The grid for the age can be slightly different if the nb of nodes increases
+grid_age = ~np.isnan(mat_steady_age)
 
 print('After calculation of steady age matrix.',
       round(time.perf_counter()-START_TIME, 4), 's.')
@@ -429,7 +432,7 @@ if x_ic > x_right:
 elif x_ic < x[0]:
     sys.exit("The ice core is upstream of the domain.")
 elif x_ic == x_right:
-    ggrid = grid[:, imax]
+    ggrid = grid_age[:, imax]
     ddepth_ie = mat_depth_ie[:, imax][ggrid]
     OOMEGA = mat_OMEGA[:, imax][ggrid]
     aa0 = mat_a0[:, imax][ggrid]
@@ -467,7 +470,7 @@ chi_0 = np.insert(ssteady_age, 1,
                   1/(steady_a0_ic[0])*(ie_depth_ic[1] - ie_depth_ic[0]) /
                   (theta_ic[0] - theta_ic[1]) * 1/1000000)
 # FIXME: There is a nan at the end of new_ttheta, see above
-steady_age_ic = interp1d(new_ttheta[:-1], chi_0[:-1], kind='cubic')(theta_ic)
+steady_age_ic = interp1d(new_ttheta, chi_0, kind='cubic')(theta_ic)
 
 # ----------------------------------------------------------
 #  Computation of age for the ice core
