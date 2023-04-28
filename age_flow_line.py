@@ -2,7 +2,6 @@ import sys
 import numpy as np
 from scipy.interpolate import interp1d
 from scipy.linalg import toeplitz
-from math import log
 import yaml
 import matplotlib.pyplot as plt
 import time
@@ -128,6 +127,7 @@ Qm_fld = np.cumsum(dQmdx)
 
 pi = np.linspace(-imax * delta, 0,  imax + 1)
 
+# Rmk: We could make a column vector here and for OMEGA
 theta = np.linspace(0, - imax * delta,  imax + 1)
 
 # ----------------------------------------------------------
@@ -140,7 +140,6 @@ Q = Q_fld[-1] * np.exp(pi)  # Q_ref = Q_fld[-1]
 # OMEGA
 # ----------------------------------------------------------
 
-# FIXME: Maybe make OMEGA vertical, as well as theta
 OMEGA = np.exp(theta)
 
 # ----------------------------------------------------------
@@ -149,7 +148,6 @@ OMEGA = np.exp(theta)
 
 # We need to interpolate x in Q, but then we can interpolate in x.
 # We could also interpolate everything in Q.
-# FIXME: Should we make sure the a, Y and Q are consistent after interpolation?
 x = np.interp(Q, Q_fld, x_fld)
 a = np.interp(x, x_fld, a0_fld)
 Qm = np.interp(x, x_fld, Qm_fld)
@@ -194,8 +192,8 @@ theta_max = np.zeros(imax+1)
 
 theta_min = np.where(Qm > 0,
                      np.maximum(np.log(Qm.clip(min=10**-100)/Q),
-                                theta[-1] * np.ones((imax+1,))),
-                     theta[-1] * np.ones((imax+1,)))
+                                -imax*delta * np.ones((imax+1,))),
+                     -imax*delta * np.ones((imax+1,)))
 
 
 # -------------------------------------------------------
@@ -443,22 +441,8 @@ steady_a0_ic = np.interp(-theta_ic, -theta[:][~np.isnan(mat_a0[:, imax])],
 #  Computation of steady_age vostok icecore
 # ----------------------------------------------------------
 
-# FIXME: This is a really bad interpolation scheme.
-steady_age_ic = np.interp(-theta_ic, -theta[:][~np.isnan(mat_steady_age[
-    :, imax])], mat_steady_age[:, imax][~np.isnan(mat_steady_age[
-        :, imax])])
-
-
-# Cubic spline without derivative constraint
-
-steady_age_ic_sp = interp1d(-theta[:][~np.isnan(mat_steady_age[:, imax])],
-                            mat_steady_age[:, imax][~np.isnan(mat_steady_age[
-                             :, imax])], kind='cubic')(-theta_ic)
-
 # Cubic spline with derivative constraint at surface
-# On rajoute un point " proche de theta = 0 " afin d'imposer la dérivée
-# Cela peu créer dans certains cas une matrice singulière (problème robustesse)
-# FIXME: Is there not a less dirty solution?
+# We had a point close to the surface to impose the derivative of the age
 
 new_theta_ic = np.insert(-theta[:][~np.isnan(mat_steady_age[:, imax])], 1,
                          1/1000000)
@@ -466,7 +450,7 @@ chi_0 = np.insert(mat_steady_age[:, imax][~np.isnan(mat_steady_age[
     :, imax])], 1, 0.+1/(steady_a0_ic[0])*(ie_depth_ic[1] - ie_depth_ic[0]) /
     (theta_ic[0] - theta_ic[1]) * 1/1000000)
 
-steady_age_ic_sp_2 = interp1d(new_theta_ic, chi_0, kind='cubic')(-theta_ic)
+steady_age_ic = interp1d(new_theta_ic, chi_0, kind='cubic')(-theta_ic)
 
 # ----------------------------------------------------------
 #  Computation of age for the ice core
@@ -494,20 +478,8 @@ tau_middle = 1./aa / (steady_age_ic[1:] - steady_age_ic[:-1])
 #  Computation of tau_ie_middle for the ice core
 # ----------------------------------------------------------
 
-# FIXME: check what is the most natural approach for thinning
-
 tau_ie_middle = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
                 (steady_age_ic[1:] - steady_age_ic[:-1])
-
-# Tau_ie with "natural cubic spline"
-
-tau_ie_middle_sp = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
-                   (steady_age_ic_sp[1:] - steady_age_ic_sp[:-1])
-
-# Tau_ie with "cubic-spline - imposed derivative"
-
-tau_ie_middle_sp_2 = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
-                     (steady_age_ic_sp_2[1:] - steady_age_ic_sp_2[:-1])
 
 # FIXME: there is no output in the program. Maybe output at least for the core.
 
@@ -799,7 +771,7 @@ if create_figs:
     ax3 = ax.twiny()
     ax3.spines['top'].set_position(('axes', 1.1))
     ax3.spines.bottom.set_visible(False)
-    ax3.plot(tau_ie_middle_sp_2, depth_ic[:-1], color='g')
+    ax3.plot(tau_ie_middle, depth_ic[:-1], color='g')
     ax3.set_xlabel('thinning function (no unit)', color='g')
     ax3.spines['top'].set_color('g')
     ax3.tick_params(axis='x', colors='g')
@@ -815,7 +787,7 @@ if create_figs:
     ax.set_xlabel('age (kyr)')
     ax.set_ylabel('layer thickness (m/yr)')
     ax.stairs(a0_ic, age_ic/1000, baseline=None, label='accumulation')
-    ax.stairs(tau_ie_middle_sp_2 * a0_ic, age_ic/1000, baseline=None,
+    ax.stairs(tau_ie_middle * a0_ic, age_ic/1000, baseline=None,
               label='layer thickness')
     ax.legend()
 
