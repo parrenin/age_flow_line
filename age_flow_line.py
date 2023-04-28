@@ -48,6 +48,7 @@ D_depth, D_D = np.loadtxt(datadir+'relative_density.txt', unpack=True)
 # ---------------------------------------------------------
 
 # Default values for parameters, to prevent spyder errors
+x_ic = 370.
 max_depth = 3310.
 step_depth = 1.
 imax = 100
@@ -415,8 +416,29 @@ print('Before calculating for the ice core',
 # Depth_ic and ie_depth_ic along the drilling
 # ---------------------------------------------------
 
+# FIXME: Rename max_depth and step_depth with "ic" prefix or suffix
 depth_ic = np.arange(0., max_depth + 0.0001, step_depth)
 ie_depth_ic = np.interp(depth_ic, D_depth, D_depth_ie)
+
+# -------------------------------------------------------
+# Calculation of the surrounding nodes for the ice core
+# -------------------------------------------------------
+
+if x_ic > x_right:
+    sys.exit("The ice core is downstream of the domain.")
+elif x_ic < x[0]:
+    sys.exit("The ice core is upstream of the domain.")
+elif x_ic == x_right:
+    ggrid = grid[:, imax]
+    ddepth_ie = mat_depth_ie[:, imax][ggrid]
+    OOMEGA = mat_OMEGA[:, imax][ggrid]
+    aa0 = mat_a0[:, imax][ggrid]
+    # FIXME: There is a nan at the end of ssteady_age, check why
+    ssteady_age = mat_steady_age[:, imax][ggrid]
+    ttheta = theta[ggrid]
+else:
+    i_ic = np.argmax(x[x <= x_ic])
+    sys.exit("It is only possible to have x_ic = x_right for now.")
 
 # ----------------------------------------------------------
 #  Computation of theta for the ice core: theta_ic
@@ -425,17 +447,13 @@ ie_depth_ic = np.interp(depth_ic, D_depth, D_depth_ie)
 if mat_depth_ie[imax, imax] < ie_depth_ic[len(ie_depth_ic)-1]:
     sys.exit("The mesh does not extend down to the bottom of the core.")
 
-theta_ic = np.log(np.interp(ie_depth_ic, mat_depth_ie[:, imax]
-                            [~np.isnan(mat_depth_ie[:, imax])],
-                            mat_OMEGA[:, imax]
-                            [~np.isnan(mat_OMEGA[:, imax])]))
+theta_ic = np.log(np.interp(ie_depth_ic, ddepth_ie, OOMEGA))
 
 # ----------------------------------------------------------
 #  Computation steady a0 ice core
 # ----------------------------------------------------------
 
-steady_a0_ic = np.interp(-theta_ic, -theta[:][~np.isnan(mat_a0[:, imax])],
-                         mat_a0[:, imax][~np.isnan(mat_a0[:, imax])])
+steady_a0_ic = np.interp(theta_ic, ttheta, aa0)
 
 # ----------------------------------------------------------
 #  Computation of steady_age vostok icecore
@@ -444,13 +462,12 @@ steady_a0_ic = np.interp(-theta_ic, -theta[:][~np.isnan(mat_a0[:, imax])],
 # Cubic spline with derivative constraint at surface
 # We had a point close to the surface to impose the derivative of the age
 
-new_theta_ic = np.insert(-theta[:][~np.isnan(mat_steady_age[:, imax])], 1,
-                         1/1000000)
-chi_0 = np.insert(mat_steady_age[:, imax][~np.isnan(mat_steady_age[
-    :, imax])], 1, 0.+1/(steady_a0_ic[0])*(ie_depth_ic[1] - ie_depth_ic[0]) /
-    (theta_ic[0] - theta_ic[1]) * 1/1000000)
-
-steady_age_ic = interp1d(new_theta_ic, chi_0, kind='cubic')(-theta_ic)
+new_ttheta = np.insert(ttheta, 1, -1/1000000)
+chi_0 = np.insert(ssteady_age, 1,
+                  1/(steady_a0_ic[0])*(ie_depth_ic[1] - ie_depth_ic[0]) /
+                  (theta_ic[0] - theta_ic[1]) * 1/1000000)
+# FIXME: There is a nan at the end of new_ttheta, see above
+steady_age_ic = interp1d(new_ttheta[:-1], chi_0[:-1], kind='cubic')(theta_ic)
 
 # ----------------------------------------------------------
 #  Computation of age for the ice core
@@ -486,6 +503,8 @@ tau_ie_middle = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
 # -----------
 # FIGURES
 # -----------
+
+# FIXME: Display the ice core in the figures when possible
 
 if create_figs:
 
@@ -754,7 +773,7 @@ if create_figs:
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.set_ylabel('depth (m)')
     ax.invert_yaxis()
-
+    # FIXME: This is for xright, do it for the core
     ax.plot(mat_x0[:, imax], mat_depth[:, imax], color='r')
     ax.set_xlabel(r'$x$ origin (km)', color='r')
     ax.spines['bottom'].set_color('r')
