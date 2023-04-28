@@ -674,15 +674,14 @@ if create_figs:
 
     plt.plot(x, S, label='Surface', color='0')
     plt.plot(x, B, label='Bedrock', color='0')
-
+    zz = np.insert((mat_z[1:, :] + mat_z[:-1, :])/2, 0, S, axis=0)
+    tt = np.insert(mat_tau_ie, 0, np.ones(imax+1), axis=0)
     levels = np.arange(0, 1.21, 0.01)
     levels_cb = np.arange(0, 13, 1)/10.
-    cp = plt.contourf(mat_x[1:, :], (mat_z[1:, :] + mat_z[:-1, :])/2,
-                      mat_tau_ie,
+    cp = plt.contourf(mat_x, zz, tt,
                       levels=levels,
                       cmap='jet')
-    cp2 = plt.contour(mat_x[1:, :], (mat_z[1:, :] + mat_z[:-1, :])/2,
-                      mat_tau_ie,
+    cp2 = plt.contour(mat_x, zz, tt,
                       levels=levels_cb,
                       colors='k')
     # Corner trajectory
