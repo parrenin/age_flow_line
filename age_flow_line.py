@@ -140,6 +140,7 @@ Q = Q_fld[-1] * np.exp(pi)  # Q_ref = Q_fld[-1]
 # OMEGA
 # ----------------------------------------------------------
 
+# FIXME: Maybe make OMEGA vertical, as well as theta
 OMEGA = np.exp(theta)
 
 # ----------------------------------------------------------
@@ -348,44 +349,24 @@ print('Before calculation of steady age matrix.',
 
 mat_steady_age = np.zeros((imax+1, imax+1))
 
-# FIXME: Maybe make a matrix with dz/dOmega
-
 # Dome boundary condition
 mat_steady_age[1:, 0] = delta / a[0] * np.cumsum((mat_z_ie[:-1, 0] -
                                                   mat_z_ie[1:, 0]) /
                                                  (OMEGA[:-1] - OMEGA[1:]))
 
-# Here we could also proceed by lines instead of by columns
-# FIXME: Maybe it would be possible to have a matrix formula with a cumsum
-# filling the diagonals, but is it worth it?
-# FIXME: Check these formulas which are complicated, and maybe use a polynome
-# instead of a rational fraction.
-for j in range(1, imax+1):
-    c = (a[j] - a[j-1]) / delta
-    d = a[j] - c * pi[j]
-    e = ((mat_z_ie[1:, j] - mat_z_ie[:-1, j]) / (OMEGA[1:] - OMEGA[:-1]) -
-         (mat_z_ie[:-1, j-1] - mat_z_ie[1:, j-1]) / (OMEGA[:-1] - OMEGA[1:]))\
-        / delta
-    f = (mat_z_ie[1:, j] - mat_z_ie[:-1, j]) / (OMEGA[1:] - OMEGA[:-1]) -\
-        e * pi[j]
-    if c == 0:
-        mat_steady_age[1:, j] = np.where(grid[1:, j],
-                                         mat_steady_age[:-1, j-1] + (1 / d) *
-                                         (e * (pi[j]*pi[j] -
-                                          pi[j-1]*pi[j-1])
-                                          / 2 + f * delta), np.nan)
-    else:
-        mat_steady_age[1:, j] = np.where(grid[1:, j],
-                                         mat_steady_age[:-1, j-1] + (e*pi[j]
-                                         + f)*log(abs(c*pi[j] + d))/c -
-                                         (e * pi[j-1] + f) * log(abs(c*pi[j-1]
-                                                                     + d))
-                                         / c - (e/c)*((pi[j] + d/c) *
-                                         log(abs(c * pi[j] + d))-(pi[j-1] +
-                                                                  d/c)
-                                         * log(abs(c * pi[j-1] + d)) - delta),
-                                         np.nan)
+dzdOMEGA = (mat_z_ie[1:, :] - mat_z_ie[:-1, :]) /\
+           (OMEGA[1:] - OMEGA[:-1]).reshape(imax, 1)
+# Calculation line by line, F. Parrenin, 2023/04/28
+# Rmq : It is possible to calculate column by column or diagonal by diagonal
+for i in range(1, imax+1):
+    mat_steady_age[i, 1:] = mat_steady_age[i-1, :-1] + delta * (
+        dzdOMEGA[i-1, :-1]/a[:-1] +
+        0.5 * (dzdOMEGA[i-1, 1:] - dzdOMEGA[i-1, :-1])/a[:-1] +
+        0.5 * dzdOMEGA[i-1, :-1] * (1/a[1:] - 1/a[:-1]) +
+        1./3 * (dzdOMEGA[i-1, 1:] - dzdOMEGA[i-1, :-1]) * (1/a[1:] - 1/a[:-1]))
+mat_steady_age = np.where(grid, mat_steady_age, np.nan)
 
+# FIXME: Put that after the grid definition
 # Theta_min and z_ie_min are the grid min for each vertical profile
 # They are used for plotting the meshes
 theta_min_mesh = np.nanmin(mat_theta, axis=0)
