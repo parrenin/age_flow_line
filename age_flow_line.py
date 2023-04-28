@@ -322,9 +322,8 @@ mat_q = np.where(grid, Q * mat_OMEGA, np.nan)
 print('Before defining mat_a0',
       round(time.perf_counter()-START_TIME, 4), 's.')
 
-# a0 is not defined when trajectories reach the dome area, so we set to a[0].
-# FIXME: Maybe it would be better to put nans?
-mat_a0 = np.where(grid, toeplitz(a[0]*np.ones(imax+1), a),
+# a0 is not defined when trajectories reach the dome area, so we set to nan.
+mat_a0 = np.where(grid, toeplitz(np.nan*np.ones(imax+1), a),
                   np.nan)
 
 print('After defining mat_a0',
@@ -339,9 +338,8 @@ print('Before defining mat_x0',
 
 mat_x0 = np.zeros((imax+1, imax+1))
 
-# x0 is not defined when trajectories reach the dome area, so we set to x[0].
-# FIXME: Maybe it would be better to put nans?
-mat_x0 = np.where(grid, toeplitz(x[0]*np.ones(imax+1), x),
+# x0 is not defined when trajectories reach the dome area, so we set to nan.
+mat_x0 = np.where(grid, toeplitz(np.nan*np.ones(imax+1), x),
                   np.nan)
 
 print('After defining mat_x0',
