@@ -222,6 +222,8 @@ print('After defining grid boolean ',
 
 mat_theta = theta.reshape(imax+1, 1)*np.ones((1, imax+1))
 mat_theta = np.where(grid, mat_theta, np.nan)
+# theta_min_mesh is the grid min for each vertical profile, to plot the mesh.
+theta_min_mesh = np.nanmin(mat_theta, axis=0)
 
 # -------------------------------------------------------
 # Matrice omega : mat_omega
@@ -261,6 +263,10 @@ for j in range(0, imax+1):
                       zeta.flatten())
     mat_z_ie[:, j] = np.where(grid[:, j], B[j]+inter*(S_ie[j]-B[j]),
                               np.nan)
+
+# z_ie_min is the grid min for each vertical profile, used to plot the mesh
+z_ie_min_mesh = np.nanmin(mat_z_ie, axis=0)
+
 print('After defining z_ie',
       round(time.perf_counter()-START_TIME, 4), 's.')
 
@@ -365,12 +371,6 @@ for i in range(1, imax+1):
         0.5 * dzdOMEGA[i-1, :-1] * (1/a[1:] - 1/a[:-1]) +
         1./3 * (dzdOMEGA[i-1, 1:] - dzdOMEGA[i-1, :-1]) * (1/a[1:] - 1/a[:-1]))
 mat_steady_age = np.where(grid, mat_steady_age, np.nan)
-
-# FIXME: Put that after the grid definition
-# Theta_min and z_ie_min are the grid min for each vertical profile
-# They are used for plotting the meshes
-theta_min_mesh = np.nanmin(mat_theta, axis=0)
-z_ie_min_mesh = np.nanmin(mat_z_ie, axis=0)
 
 print('After calculation of steady age matrix.',
       round(time.perf_counter()-START_TIME, 4), 's.')
