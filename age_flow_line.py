@@ -48,9 +48,9 @@ D_depth, D_D = np.loadtxt(datadir+'relative_density.txt', unpack=True)
 # ---------------------------------------------------------
 
 # Default values for parameters, to prevent spyder errors
-x_ic = 370.
-max_depth = 3310.
-step_depth = 1.
+ic_x = 370.
+ic_max_depth = 3310.
+ic_step_depth = 1.
 imax = 100
 delta = 0.08
 age_surf = -50
@@ -417,29 +417,27 @@ print('Before calculating for the ice core',
 # Depth_ic and ie_depth_ic along the drilling
 # ---------------------------------------------------
 
-# FIXME: Rename max_depth and step_depth with "ic" prefix or suffix
-depth_ic = np.arange(0., max_depth + 0.0001, step_depth)
+depth_ic = np.arange(0., ic_max_depth + 0.0001, ic_step_depth)
 ie_depth_ic = np.interp(depth_ic, D_depth, D_depth_ie)
 
 # -------------------------------------------------------
 # Calculation of the surrounding nodes for the ice core
 # -------------------------------------------------------
 
-if x_ic > x_right:
+if ic_x > x_right:
     sys.exit("The ice core is downstream of the domain.")
-elif x_ic < x[0]:
+elif ic_x < x[0]:
     sys.exit("The ice core is upstream of the domain.")
-elif x_ic == x_right:
+elif ic_x == x_right:
     ggrid = grid_age[:, imax]
     ddepth_ie = mat_depth_ie[:, imax][ggrid]
     OOMEGA = mat_OMEGA[:, imax][ggrid]
     aa0 = mat_a0[:, imax][ggrid]
-    # FIXME: There is a nan at the end of ssteady_age, check why
     ssteady_age = mat_steady_age[:, imax][ggrid]
     ttheta = theta[ggrid]
     xx0 = mat_x0[:, imax][ggrid]
 else:
-    i_ic = np.argmax(x[x <= x_ic])
+    ii = np.argmax(x[x <= ic_x])
     sys.exit("It is only possible to have x_ic = x_right for now.")
 
 # ----------------------------------------------------------
@@ -470,7 +468,7 @@ new_ttheta = np.insert(ttheta, 1, -1/1000000)
 chi_0 = np.insert(ssteady_age, 1,
                   1/(steady_a0_ic[0])*(ie_depth_ic[1] - ie_depth_ic[0]) /
                   (theta_ic[0] - theta_ic[1]) * 1/1000000)
-# FIXME: There is a nan at the end of new_ttheta, see above
+
 steady_age_ic = interp1d(-new_ttheta, chi_0,
                          assume_sorted=True, kind='cubic')(-theta_ic)
 
@@ -778,7 +776,6 @@ if create_figs:
     fig, ax = plt.subplots(figsize=(7, 7))
     ax.set_ylabel('depth (m)')
     ax.invert_yaxis()
-    # FIXME: This is for xright, do it for the core
     ax.plot(x0_ic, depth_ic, color='r')
     ax.set_xlabel(r'$x$ origin (km)', color='r')
     ax.spines['bottom'].set_color('r')
