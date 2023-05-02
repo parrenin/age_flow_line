@@ -54,7 +54,8 @@ ic_step_depth = 1.
 imax = 100
 delta = 0.08
 age_surf = -50
-x_right = 370
+x_right = 370.
+x_step = 1.
 traj_step = 10
 fig_age_max = 1000000
 fig_age_spacing = 10000
@@ -95,9 +96,7 @@ x_Y, Y_measure = np.loadtxt(datadir+'tube_width.txt', unpack=True)
 # Interpolation
 # --------------------
 
-x_fld = np.concatenate((x_a0, x_m, x_Y))
-x_fld = x_fld[x_fld <= x_right]
-x_fld = np.unique(np.sort(x_fld))
+x_fld = np.arange(0, x_right+x_step, x_step)
 
 a0_fld = np.interp(x_fld, x_a0, a0_measure)
 Y_fld = np.interp(x_fld, x_Y, Y_measure)
@@ -150,8 +149,8 @@ OMEGA = np.exp(theta)
 # We need to interpolate x in Q, but then we can interpolate in x.
 # We could also interpolate everything in Q.
 x = np.interp(Q, Q_fld, x_fld)
-a = np.interp(x, x_fld, a0_fld)
-Qm = np.interp(x, x_fld, Qm_fld)
+Qm = np.interp(Q, Q_fld, Qm_fld)
+a = np.interp(x, x_a0, a0_measure)
 Y = np.interp(x, x_Y, Y_measure)
 S = np.interp(x, x_Su, Su_measure)
 B = np.interp(x, x_B, B_measure)
@@ -438,7 +437,7 @@ elif ic_x == x_right:
     xx0 = mat_x0[:, imax][ggrid]
 else:
     ii = np.argmax(x[x <= ic_x])
-    sys.exit("It is only possible to have x_ic = x_right for now.")
+    sys.exit("It is only possible to have ic_x = x_right for now.")
 
 # ----------------------------------------------------------
 #  Computation of theta for the ice core: theta_ic

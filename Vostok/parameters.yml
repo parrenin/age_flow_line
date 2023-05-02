@@ -6,6 +6,8 @@ imax: 100
 
 # Horizontal coordinate of right border, in km
 x_right: 370 
+# Horizontal step for the computation of the total flux Q, in km
+x_step: 1.
 
 # Define surface age
 age_surf: -50
