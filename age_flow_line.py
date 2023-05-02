@@ -407,7 +407,6 @@ mat_age = np.interp(mat_steady_age+age_surf,
 
 # FIXME: We could have several drillings along the flow line.
 # And each drilling could have its own age_surf
-# FIXME: The position of the ice core could be defined in the YAML file
 
 print('Before calculating for the ice core',
       round(time.perf_counter()-START_TIME, 4), 's.')
@@ -433,11 +432,22 @@ elif ic_x == x_right:
     OOMEGA = mat_OMEGA[:, imax][ggrid]
     aa0 = mat_a0[:, imax][ggrid]
     ssteady_age = mat_steady_age[:, imax][ggrid]
-    ttheta = theta[ggrid]
     xx0 = mat_x0[:, imax][ggrid]
+    ttheta = theta[ggrid]
 else:
     ii = np.argmax(x[x <= ic_x])
-    sys.exit("It is only possible to have ic_x = x_right for now.")
+    inter = (x[ii+1]-ic_x) / (x[ii+1] - x[ii])
+    ggrid = np.logical_and(grid_age[:, ii], grid_age[::, ii+1])
+    ddepth_ie = inter * mat_depth_ie[:, ii][ggrid] +\
+        (1-inter) * mat_depth_ie[:, ii+1][ggrid]
+    OOMEGA = inter * mat_OMEGA[:, ii][ggrid] +\
+        (1-inter) * mat_OMEGA[:, ii+1][ggrid]
+    aa0 = inter * mat_a0[:, ii][ggrid] +\
+        (1-inter) * mat_a0[:, ii+1][ggrid]
+    ssteady_age = inter * mat_steady_age[:, ii][ggrid] +\
+        (1-inter) * mat_steady_age[:, ii+1][ggrid]
+    xx0 = inter * mat_x0[:, ii][ggrid] + (1-inter) * mat_x0[:, ii+1][ggrid]
+    ttheta = theta[ggrid]
 
 # ----------------------------------------------------------
 #  Computation of theta for the ice core: theta_ic
