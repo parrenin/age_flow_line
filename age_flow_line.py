@@ -503,6 +503,7 @@ a0_ic = (steady_a0_ic[1:]+steady_a0_ic[:-1])/2 *\
 #  Computation of tau_middle for the ice core
 # ----------------------------------------------------------
 
+# FIXME: Why do we need tau_middle?
 aa = (steady_a0_ic[1:]+steady_a0_ic[:-1]) / 2
 tau_middle = 1./aa / (steady_age_ic[1:] - steady_age_ic[:-1])
 
@@ -510,10 +511,19 @@ tau_middle = 1./aa / (steady_age_ic[1:] - steady_age_ic[:-1])
 #  Computation of tau_ie_middle for the ice core
 # ----------------------------------------------------------
 
+# FIXME: use _ic suffix for thinning
 tau_ie_middle = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
                 (steady_age_ic[1:] - steady_age_ic[:-1])
 
-# FIXME: there is no output in the program. Maybe output at least for the core.
+# ----------------------------------------------------------
+# Output for the ice core
+# ----------------------------------------------------------
+
+output = np.vstack((depth_ic, age_ic, np.append(tau_ie_middle, np.nan),
+                    np.append(a0_ic, np.nan), x0_ic,
+                    steady_a0_ic))
+np.savetxt(datadir+'ice_core_output.txt', np.transpose(output),
+           header="depth age thinning accu x_origin accu_steady")
 
 # -----------
 # FIGURES
