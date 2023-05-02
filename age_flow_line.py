@@ -63,6 +63,7 @@ fig_age_spacing = 10000
 fig_age_spacing_labels = 100000
 beta = 0.015
 create_figs = True
+output_ic = True
 fig_format = 'pdf'
 
 yamls = open(datadir+'parameters.yml').read()
@@ -500,30 +501,23 @@ a0_ic = (steady_a0_ic[1:]+steady_a0_ic[:-1])/2 *\
     interp_stair_aver(steady_age_ic, steady_age_R, R)
 
 # ----------------------------------------------------------
-#  Computation of tau_middle for the ice core
+#  Computation of tau_ic for the ice core
 # ----------------------------------------------------------
 
-# FIXME: Why do we need tau_middle?
 aa = (steady_a0_ic[1:]+steady_a0_ic[:-1]) / 2
-tau_middle = 1./aa / (steady_age_ic[1:] - steady_age_ic[:-1])
-
-# ----------------------------------------------------------
-#  Computation of tau_ie_middle for the ice core
-# ----------------------------------------------------------
-
-# FIXME: use _ic suffix for thinning
-tau_ie_middle = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
+tau_ic = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
                 (steady_age_ic[1:] - steady_age_ic[:-1])
 
 # ----------------------------------------------------------
 # Output for the ice core
 # ----------------------------------------------------------
 
-output = np.vstack((depth_ic, age_ic, np.append(tau_ie_middle, np.nan),
-                    np.append(a0_ic, np.nan), x0_ic,
-                    steady_a0_ic))
-np.savetxt(datadir+'ice_core_output.txt', np.transpose(output),
-           header="depth age thinning accu x_origin accu_steady")
+if output_ic:
+    output = np.vstack((depth_ic, age_ic, np.append(tau_ic, np.nan),
+                        np.append(a0_ic, np.nan), x0_ic,
+                        steady_a0_ic))
+    np.savetxt(datadir+'ice_core_output.txt', np.transpose(output),
+               header="depth age thinning accu x_origin accu_steady")
 
 # -----------
 # FIGURES
@@ -833,7 +827,7 @@ if create_figs:
     ax3 = ax.twiny()
     ax3.spines['top'].set_position(('axes', 1.1))
     ax3.spines.bottom.set_visible(False)
-    ax3.plot(tau_ie_middle, depth_ic[:-1], color='g')
+    ax3.plot(tau_ic, depth_ic[:-1], color='g')
     ax3.set_xlabel('thinning function (no unit)', color='g')
     ax3.spines['top'].set_color('g')
     ax3.tick_params(axis='x', colors='g')
@@ -849,7 +843,7 @@ if create_figs:
     ax.set_xlabel('age (kyr)')
     ax.set_ylabel('layer thickness (m/yr)')
     ax.stairs(a0_ic, age_ic/1000, baseline=None, label='accumulation')
-    ax.stairs(tau_ie_middle * a0_ic, age_ic/1000, baseline=None,
+    ax.stairs(tau_ic * a0_ic, age_ic/1000, baseline=None,
               label='layer thickness')
     ax.legend()
 

@@ -23,3 +23,5 @@ ic_max_depth: 3310. #Max depth in the drilling
 ic_step_depth: 1.  #Depth step in the drilling
 
 create_figs: True  #If we create figures or not.
+fig_format: 'pdf'
+output_ic: True
