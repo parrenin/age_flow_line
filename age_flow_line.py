@@ -5,6 +5,7 @@ from scipy.linalg import toeplitz
 import yaml
 import matplotlib.pyplot as plt
 import time
+import math
 
 
 def interp_stair_aver(x_out, x_in, y_in):
@@ -434,6 +435,7 @@ elif ic_x == x_right:
     ssteady_age = mat_steady_age[:, imax][ggrid]
     xx0 = mat_x0[:, imax][ggrid]
     ttheta = theta[ggrid]
+    ic_S = S[imax]
 else:
     ii = np.argmax(x[x <= ic_x])
     inter = (x[ii+1]-ic_x) / (x[ii+1] - x[ii])
@@ -448,6 +450,7 @@ else:
         (1-inter) * mat_steady_age[:, ii+1][ggrid]
     xx0 = inter * mat_x0[:, ii][ggrid] + (1-inter) * mat_x0[:, ii+1][ggrid]
     ttheta = theta[ggrid]
+    ic_S = inter * S[ii] + (1-inter) * S[ii+1]
 
 # ----------------------------------------------------------
 #  Computation of theta for the ice core: theta_ic
@@ -516,12 +519,18 @@ tau_ie_middle = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
 # FIGURES
 # -----------
 
-# FIXME: Display the ice core in the figures when possible
-
 if create_figs:
 
     print('Before creating figures.',
           round(time.perf_counter()-START_TIME, 4), 's.')
+
+    XX_core = ic_x * np.ones(2)
+    ZZ_core = np.array([ic_S, ic_S-ic_max_depth])
+    PP_core = math.log(ic_x/x_right)*np.ones(2)
+    TT_core = np.array([0, theta_ic[-1]])
+    color_core = 'r'
+    lw_core = 2
+    ls_core = 'dashed'
 
     # ----------------------------------------------------------
     # Display of (pi,theta) mesh
@@ -533,6 +542,8 @@ if create_figs:
         plt.plot(pi, mat_theta[i, :], color='k', linewidth=0.1)
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$\theta$', fontsize=18)
+    plt.plot(PP_core, TT_core, linewidth=lw_core, color=color_core,
+             linestyle=ls_core)
     plt.savefig(datadir+'mesh_pi_theta.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -550,6 +561,8 @@ if create_figs:
     plt.vlines(x, z_ie_min_mesh, S, color='k', linewidths=0.1)
     plt.xlabel(r'$x$ (km)', fontsize=18)
     plt.ylabel(r'$z$ (m)', fontsize=18)
+    plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
+             linestyle=ls_core)
     plt.savefig(datadir+'mesh_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -630,6 +643,8 @@ if create_figs:
     cb.set_label(r'$\omega$')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
+    plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
+             linestyle=ls_core)
     plt.savefig(datadir+'iso-omega_lines.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -664,6 +679,8 @@ if create_figs:
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
     ax.grid()
+    plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
+             linestyle=ls_core)
     plt.savefig(datadir+'age_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -694,6 +711,8 @@ if create_figs:
     ax.set_xlabel(r'$\pi$', fontsize=19)
     ax.set_ylabel(r'$\theta$', fontsize=19)
     ax.grid()
+    plt.plot(PP_core, TT_core, linewidth=lw_core, color=color_core,
+             linestyle=ls_core)
     plt.savefig(datadir+'age_pi_theta.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -727,6 +746,8 @@ if create_figs:
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
     ax.grid()
+    plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
+             linestyle=ls_core)
     plt.savefig(datadir+'thinning_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -760,6 +781,8 @@ if create_figs:
     plt.plot(x, B, label="Corner trajectory", color='k', linewidth=1,
              linestyle='dashed')
     plt.plot(x, B, label='Bedrock', color='0')
+    plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
+             linestyle=ls_core, label='ice core')
     plt.legend(loc='lower left')
     plt.xlabel(r'$x$ (km)', fontsize=19)
     plt.ylabel(r'$z$ (m)', fontsize=19)
