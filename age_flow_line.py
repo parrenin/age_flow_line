@@ -49,6 +49,7 @@ D_depth, D_D = np.loadtxt(datadir+'relative_density.txt', unpack=True)
 # ---------------------------------------------------------
 
 # Default values for parameters, to prevent spyder errors
+ic_name = 'ice core'
 ic_x = 370.
 ic_max_depth = 3310.
 ic_step_depth = 1.
@@ -539,6 +540,8 @@ if output_ic:
 # FIGURES
 # -----------
 
+# Note: We don't plot refrozen ice since the mesh does not always extend to it.
+
 if create_figs:
 
     print('Before creating figures.',
@@ -556,7 +559,7 @@ if create_figs:
     # Display of (pi,theta) mesh
     # ----------------------------------------------------------
 
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(12, 6))
     plt.vlines(pi, theta_min_mesh, theta_max, color='k', linewidths=0.1)
     for i in range(0, imax+1):
         plt.plot(pi, mat_theta[i, :], color='k', linewidth=0.1)
@@ -564,6 +567,8 @@ if create_figs:
     plt.ylabel(r'$\theta$', fontsize=18)
     plt.plot(PP_core, TT_core, linewidth=lw_core, color=color_core,
              linestyle=ls_core)
+    plt.annotate(ic_name, (PP_core[0], 0.03), ha='center',
+                 va='bottom', color=color_core)
     plt.savefig(datadir+'mesh_pi_theta.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -583,6 +588,8 @@ if create_figs:
     plt.ylabel(r'$z$ (m)', fontsize=18)
     plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
              linestyle=ls_core)
+    plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
+                 color=color_core)
     plt.savefig(datadir+'mesh_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -669,6 +676,8 @@ if create_figs:
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
     plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
              linestyle=ls_core)
+    plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
+                 color=color_core)
     plt.savefig(datadir+'iso-omega_lines.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -680,8 +689,6 @@ if create_figs:
 
     plt.plot(x, S, label='Surface', color='0')
     plt.plot(x, B, label='Bedrock', color='0')
-
-    # FIXME: Could we plot refrozen ice here?
 
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
@@ -705,6 +712,8 @@ if create_figs:
     ax.grid()
     plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
              linestyle=ls_core)
+    plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
+                 color=color_core)
     plt.savefig(datadir+'age_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -737,6 +746,8 @@ if create_figs:
     ax.grid()
     plt.plot(PP_core, TT_core, linewidth=lw_core, color=color_core,
              linestyle=ls_core)
+    plt.annotate(ic_name, (PP_core[0], 0.03), ha='center',
+                 va='bottom', color=color_core)
     plt.savefig(datadir+'age_pi_theta.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -772,6 +783,8 @@ if create_figs:
     ax.grid()
     plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
              linestyle=ls_core)
+    plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
+                 color=color_core)
     plt.savefig(datadir+'thinning_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -805,6 +818,8 @@ if create_figs:
     ax.grid()
     plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
              linestyle=ls_core)
+    plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
+                 color=color_core)
     plt.savefig(datadir+'thinning_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -840,6 +855,8 @@ if create_figs:
     plt.plot(x, B, label='Bedrock', color='0')
     plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
              linestyle=ls_core, label='ice core')
+    plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
+                 color=color_core)
     plt.legend(loc='lower left')
     plt.xlabel(r'$x$ (km)', fontsize=19)
     plt.ylabel(r'$z$ (m)', fontsize=19)
