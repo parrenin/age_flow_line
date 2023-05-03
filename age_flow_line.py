@@ -377,13 +377,12 @@ print('After calculation of steady age matrix.',
       round(time.perf_counter()-START_TIME, 4), 's.')
 
 # -------------------------------------------------------
-# Matrix of thinning function: mat_tau_ie
+# Matrix of thinning function: mat_tau
 # -------------------------------------------------------
 
-# FIXME: Remove the "ie" suffix here
-mat_tau_ie = np.where(grid[1:, :], (mat_z_ie[:-1, :] - mat_z_ie[1:, :])
-                      / (mat_steady_age[1:, :] - mat_steady_age[:-1, :])
-                      / (mat_a0[:-1, :] + mat_a0[1:, :]) * 2, np.nan)
+mat_tau = np.where(grid[1:, :], (mat_z_ie[:-1, :] - mat_z_ie[1:, :])
+                   / (mat_steady_age[1:, :] - mat_steady_age[:-1, :])
+                   / (mat_a0[:-1, :] + mat_a0[1:, :]) * 2, np.nan)
 
 # --------------------------------------------------------------------
 # Matrix of thinning function with analytical formula: mat_tau_anal
@@ -748,7 +747,7 @@ if create_figs:
     plt.plot(x, S, label='Surface', color='0')
     plt.plot(x, B, label='Bedrock', color='0')
     zz = np.insert((mat_z[1:, :] + mat_z[:-1, :])/2, 0, S, axis=0)
-    tt = np.insert(mat_tau_ie, 0, np.ones(imax+1), axis=0)
+    tt = np.insert(mat_tau, 0, np.ones(imax+1), axis=0)
     levels = np.arange(0, 1.21, 0.01)
     levels_cb = np.arange(0, 13, 1)/10.
     cp = plt.contourf(mat_x, zz, tt,
