@@ -377,13 +377,30 @@ print('After calculation of steady age matrix.',
       round(time.perf_counter()-START_TIME, 4), 's.')
 
 # -------------------------------------------------------
-# Matrix of thinning function: tau_ie
+# Matrix of thinning function: mat_tau_ie
 # -------------------------------------------------------
 
-# FIXME: Use a more accurate scheme for thinning.
+# FIXME: Remove the "ie" suffix here
 mat_tau_ie = np.where(grid[1:, :], (mat_z_ie[:-1, :] - mat_z_ie[1:, :])
                       / (mat_steady_age[1:, :] - mat_steady_age[:-1, :])
                       / (mat_a0[:-1, :] + mat_a0[1:, :]) * 2, np.nan)
+
+# --------------------------------------------------------------------
+# Matrix of thinning function with analytical formula: mat_tau_anal
+# --------------------------------------------------------------------
+
+tau_reduc_pitheta = np.zeros((imax+1, imax+1))
+
+# Calculation line by line, F. Parrenin, 2023/05/03
+# Based on the analytical formula from Parrenin (HDR, 2013)
+for i in range(1, imax+1):
+    tau_reduc_pitheta[i, 1:] = tau_reduc_pitheta[i-1, :-1] + \
+        dzdOMEGA[i-1, 1:] / a[1:] - dzdOMEGA[i-1, :-1] / a[:-1]
+mat_tau_anal = np.ones((imax+1, imax+1))
+mat_tau_anal[1:-1, :] = 1/(mat_tau_anal[1:-1, :] - tau_reduc_pitheta[1:-1, :]
+                           * a / (dzdOMEGA[:-1, :] + dzdOMEGA[1:, :]) * 2)
+mat_tau_anal = mat_tau_anal * a / mat_a0 * OMEGA.reshape(imax+1, 1)
+mat_tau_anal[-1, :] = np.nan
 
 # -------------------------------
 # Computation of steady_age_R
@@ -597,6 +614,7 @@ if create_figs:
     ax2.plot(pi, m, color=color)
     ax2.set_ylabel('m (m/yr)', color=color)
     ax2.tick_params(axis='y', colors=color)
+    # FIXME: Save figure
 
     # -------------------------------------------------------------------------
     # Boundary conditions of the flow in x
@@ -623,6 +641,7 @@ if create_figs:
     ax2.plot(x, m, color='r')
     ax2.set_ylabel('m (m/yr)', color='r')
     ax2.tick_params(axis='y', colors='r')
+    # FIXME: Save figure
 
     # ----------------------------------------------------------
     # Display of iso-omega lines in (x, z)
@@ -736,6 +755,39 @@ if create_figs:
                       levels=levels,
                       cmap='jet')
     cp2 = plt.contour(mat_x, zz, tt,
+                      levels=levels_cb,
+                      colors='k')
+    # Corner trajectory
+    level0 = np.array([Q[0]])
+    plt.contour(mat_x, mat_z, mat_q, colors='k', linestyles='dashed',
+                levels=level0, linewidths=1)
+    cb = plt.colorbar(cp)
+    cb.set_ticks(levels_cb)
+    cb.set_ticklabels(levels_cb)
+    cb.add_lines(cp2)
+    cb.set_label('Thinning function (no unit))')
+    ax.set_xlabel(r'$x$ (km)', fontsize=19)
+    ax.set_ylabel(r'$z$ (m)', fontsize=19)
+    ax.grid()
+    plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
+             linestyle=ls_core)
+    plt.savefig(datadir+'thinning_x_z.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+
+    # ----------------------------------------------------------
+    # Display of thinning function - analytical formula
+    # ----------------------------------------------------------
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    plt.plot(x, S, label='Surface', color='0')
+    plt.plot(x, B, label='Bedrock', color='0')
+    levels = np.arange(0, 1.21, 0.01)
+    levels_cb = np.arange(0, 13, 1)/10.
+    cp = plt.contourf(mat_x, mat_z, mat_tau_anal,
+                      levels=levels,
+                      cmap='jet')
+    cp2 = plt.contour(mat_x, mat_z, mat_tau_anal,
                       levels=levels_cb,
                       colors='k')
     # Corner trajectory
