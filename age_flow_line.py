@@ -613,7 +613,8 @@ if create_figs:
     ax2.plot(pi, m, color=color)
     ax2.set_ylabel('m (m/yr)', color=color)
     ax2.tick_params(axis='y', colors=color)
-    # FIXME: Save figure
+    plt.savefig(datadir+'boundary_conditions_pi.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     # -------------------------------------------------------------------------
     # Boundary conditions of the flow in x
@@ -640,7 +641,8 @@ if create_figs:
     ax2.plot(x, m, color='r')
     ax2.set_ylabel('m (m/yr)', color='r')
     ax2.tick_params(axis='y', colors='r')
-    # FIXME: Save figure
+    plt.savefig(datadir+'boundary_conditions_x.'+fig_format,
+                format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
     # Display of iso-omega lines in (x, z)
