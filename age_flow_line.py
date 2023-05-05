@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import time
 import math
 
+# FIXME: Add option to have a linear temporal factor, instead of stairs
+
 
 def interp_stair_aver(x_out, x_in, y_in):
     """Return a staircase interpolation of a (x_in,y_in) series
