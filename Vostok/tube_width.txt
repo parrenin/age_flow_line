@@ -1,5 +1,5 @@
 # F. Parrenin, 2023/05/05, digitization of Figure 7 from Salamatin et al. (PICR2, 2009)
-#x (km)	Y (relative unit)
+# x (km)	Y (relative unit)
 0	0
 10	0.01
 20	0.025

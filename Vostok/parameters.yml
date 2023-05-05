@@ -20,7 +20,7 @@ traj_step: 10 #Plot only one srreamline every traj_step
 
 ic_name: 'Vostok'
 ic_x: 370.  # X coordinate of the drilling, in km
-ic_max_depth: 3310. #Max depth in the drilling
+ic_max_depth: 3349. #Max depth in the drilling
 ic_step_depth: 1.  #Depth step in the drilling
 
 create_figs: True  #If we create figures or not.
