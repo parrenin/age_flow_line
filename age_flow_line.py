@@ -7,8 +7,6 @@ import matplotlib.pyplot as plt
 import time
 import math
 
-# FIXME: Should we import thickness instead of bedrock?
-
 
 def interp_stair_aver(x_out, x_in, y_in):
     """Return a staircase interpolation of a (x_in,y_in) series
