@@ -89,10 +89,11 @@ x_s, s_measure = np.loadtxt(datadir+'sliding.txt', unpack=True)
 # Lliboutry parameter
 x_p, p_measure = np.loadtxt(datadir+'p_Lliboutry.txt', unpack=True)
 
-
-# Surface and Bedrock
-x_B, B_measure = np.loadtxt(datadir+'bedrock.txt', unpack=True)
+# Surface
 x_Su, Su_measure = np.loadtxt(datadir+'surface.txt', unpack=True)
+
+# Thickness
+x_H, H_measure = np.loadtxt(datadir+'thickness.txt', unpack=True)
 
 # Tube width
 x_Y, Y_measure = np.loadtxt(datadir+'tube_width.txt', unpack=True)
@@ -158,9 +159,12 @@ Qm = np.interp(Q, Q_fld, Qm_fld)
 a = np.interp(x, x_a0, a0_measure)
 Y = np.interp(x, x_Y, Y_measure)
 S = np.interp(x, x_Su, Su_measure)
-B = np.interp(x, x_B, B_measure)
+H = np.interp(x, x_H, H_measure)
 s = np.interp(x, x_s, s_measure)
 p = np.interp(x, x_p, p_measure)
+
+# Computation of B
+B = S - H
 
 # -----------------------------------------------------
 # depth vs ie-depth conversion with density data
