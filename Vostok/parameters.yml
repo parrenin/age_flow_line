@@ -10,7 +10,7 @@ x_right: 370
 x_step: 1.
 
 # Define surface age
-age_surf: -50
+age_surf: 0
 
 fig_age_max: 1000 #max age (kyr) for the age contour plots
 fig_age_spacing: 10 #spacing for the age (kyr) contour plots
