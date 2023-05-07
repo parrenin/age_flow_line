@@ -70,9 +70,11 @@ fig_age_spacing = 10000
 fig_age_spacing_labels = 100000
 beta = 0.015
 create_figs = True
+fig_format = 'pdf'
+comp_icecore = None
+comp_flowline = None
 output_ic = True
 output_fl = True
-fig_format = 'pdf'
 
 yamls = open(datadir+'parameters.yml').read()
 para = yaml.load(yamls, Loader=yaml.FullLoader)
@@ -566,6 +568,14 @@ if output_ic:
     np.savetxt(datadir+'ice_core_output.txt', np.transpose(output),
                header="depth age thinning accu x_origin accu_steady")
 
+# -----------------------------------------------------------
+# Reading of comparison files
+# -----------------------------------------------------------
+
+cp_depth, cp_age, cp_x, cp_tau = np.loadtxt(datadir+comp_icecore, unpack=True)
+
+cp_fl_x, cp_fl_ux_surf = np.loadtxt(datadir+comp_flowline, unpack=True)
+
 # -----------
 # FIGURES
 # -----------
@@ -703,14 +713,15 @@ if create_figs:
     ax1 = ax.twinx()
     ax1.spines['right'].set_position(('axes', 1.))
     ax1.spines['right'].set_color('g')
-    ax1.plot(x, a, color='g')
+    ax1.plot(x, a*R[0], color='g')
     ax1.set_ylabel('a (m/yr)', color='g')
     ax1.tick_params(axis='y', colors='g')
 
     ax2 = ax.twinx()
     ax2.spines['right'].set_position(('axes', 1.09))
     ax2.spines['right'].set_color('r')
-    ax2.plot(x, ux_surf, color='r')
+    ax2.plot(x, ux_surf*R[0], color='r')
+    ax2.plot(cp_fl_x, cp_fl_ux_surf, color='r', linestyle='dashed')
     ax2.set_ylabel('surface velocity (m/yr)', color='r')
     ax2.tick_params(axis='y', colors='r')
     plt.savefig(datadir+'surface_velocity_x.'+fig_format,
@@ -948,6 +959,8 @@ if create_figs:
     ax.set_ylabel('depth (m)')
     ax.invert_yaxis()
     ax.plot(x0_ic, depth_ic, color='r')
+    if ~np.isnan(cp_x).all():
+        ax.plot(cp_x, cp_depth, color='r', linestyle='dashed')
     ax.set_xlabel(r'$x$ origin (km)', color='r')
     ax.spines['bottom'].set_color('r')
     ax.tick_params(axis='x', colors='r')
@@ -955,6 +968,8 @@ if create_figs:
     ax2 = ax.twiny()
     ax2.spines.bottom.set_visible(False)
     ax2.plot(age_ic/1000, depth_ic, color='b')
+    if ~np.isnan(cp_age).all():
+        ax2.plot(cp_age, cp_depth, color='b', linestyle='dashed')
     ax2.set_xlabel('age (kyr)', color='b')
     ax2.spines['top'].set_color('b')
     ax2.tick_params(axis='x', colors='b')
@@ -963,6 +978,8 @@ if create_figs:
     ax3.spines['top'].set_position(('axes', 1.1))
     ax3.spines.bottom.set_visible(False)
     ax3.plot(tau_ic, depth_ic[:-1], color='g')
+    if ~np.isnan(cp_tau).all():
+        ax3.plot(cp_tau, cp_depth, color='g', linestyle='dashed')
     ax3.set_xlabel('thinning function (no unit)', color='g')
     ax3.spines['top'].set_color('g')
     ax3.tick_params(axis='x', colors='g')

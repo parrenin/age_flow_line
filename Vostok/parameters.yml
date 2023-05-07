@@ -25,6 +25,8 @@ ic_step_depth: 1.  #Depth step in the drilling
 
 create_figs: True  #If we create figures or not.
 fig_format: 'pdf'
+comp_icecore: 'GTS-III-IceCore.txt'
+comp_flowline: 'GTS-III-FlowLine.txt'
 
 output_ic: True
 output_fl: True
