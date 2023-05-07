@@ -14,7 +14,7 @@ age_surf: 0
 
 fig_age_max: 1000 #max age (kyr) for the age contour plots
 fig_age_spacing: 10 #spacing for the age (kyr) contour plots
-fig_age_spacing_labels: 100 #spacing for the labels (kyr) of the age color bars
+fig_age_spacing_labels: 50 #spacing for the labels (kyr) of the age color bars
 
 traj_step: 10 #Plot only one srreamline every traj_step
 
@@ -27,6 +27,7 @@ create_figs: True  #If we create figures or not.
 fig_format: 'pdf'
 comp_icecore: 'GTS-III-IceCore.txt'
 comp_flowline: 'GTS-III-FlowLine.txt'
+comp_isochrones: 'GTS-III-isochrones.txt'
 
 output_ic: True
 output_fl: True

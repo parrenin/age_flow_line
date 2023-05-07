@@ -73,6 +73,7 @@ create_figs = True
 fig_format = 'pdf'
 comp_icecore = None
 comp_flowline = None
+comp_isochrones = None
 output_ic = True
 output_fl = True
 
@@ -578,6 +579,9 @@ if comp_icecore is not None:
 if comp_flowline is not None:
     cp_fl_x, cp_fl_ux_surf = np.loadtxt(datadir+comp_flowline, unpack=True)
 
+if comp_isochrones is not None:
+    cp_iso_x, cp_iso_depth = np.loadtxt(datadir+comp_isochrones, unpack=True)
+
 # -----------
 # FIGURES
 # -----------
@@ -591,6 +595,7 @@ if create_figs:
 
     XX_core = ic_x * np.ones(2)
     ZZ_core = np.array([ic_S, ic_S-ic_max_depth])
+    DD_core = np.array([0, ic_max_depth])
     PP_core = math.log(ic_x/x_right)*np.ones(2)
     TT_core = np.array([0, theta_ic[-1]])
     color_core = 'r'
@@ -794,6 +799,45 @@ if create_figs:
     plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
                  color=color_core)
     plt.savefig(datadir+'age_x_z.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+
+    # ----------------------------------------------------------
+    # Display of age and isochrones in (x, depth)
+    # ----------------------------------------------------------
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    plt.plot(x, np.zeros_like(S), label='Surface', color='0')
+    plt.plot(x, S-B, label='Bedrock', color='0')
+
+    levels = np.arange(0, fig_age_max, fig_age_spacing)
+    levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
+    cp = plt.contourf(mat_x, mat_depth, mat_age/1000.,
+                      levels=levels,
+                      cmap='jet')
+    cp2 = plt.contour(mat_x, mat_depth, mat_age/1000.,
+                      levels=levels_cb,
+                      colors='k')
+    # Corner trajectory
+    level0 = np.array([Q[0]])
+    plt.contour(mat_x, mat_depth, mat_q, colors='k', linestyles='dashed',
+                levels=level0, linewidths=1)
+    cb = plt.colorbar(cp)
+    cb.set_ticks(levels_cb)
+    cb.set_ticklabels(levels_cb)
+    cb.add_lines(cp2)
+    cb.set_label('Modeled age (kyr)')
+    ax.set_xlabel(r'$x$ (km)', fontsize=19)
+    ax.set_ylabel(r'depth (m)', fontsize=19)
+    ax.invert_yaxis()
+    ax.grid()
+    if comp_isochrones is not None:
+        plt.plot(cp_iso_x, cp_iso_depth, color='k', linestyle='dashed')
+    plt.plot(XX_core, DD_core, linewidth=lw_core, color=color_core,
+             linestyle=ls_core)
+    plt.annotate(ic_name, (ic_x, -50), ha='center', va='bottom',
+                 color=color_core)
+    plt.savefig(datadir+'age_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # ---------------------------------------------------------------------
