@@ -571,10 +571,12 @@ if output_ic:
 # -----------------------------------------------------------
 # Reading of comparison files
 # -----------------------------------------------------------
+if comp_icecore is not None:
+    cp_depth, cp_age, cp_x, cp_tau = np.loadtxt(datadir+comp_icecore,
+                                                unpack=True)
 
-cp_depth, cp_age, cp_x, cp_tau = np.loadtxt(datadir+comp_icecore, unpack=True)
-
-cp_fl_x, cp_fl_ux_surf = np.loadtxt(datadir+comp_flowline, unpack=True)
+if comp_flowline is not None:
+    cp_fl_x, cp_fl_ux_surf = np.loadtxt(datadir+comp_flowline, unpack=True)
 
 # -----------
 # FIGURES
@@ -721,7 +723,8 @@ if create_figs:
     ax2.spines['right'].set_position(('axes', 1.09))
     ax2.spines['right'].set_color('r')
     ax2.plot(x, ux_surf*R[0], color='r')
-    ax2.plot(cp_fl_x, cp_fl_ux_surf, color='r', linestyle='dashed')
+    if comp_flowline is not None:
+        ax2.plot(cp_fl_x, cp_fl_ux_surf, color='r', linestyle='dashed')
     ax2.set_ylabel('surface velocity (m/yr)', color='r')
     ax2.tick_params(axis='y', colors='r')
     plt.savefig(datadir+'surface_velocity_x.'+fig_format,
@@ -959,7 +962,7 @@ if create_figs:
     ax.set_ylabel('depth (m)')
     ax.invert_yaxis()
     ax.plot(x0_ic, depth_ic, color='r')
-    if ~np.isnan(cp_x).all():
+    if comp_icecore is not None and ~np.isnan(cp_x).all():
         ax.plot(cp_x, cp_depth, color='r', linestyle='dashed')
     ax.set_xlabel(r'$x$ origin (km)', color='r')
     ax.spines['bottom'].set_color('r')
@@ -968,7 +971,7 @@ if create_figs:
     ax2 = ax.twiny()
     ax2.spines.bottom.set_visible(False)
     ax2.plot(age_ic/1000, depth_ic, color='b')
-    if ~np.isnan(cp_age).all():
+    if comp_icecore is not None and ~np.isnan(cp_age).all():
         ax2.plot(cp_age, cp_depth, color='b', linestyle='dashed')
     ax2.set_xlabel('age (kyr)', color='b')
     ax2.spines['top'].set_color('b')
@@ -978,7 +981,7 @@ if create_figs:
     ax3.spines['top'].set_position(('axes', 1.1))
     ax3.spines.bottom.set_visible(False)
     ax3.plot(tau_ic, depth_ic[:-1], color='g')
-    if ~np.isnan(cp_tau).all():
+    if comp_icecore is not None and ~np.isnan(cp_tau).all():
         ax3.plot(cp_tau, cp_depth, color='g', linestyle='dashed')
     ax3.set_xlabel('thinning function (no unit)', color='g')
     ax3.spines['top'].set_color('g')
