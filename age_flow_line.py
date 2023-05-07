@@ -8,6 +8,10 @@ import time
 import math
 
 # FIXME: Add option to have a linear temporal factor, instead of stairs
+# FIXME: Use firn density profile from Salamatin's equation
+# FIXME: The ice thickness given by Salamatin is in ice-equivalent, pls correct
+# FIXME: Plot surface velocity and fluxes on a new figure
+# FIXME: Allow to input relative spatial variations of accu + a0_right
 
 
 def interp_stair_aver(x_out, x_in, y_in):
@@ -115,6 +119,9 @@ dQdx = (x_fld[1:]-x_fld[:-1]) * 1000 * \
      0.5 * ((a0_fld[1:]-a0_fld[:-1]) * Y_fld[:-1] + (Y_fld[1:]-Y_fld[:-1])
             * a0_fld[:-1]) +
      1./3 * (a0_fld[1:]-a0_fld[:-1]) * (Y_fld[1:]-Y_fld[:-1]))
+# Simple scheme, for checking
+# dQdx = (a0_fld[1:]+a0_fld[:-1])*(Y_fld[1:]+Y_fld[:-1])/4 * \
+#    (x_fld[1:]-x_fld[:-1])*1000
 dQdx = np.insert(dQdx, 0, 0)
 Q_fld = np.cumsum(dQdx)
 
@@ -156,6 +163,7 @@ OMEGA = np.exp(theta)
 # We could also interpolate everything in Q.
 x = np.interp(Q, Q_fld, x_fld)
 Qm = np.interp(Q, Q_fld, Qm_fld)
+# FIXME: use a, not a0, which is for initial accu
 a = np.interp(x, x_a0, a0_measure)
 Y = np.interp(x, x_Y, Y_measure)
 S = np.interp(x, x_Su, Su_measure)
@@ -603,6 +611,8 @@ if create_figs:
     # Boundary conditions of the flow in pi
     # -------------------------------------------------------------------------
 
+# FIXME: Does this graph really make sense?
+
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
     fig.subplots_adjust(right=0.8)
@@ -610,6 +620,7 @@ if create_figs:
     ax.set_ylabel('Y (relative unit)')
     ax.plot(pi, Y, color='k')
     ax.spines.right.set_visible(False)
+    ax.set_ylim(bottom=0)
 
     color = 'g'
     ax1 = ax.twinx()
@@ -633,25 +644,29 @@ if create_figs:
     # Boundary conditions of the flow in x
     # -------------------------------------------------------------------------
 
+# FIXME: Add a figure with Q, a and surface velocity
+
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
     fig.subplots_adjust(right=0.8)
     ax.set_xlabel('x (km)', fontsize=18)
     ax.set_ylabel('Y (relative unit)')
-    ax.plot(x, Y, color='k')
+    ax.plot(x_fld, Y_fld, color='k')
     ax.spines.right.set_visible(False)
+    ax.set_ylim(bottom=0)
+    ax.set_xlim(left=0)
 
     ax1 = ax.twinx()
     ax1.spines['right'].set_position(('axes', 1.))
     ax1.spines['right'].set_color('g')
-    ax1.plot(x, a, color='g')
+    ax1.plot(x_fld, a0_fld, color='g')
     ax1.set_ylabel('a (m/yr)', color='g')
     ax1.tick_params(axis='y', colors='g')
 
     ax2 = ax.twinx()
     ax2.spines['right'].set_position(('axes', 1.09))
     ax2.spines['right'].set_color('r')
-    ax2.plot(x, m, color='r')
+    ax2.plot(x_fld, m_fld, color='r')
     ax2.set_ylabel('m (m/yr)', color='r')
     ax2.tick_params(axis='y', colors='r')
     plt.savefig(datadir+'boundary_conditions_x.'+fig_format,
