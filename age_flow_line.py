@@ -8,11 +8,9 @@ import time
 import math
 
 # FIXME: Add option to have a linear temporal factor, instead of stairs
-# FIXME: Use firn density profile from Salamatin's equation
-# FIXME: The ice thickness given by Salamatin is in ice-equivalent, pls correct
-# FIXME: Plot surface velocity and fluxes on a new figure
 # FIXME: Allow to input relative spatial variations of accu + a0_right
-
+# FIXME: The ice thickness given by Salamatin is in ice-equivalent,allow this
+# FIXME: Use firn density profile from Salamatin's equation
 
 def interp_stair_aver(x_out, x_in, y_in):
     """Return a staircase interpolation of a (x_in,y_in) series
@@ -416,6 +414,12 @@ mat_tau_anal[1:-1, :] = 1/(mat_tau_anal[1:-1, :] - tau_reduc_pitheta[1:-1, :]
 mat_tau_anal = mat_tau_anal * a / mat_a0 * OMEGA.reshape(imax+1, 1)
 mat_tau_anal[-1, :] = np.nan
 
+# ---------------------------------
+# Surface velocity
+# ---------------------------------
+
+ux_surf = Q/Y/dzdOMEGA[0, :]
+
 # -------------------------------
 # Computation of steady_age_R
 # -------------------------------
@@ -644,8 +648,6 @@ if create_figs:
     # Boundary conditions of the flow in x
     # -------------------------------------------------------------------------
 
-# FIXME: Add a figure with Q, a and surface velocity
-
     fig, ax = plt.subplots()
     fig.set_size_inches(15, 5)
     fig.subplots_adjust(right=0.8)
@@ -670,6 +672,36 @@ if create_figs:
     ax2.set_ylabel('m (m/yr)', color='r')
     ax2.tick_params(axis='y', colors='r')
     plt.savefig(datadir+'boundary_conditions_x.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+
+    # ----------------------------------------------------------
+    # Q, a and ux_surf as a function of x
+    # ----------------------------------------------------------
+
+    fig, ax = plt.subplots()
+    fig.set_size_inches(15, 5)
+    fig.subplots_adjust(right=0.8)
+    ax.set_xlabel('x (km)', fontsize=18)
+    ax.set_ylabel('Q (relative unit)')
+    ax.plot(x, Q, color='k')
+    ax.spines.right.set_visible(False)
+    ax.set_ylim(bottom=0)
+    ax.set_xlim(left=0)
+
+    ax1 = ax.twinx()
+    ax1.spines['right'].set_position(('axes', 1.))
+    ax1.spines['right'].set_color('g')
+    ax1.plot(x, a, color='g')
+    ax1.set_ylabel('a (m/yr)', color='g')
+    ax1.tick_params(axis='y', colors='g')
+
+    ax2 = ax.twinx()
+    ax2.spines['right'].set_position(('axes', 1.09))
+    ax2.spines['right'].set_color('r')
+    ax2.plot(x, ux_surf, color='r')
+    ax2.set_ylabel('surface velocity (m/yr)', color='r')
+    ax2.tick_params(axis='y', colors='r')
+    plt.savefig(datadir+'surface_velocity_x.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------

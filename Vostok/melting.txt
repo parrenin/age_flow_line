@@ -1,4 +1,6 @@
 # F. Parrenin. 2023/05/05, melting/freezing from Salamatin et al. (PICR2. 2009, Figure 12c).
+# Qm<0 here above the lake, which violates the assumption.
+# It just means we restrict our study to the ice with q>0, ie water which comes from upstream.
 # x(km)	m(m/yr)
 0.00000	0.00000
 314.90000	0.00000
