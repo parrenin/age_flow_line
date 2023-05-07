@@ -11,6 +11,8 @@ import math
 # FIXME: Allow to input relative spatial variations of accu + a0_right
 # FIXME: The ice thickness given by Salamatin is in ice-equivalent,allow this
 # FIXME: Use firn density profile from Salamatin's equation
+# FIXME: Output quantities along the flow line: Q, a and ux_surf
+
 
 def interp_stair_aver(x_out, x_in, y_in):
     """Return a staircase interpolation of a (x_in,y_in) series
@@ -69,6 +71,7 @@ fig_age_spacing_labels = 100000
 beta = 0.015
 create_figs = True
 output_ic = True
+output_fl = True
 fig_format = 'pdf'
 
 yamls = open(datadir+'parameters.yml').read()
@@ -544,6 +547,15 @@ tau_ic = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
                 (steady_age_ic[1:] - steady_age_ic[:-1])
 
 # ----------------------------------------------------------
+# Output quantities along the flow line
+# ----------------------------------------------------------
+
+if output_fl:
+    output = np.vstack((x, Q, a, ux_surf))
+    np.savetxt(datadir+'flow_line_output.txt', np.transpose(output),
+               header='x(km) total_flux accu(m/yr) surf_velocity(m/yr)')
+
+# ----------------------------------------------------------
 # Output for the ice core
 # ----------------------------------------------------------
 
@@ -675,7 +687,7 @@ if create_figs:
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
-    # Q, a and ux_surf as a function of x
+    # Calculated quantities along the flow line
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots()
