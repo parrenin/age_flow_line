@@ -7,8 +7,8 @@ fig_format = 'pdf'
 depth_ic, age_ic, tau_ic, a0_ic, x0_ic, steady_a0_ic =\
     np.loadtxt('ice_core_output.txt', unpack=True)
 
-GTS_depth, GTS_age, GTS_x = np.loadtxt('GTS-III-IceCore.txt', unpack=True)
-GTS_x = 370 - GTS_x
+GTS_depth, GTS_age, GTS_x, GTS_tau = np.loadtxt('GTS-III-IceCore.txt',
+                                                unpack=True)
 
 x, Q, a, ux_surf = np.loadtxt('flow_line_output.txt', unpack=True)
 

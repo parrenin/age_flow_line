@@ -191,6 +191,7 @@ D_depth_ie = np.cumsum(np.concatenate((np.array([0]),
 # ----------------------------------------------------------
 
 DELTA_H = D_depth[-1] - D_depth_ie[-1]
+print('DELTA_H:', DELTA_H)
 
 # --------------------------------------------------
 # Calcul de la surface ice-equivalent S_ie
@@ -581,7 +582,10 @@ if comp_flowline is not None:
     cp_fl_x, cp_fl_ux_surf = np.loadtxt(datadir+comp_flowline, unpack=True)
 
 if comp_isochrones is not None:
-    cp_iso_x, cp_iso_depth = np.loadtxt(datadir+comp_isochrones, unpack=True)
+    readarray = np.loadtxt(datadir+comp_isochrones, unpack=True)
+    cp_iso_x = readarray[0, :]
+    cp_iso_depth = readarray[1:, :]
+    cp_iso_nb = cp_iso_depth.shape[0]
 
 # -----------
 # FIGURES
@@ -798,8 +802,9 @@ if create_figs:
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
     ax.grid()
     if comp_isochrones is not None:
-        plt.plot(cp_iso_x, np.interp(cp_iso_x, x, S) - cp_iso_depth,
-                 color='k', linestyle='dashed')
+        for i in range(cp_iso_nb):
+            plt.plot(cp_iso_x, np.interp(cp_iso_x, x, S) - cp_iso_depth[i, :],
+                     color='k', linestyle='dashed')
     plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
              linestyle=ls_core)
     plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
@@ -840,7 +845,9 @@ if create_figs:
     ax.invert_yaxis()
     ax.grid()
     if comp_isochrones is not None:
-        plt.plot(cp_iso_x, cp_iso_depth, color='k', linestyle='dashed')
+        for i in range(cp_iso_nb):
+            plt.plot(cp_iso_x, cp_iso_depth[i, :],
+                     color='k', linestyle='dashed')
     plt.plot(XX_core, DD_core, linewidth=lw_core, color=color_core,
              linestyle=ls_core)
     plt.annotate(ic_name, (ic_x, -50), ha='center', va='bottom',
