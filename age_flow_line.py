@@ -68,6 +68,7 @@ traj_step = 10
 fig_age_max = 1000000
 fig_age_spacing = 10000
 fig_age_spacing_labels = 100000
+fig_age_iso = [100, 200, 300, 400]
 beta = 0.015
 create_figs = True
 fig_format = 'pdf'
@@ -776,11 +777,12 @@ if create_figs:
 
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
+    levels_iso = np.array(fig_age_iso)
     cp = plt.contourf(mat_x, mat_z, mat_age/1000.,
                       levels=levels,
                       cmap='jet')
     cp2 = plt.contour(mat_x, mat_z, mat_age/1000.,
-                      levels=levels_cb,
+                      levels=levels_iso,
                       colors='k')
     # Corner trajectory
     level0 = np.array([Q[0]])
@@ -790,10 +792,14 @@ if create_figs:
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
     cb.add_lines(cp2)
+    ax.clabel(cp2)
     cb.set_label('Modeled age (kyr)')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
     ax.grid()
+    if comp_isochrones is not None:
+        plt.plot(cp_iso_x, np.interp(cp_iso_x, x, S) - cp_iso_depth,
+                 color='k', linestyle='dashed')
     plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
              linestyle=ls_core)
     plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
@@ -812,11 +818,12 @@ if create_figs:
 
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
+    levels_iso = np.array(fig_age_iso)
     cp = plt.contourf(mat_x, mat_depth, mat_age/1000.,
                       levels=levels,
                       cmap='jet')
     cp2 = plt.contour(mat_x, mat_depth, mat_age/1000.,
-                      levels=levels_cb,
+                      levels=levels_iso,
                       colors='k')
     # Corner trajectory
     level0 = np.array([Q[0]])
@@ -826,6 +833,7 @@ if create_figs:
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
     cb.add_lines(cp2)
+    ax.clabel(cp2)
     cb.set_label('Modeled age (kyr)')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'depth (m)', fontsize=19)
@@ -854,7 +862,7 @@ if create_figs:
     cp = plt.contourf(mat_pi, mat_theta, mat_age/1000., levels=levels,
                       cmap='jet')
     cp2 = plt.contour(mat_pi, mat_theta, mat_age/1000.,
-                      levels=levels_cb, colors='k')
+                      levels=levels_iso, colors='k')
     # Corner trajectory
     level0 = np.array([Q[0]])
     plt.contour(mat_pi, mat_theta, mat_q, colors='k', linestyles='dashed',
@@ -863,6 +871,7 @@ if create_figs:
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
     cb.add_lines(cp2)
+    ax.clabel(cp2)
     cb.set_label('Modeled age (kyr)')
     ax.set_xlabel(r'$\pi$', fontsize=19)
     ax.set_ylabel(r'$\theta$', fontsize=19)
