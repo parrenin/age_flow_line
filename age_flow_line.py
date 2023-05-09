@@ -42,14 +42,6 @@ if datadir[-1] != '/':
     datadir = datadir+'/'
 print('Parameters directory is: ', datadir)
 
-# -----------------------------------------------------------------------------
-# Loading data from accu-prior.txt , density-prior.txt ... in "input_data" file
-# -----------------------------------------------------------------------------
-
-# deut = np.loadtxt(datadir+'deuterium.txt')
-age_R, R = np.loadtxt(datadir+'temporal_factor.txt', unpack=True)
-D_depth, D_D = np.loadtxt(datadir+'relative_density.txt', unpack=True)
-
 # ---------------------------------------------------------
 # Reading parameters.yml file (imax, delta, ...)
 # ---------------------------------------------------------
@@ -64,6 +56,8 @@ delta = 0.08
 age_surf = -50
 x_right = 370.
 x_step = 1.
+accu_relative = 1.
+accu_present = True
 traj_step = 10
 fig_age_max = 1000000
 fig_age_spacing = 10000
@@ -82,12 +76,23 @@ yamls = open(datadir+'parameters.yml').read()
 para = yaml.load(yamls, Loader=yaml.FullLoader)
 globals().update(para)
 
+# -----------------------------------------------------------------------------
+# Loading data from temporal_factor.txt and relative_density.txt
+# -----------------------------------------------------------------------------
+
+# deut = np.loadtxt(datadir+'deuterium.txt')
+age_R, R = np.loadtxt(datadir+'temporal_factor.txt', unpack=True)
+D_depth, D_D = np.loadtxt(datadir+'relative_density.txt', unpack=True)
+
 # -----------------------------------------------------
 # Loading files for Geographic data, arrays creations
 # -----------------------------------------------------
 
 # Steady accumulation
 x_a0, a0_measure = np.loadtxt(datadir+'accumulation.txt', unpack=True)
+a0_measure = a0_measure * accu_relative
+if accu_present:
+    a0_measure = a0_measure / R[0]
 
 # Melting
 x_m, m_measure = np.loadtxt(datadir+'melting.txt', unpack=True)
