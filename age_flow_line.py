@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 import time
 import math
 
-# FIXME: Add option to have a linear temporal factor, instead of stairs
 # FIXME: Use firn density profile from Salamatin's equation
 # FIXME: Try again natural sampling with an intelligent interpolation fct.
+# FIXME: Use an intelligent interpolation with linear temporal factor
 
 
 def interp_stair_aver(x_out, x_in, y_in):
@@ -57,6 +57,7 @@ x_step = 1.
 thickness_ie = False
 accu_relative = 1.
 accu_present = True
+temp_fact_linear = False
 traj_step = 10
 fig_age_max = 1000000
 fig_age_spacing = 10000
@@ -81,6 +82,10 @@ globals().update(para)
 
 # deut = np.loadtxt(datadir+'deuterium.txt')
 age_R, R = np.loadtxt(datadir+'temporal_factor.txt', unpack=True)
+if temp_fact_linear:
+    R = (R[1:] + R[:-1])/2
+    R = np.append(R, R[-1])
+
 D_depth, D_D = np.loadtxt(datadir+'relative_density.txt', unpack=True)
 
 # -----------------------------------------------------
