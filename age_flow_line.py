@@ -8,10 +8,7 @@ import time
 import math
 
 # FIXME: Add option to have a linear temporal factor, instead of stairs
-# FIXME: Allow to input relative spatial variations of accu + a0_right
-# FIXME: The ice thickness given by Salamatin is in ice-equivalent,allow this
 # FIXME: Use firn density profile from Salamatin's equation
-# FIXME: Output quantities along the flow line: Q, a and ux_surf
 # FIXME: Try again natural sampling with an intelligent interpolation fct.
 
 
@@ -91,10 +88,10 @@ D_depth, D_D = np.loadtxt(datadir+'relative_density.txt', unpack=True)
 # -----------------------------------------------------
 
 # Steady accumulation
-x_a0, a0_measure = np.loadtxt(datadir+'accumulation.txt', unpack=True)
-a0_measure = a0_measure * accu_relative
+x_a, a_measure = np.loadtxt(datadir+'accumulation.txt', unpack=True)
+a_measure = a_measure * accu_relative
 if accu_present:
-    a0_measure = a0_measure / R[0]
+    a_measure = a_measure / R[0]
 
 # Melting
 x_m, m_measure = np.loadtxt(datadir+'melting.txt', unpack=True)
@@ -120,17 +117,17 @@ x_Y, Y_measure = np.loadtxt(datadir+'tube_width.txt', unpack=True)
 
 x_fld = np.arange(0, x_right+x_step, x_step)
 
-a0_fld = np.interp(x_fld, x_a0, a0_measure)
+a_fld = np.interp(x_fld, x_a, a_measure)
 Y_fld = np.interp(x_fld, x_Y, Y_measure)
 m_fld = np.interp(x_fld, x_m, m_measure)
 
 # Computation of total flux Q
 # Formula checked 2023/04/27 by F. Parrenin
 dQdx = (x_fld[1:]-x_fld[:-1]) * 1000 * \
-    (a0_fld[:-1] * Y_fld[:-1] +
-     0.5 * ((a0_fld[1:]-a0_fld[:-1]) * Y_fld[:-1] + (Y_fld[1:]-Y_fld[:-1])
-            * a0_fld[:-1]) +
-     1./3 * (a0_fld[1:]-a0_fld[:-1]) * (Y_fld[1:]-Y_fld[:-1]))
+    (a_fld[:-1] * Y_fld[:-1] +
+     0.5 * ((a_fld[1:]-a_fld[:-1]) * Y_fld[:-1] + (Y_fld[1:]-Y_fld[:-1])
+            * a_fld[:-1]) +
+     1./3 * (a_fld[1:]-a_fld[:-1]) * (Y_fld[1:]-Y_fld[:-1]))
 # Simple scheme, for checking
 # dQdx = (a0_fld[1:]+a0_fld[:-1])*(Y_fld[1:]+Y_fld[:-1])/4 * \
 #    (x_fld[1:]-x_fld[:-1])*1000
@@ -175,8 +172,7 @@ OMEGA = np.exp(theta)
 # We could also interpolate everything in Q.
 x = np.interp(Q, Q_fld, x_fld)
 Qm = np.interp(Q, Q_fld, Qm_fld)
-# FIXME: use a, not a0, which is for initial accu
-a = np.interp(x, x_a0, a0_measure)
+a = np.interp(x, x_a, a_measure)
 Y = np.interp(x, x_Y, Y_measure)
 S = np.interp(x, x_Su, Su_measure)
 H = np.interp(x, x_H, H_measure)
@@ -289,6 +285,7 @@ mat_z_ie = np.zeros((imax+1, imax+1))
 for j in range(0, imax+1):
     inter = np.interp(-mat_omega[:, j], -omega[:, j].flatten(),
                       zeta.flatten())
+    # FIXME: Introduce H_ie for convenience
     mat_z_ie[:, j] = np.where(grid[:, j], B[j]+inter*(S_ie[j]-B[j]),
                               np.nan)
 
@@ -702,7 +699,7 @@ if create_figs:
     ax1 = ax.twinx()
     ax1.spines['right'].set_position(('axes', 1.))
     ax1.spines['right'].set_color('g')
-    ax1.plot(x_fld, a0_fld, color='g')
+    ax1.plot(x_fld, a_fld, color='g')
     ax1.set_ylabel('a (m/yr)', color='g')
     ax1.tick_params(axis='y', colors='g')
 
