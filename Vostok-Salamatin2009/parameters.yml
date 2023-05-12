@@ -8,6 +8,10 @@ imax: 1000
 x_right: 370 
 # Horizontal step for the computation of the total flux Q, in km
 x_step: 1.
+
+# Ice thickness being ice equivalent or not
+thickness_ie: True
+
 # accu representation, put accu_right if relative or 1 if not.
 accu_relative: 0.0210827
 accu_present: True

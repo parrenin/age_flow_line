@@ -12,6 +12,7 @@ import math
 # FIXME: The ice thickness given by Salamatin is in ice-equivalent,allow this
 # FIXME: Use firn density profile from Salamatin's equation
 # FIXME: Output quantities along the flow line: Q, a and ux_surf
+# FIXME: Try again natural sampling with an intelligent interpolation fct.
 
 
 def interp_stair_aver(x_out, x_in, y_in):
@@ -56,6 +57,7 @@ delta = 0.08
 age_surf = -50
 x_right = 370.
 x_step = 1.
+thickness_ie = False
 accu_relative = 1.
 accu_present = True
 traj_step = 10
@@ -181,9 +183,6 @@ H = np.interp(x, x_H, H_measure)
 s = np.interp(x, x_s, s_measure)
 p = np.interp(x, x_p, p_measure)
 
-# Computation of B
-B = S - H
-
 # -----------------------------------------------------
 # depth vs ie-depth conversion with density data
 # -----------------------------------------------------
@@ -199,9 +198,12 @@ DELTA_H = D_depth[-1] - D_depth_ie[-1]
 print('DELTA_H:', DELTA_H)
 
 # --------------------------------------------------
-# Calcul de la surface ice-equivalent S_ie
+# Computation of H, S_ie and B
 # --------------------------------------------------
 
+if thickness_ie:
+    H = H + DELTA_H
+B = S - H
 S_ie = S - DELTA_H
 
 # --------------------------------------------------
