@@ -650,39 +650,6 @@ if create_figs:
                 format=fig_format, bbox_inches='tight')
 
     # -------------------------------------------------------------------------
-    # Boundary conditions of the flow in pi
-    # -------------------------------------------------------------------------
-
-# FIXME: Does this graph really make sense?
-
-    fig, ax = plt.subplots()
-    fig.set_size_inches(15, 5)
-    fig.subplots_adjust(right=0.8)
-    ax.set_xlabel('x (km)', fontsize=18)
-    ax.set_ylabel('Y (relative unit)')
-    ax.plot(pi, Y, color='k')
-    ax.spines.right.set_visible(False)
-    ax.set_ylim(bottom=0)
-
-    color = 'g'
-    ax1 = ax.twinx()
-    ax1.spines['right'].set_position(('axes', 1.))
-    ax1.spines['right'].set_color(color)
-    ax1.plot(pi, a, color=color)
-    ax1.set_ylabel('a (m/yr)', color=color)
-    ax1.tick_params(axis='y', colors=color)
-
-    color = 'r'
-    ax2 = ax.twinx()
-    ax2.spines['right'].set_position(('axes', 1.09))
-    ax2.spines['right'].set_color(color)
-    ax2.plot(pi, m, color=color)
-    ax2.set_ylabel('m (m/yr)', color=color)
-    ax2.tick_params(axis='y', colors=color)
-    plt.savefig(datadir+'boundary_conditions_pi.'+fig_format,
-                format=fig_format, bbox_inches='tight')
-
-    # -------------------------------------------------------------------------
     # Boundary conditions of the flow in x
     # -------------------------------------------------------------------------
 
