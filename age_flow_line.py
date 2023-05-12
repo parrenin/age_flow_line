@@ -198,6 +198,7 @@ print('DELTA_H:', DELTA_H)
 # --------------------------------------------------
 
 if thickness_ie:
+    H_ie = H
     H = H + DELTA_H
 B = S - H
 S_ie = S - DELTA_H
@@ -285,8 +286,7 @@ mat_z_ie = np.zeros((imax+1, imax+1))
 for j in range(0, imax+1):
     inter = np.interp(-mat_omega[:, j], -omega[:, j].flatten(),
                       zeta.flatten())
-    # FIXME: Introduce H_ie for convenience
-    mat_z_ie[:, j] = np.where(grid[:, j], B[j]+inter*(S_ie[j]-B[j]),
+    mat_z_ie[:, j] = np.where(grid[:, j], B[j]+inter*H_ie[j],
                               np.nan)
 
 # z_ie_min is the grid min for each vertical profile, used to plot the mesh
