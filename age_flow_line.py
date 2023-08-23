@@ -10,6 +10,7 @@ import math
 # FIXME: Use firn density profile from Salamatin's equation
 # FIXME: Try again natural sampling with an intelligent interpolation fct.
 # FIXME: Use an intelligent interpolation with linear temporal factor
+# TODO: Implement R as a fuction of depth
 
 
 def interp_stair_aver(x_out, x_in, y_in):
@@ -57,6 +58,7 @@ x_step = 1.
 thickness_ie = False
 accu_relative = 1.
 accu_present = True
+R_exp = 1.
 temp_fact_linear = False
 traj_step = 10
 fig_age_max = 1000000
@@ -82,6 +84,11 @@ globals().update(para)
 
 # deut = np.loadtxt(datadir+'deuterium.txt')
 age_R, R = np.loadtxt(datadir+'temporal_factor.txt', unpack=True)
+age_R = np.append(age_R, age_R[-1]+1)
+age_R = np.append(age_R, 10000000)
+R = np.append(R, 1)
+R = np.append(R, 1)
+R = R**R_exp
 if temp_fact_linear:
     R = (R[1:] + R[:-1])/2
     R = np.append(R, R[-1])
@@ -450,9 +457,7 @@ steady_age_R = np.cumsum(steady_age_R)
 # ----------------------------------------------------------
 
 # Rmq if age_R[0]>age_surf, there is a top layer of age age_R[0]
-mat_age = np.interp(mat_steady_age+age_surf,
-                    np.append(steady_age_R, 100*steady_age_R[-1]),
-                    np.append(age_R, 100*age_R[-1]))
+mat_age = np.interp(mat_steady_age+age_surf, steady_age_R, age_R)
 
 # ----------------------------------------------------------
 # Post-processing: transfering of the modeling results
@@ -907,6 +912,8 @@ if create_figs:
     # Display of thinning function - analytical formula
     # ----------------------------------------------------------
 
+# FIXME: Check why the z-axis is different from the previous figure.
+
     fig, ax = plt.subplots(figsize=(12, 6))
 
     plt.plot(x, S, label='Surface', color='0')
@@ -984,7 +991,7 @@ if create_figs:
     # ---------------------------------------------------------------------
 
     fig, ax = plt.subplots()
-    plt.stairs(R[:-1], age_R/1000, baseline=None)
+    plt.stairs(R[:-2], age_R[:-1]/1000, baseline=None)
     plt.xlabel('time (kyr)', fontsize=15)
     plt.ylabel(r'$R(t)$', fontsize=15)
     plt.savefig(datadir+'R_temporal_factor.'+fig_format,

@@ -1,0 +1,3 @@
+# F. Parrenin. 2023/05/05, upstream accu variations from Figure 8 from Salamatin et al. (PICR2, 2009, curve4), multiplied by 0.04175
+0	1.15
+370	1

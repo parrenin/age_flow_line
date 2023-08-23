@@ -1,0 +1,45 @@
+# Discretization relative step
+delta: 0.01
+
+# Number of intervals in the (\pi, \theta) mesh
+imax: 1000
+
+# Horizontal coordinate of right border, in km
+x_right: 370 
+# Horizontal step for the computation of the total flux Q, in km
+x_step: 1.
+
+# Ice thickness being ice equivalent or not
+thickness_ie: True
+
+# accu representation, put accu_right if relative or 1 if not.
+accu_relative: 0.020
+accu_present: True
+R_exp: 0.6
+
+# Define surface age
+age_surf: 0
+
+# If temporal factor is stairs or linear
+temp_fact_linear: True
+
+ic_name: 'Vostok'
+ic_x: 370.  # X coordinate of the drilling, in km
+ic_max_depth: 3349. #Max depth in the drilling
+ic_step_depth: 1.  #Depth step in the drilling
+
+fig_age_max: 1000 #max age (kyr) for the age contour plots
+fig_age_spacing: 10 #spacing for the age (kyr) contour plots
+fig_age_spacing_labels: 100 #spacing for the labels (kyr) of the age color bars
+fig_age_iso: [50, 100, 150, 200, 300, 400]
+
+traj_step: 10 #Plot only one srreamline every traj_step
+
+create_figs: True  #If we create figures or not.
+fig_format: 'pdf'
+comp_icecore: 'AICC2023.txt'
+comp_flowline: 'GTS-III-FlowLine.txt'
+#comp_isochrones: 'GTS-III-isochrones.txt'
+
+output_ic: True
+output_fl: True
