@@ -677,7 +677,8 @@ if create_figs:
     fig.subplots_adjust(right=0.8)
     ax.set_xlabel('x (km)', fontsize=18)
     axic = ax.secondary_xaxis("top")
-    axic.set_xticks(ticks=[ic[name]['x'] for name in ic], labels=ic.keys())
+    axic.set_xticks(ticks=[ic[name]['x'] for name in ic],
+                    labels=[name for name in ic])
     axic.tick_params(colors='r')
 
     ax.set_ylabel('Y (relative unit)')
@@ -711,7 +712,8 @@ if create_figs:
     fig.subplots_adjust(right=0.8)
     ax.set_xlabel('x (km)', fontsize=18)
     axic = ax.secondary_xaxis("top")
-    axic.set_xticks(ticks=[ic[name]['x'] for name in ic], labels=ic.keys())
+    axic.set_xticks(ticks=[ic[name]['x'] for name in ic],
+                    labels=[name for name in ic])
     axic.tick_params(colors='r')
 
     ax.set_ylabel('Q (relative unit)')
@@ -934,8 +936,6 @@ if create_figs:
     # Display of thinning function - analytical formula
     # ----------------------------------------------------------
 
-# FIXME: Check why the z-axis is different from the previous figure.
-
     fig, ax = plt.subplots(figsize=(12, 6))
 
     plt.plot(x, S, label='Surface', color='0')
@@ -1000,10 +1000,10 @@ if create_figs:
     plt.plot(x, B, label='Bedrock', color='0')
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
-                 color=color_core, linestyle=ls_core, label='ice core')
+                 color=color_core, linestyle=ls_core, label=name)
         plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
                      va='bottom', color=color_core)
-    plt.legend(loc='lower left')
+#    plt.legend(loc='lower left')
     plt.xlabel(r'$x$ (km)', fontsize=19)
     plt.ylabel(r'$z$ (m)', fontsize=19)
     plt.grid()
