@@ -46,10 +46,7 @@ print('Parameters directory is: ', datadir)
 # ---------------------------------------------------------
 
 # Default values for parameters, to prevent spyder errors
-ic_name = 'ice core'
-ic_x = 370.
-ic_max_depth = 3310.
-ic_step_depth = 1.
+ic = {}
 imax = 100
 delta = 0.08
 age_surf = -50
@@ -68,7 +65,6 @@ fig_age_iso = [100, 200, 300, 400]
 beta = 0.015
 create_figs = True
 fig_format = 'pdf'
-comp_icecore = None
 comp_flowline = None
 comp_isochrones = None
 output_ic = True
@@ -461,136 +457,134 @@ mat_age = np.interp(mat_steady_age+age_surf, steady_age_R, age_R)
 
 # ----------------------------------------------------------
 # Post-processing: transfering of the modeling results
-# on the 1D grid of the drilling site
+# on the 1D grid of the drilling sites
 # ----------------------------------------------------------
 
-# FIXME: We could have several drillings along the flow line.
-# And each drilling could have its own age_surf
-
-print('Before calculating for the ice core',
+print('Before calculating for the ice cores',
       round(time.perf_counter()-START_TIME, 4), 's.')
 
-# ---------------------------------------------------
-# Depth_ic and ie_depth_ic along the drilling
-# ---------------------------------------------------
+for name in ic:
 
-depth_ic = np.arange(0., ic_max_depth + 0.0001, ic_step_depth)
-ie_depth_ic = np.interp(depth_ic, D_depth, D_depth_ie)
+    # ---------------------------------------------------
+    # Depth_ic and ie_depth_ic along the drilling
+    # ---------------------------------------------------
 
-# -------------------------------------------------------
-# Calculation of the surrounding nodes for the ice core
-# -------------------------------------------------------
+    ic[name]['depth'] = np.arange(0., ic[name]['max_depth'] + 0.0001,
+                                  ic[name]['step_depth'])
+    ie_depth_ic = np.interp(ic[name]['depth'], D_depth, D_depth_ie)
 
-if ic_x > x_right:
-    sys.exit("The ice core is downstream of the domain.")
-elif ic_x < x[0]:
-    sys.exit("The ice core is upstream of the domain.")
-elif ic_x == x_right:
-    ggrid = grid_age[:, imax]
-    ddepth_ie = mat_depth_ie[:, imax][ggrid]
-    OOMEGA = mat_OMEGA[:, imax][ggrid]
-    aa0 = mat_a0[:, imax][ggrid]
-    ssteady_age = mat_steady_age[:, imax][ggrid]
-    xx0 = mat_x0[:, imax][ggrid]
-    ttheta = theta[ggrid]
-    ic_S = S[imax]
-else:
-    ii = np.argmax(x[x <= ic_x])
-    inter = (x[ii+1]-ic_x) / (x[ii+1] - x[ii])
-    ggrid = np.logical_and(grid_age[:, ii], grid_age[::, ii+1])
-    ddepth_ie = inter * mat_depth_ie[:, ii][ggrid] +\
-        (1-inter) * mat_depth_ie[:, ii+1][ggrid]
-    OOMEGA = inter * mat_OMEGA[:, ii][ggrid] +\
-        (1-inter) * mat_OMEGA[:, ii+1][ggrid]
-    aa0 = inter * mat_a0[:, ii][ggrid] +\
-        (1-inter) * mat_a0[:, ii+1][ggrid]
-    ssteady_age = inter * mat_steady_age[:, ii][ggrid] +\
-        (1-inter) * mat_steady_age[:, ii+1][ggrid]
-    xx0 = inter * mat_x0[:, ii][ggrid] + (1-inter) * mat_x0[:, ii+1][ggrid]
-    ttheta = theta[ggrid]
-    ic_S = inter * S[ii] + (1-inter) * S[ii+1]
+    # -------------------------------------------------------
+    # Calculation of the surrounding nodes for the ice core
+    # -------------------------------------------------------
 
-# ----------------------------------------------------------
-#  Computation of theta for the ice core: theta_ic
-# ----------------------------------------------------------
+    if ic[name]['x'] > x_right:
+        sys.exit("The ice core is downstream of the domain.")
+    elif ic[name]['x'] < x[0]:
+        sys.exit("The ice core is upstream of the domain.")
+    elif ic[name]['x'] == x_right:
+        ggrid = grid_age[:, imax]
+        ddepth_ie = mat_depth_ie[:, imax][ggrid]
+        OOMEGA = mat_OMEGA[:, imax][ggrid]
+        aa0 = mat_a0[:, imax][ggrid]
+        ssteady_age = mat_steady_age[:, imax][ggrid]
+        xx0 = mat_x0[:, imax][ggrid]
+        ttheta = theta[ggrid]
+        ic[name]['S'] = S[imax]
+    else:
+        ii = np.argmax(x[x <= ic[name]['x']])
+        inter = (x[ii+1]-ic[name]['x']) / (x[ii+1] - x[ii])
+        ggrid = np.logical_and(grid_age[:, ii], grid_age[::, ii+1])
+        ddepth_ie = inter * mat_depth_ie[:, ii][ggrid] +\
+            (1-inter) * mat_depth_ie[:, ii+1][ggrid]
+        OOMEGA = inter * mat_OMEGA[:, ii][ggrid] +\
+            (1-inter) * mat_OMEGA[:, ii+1][ggrid]
+        aa0 = inter * mat_a0[:, ii][ggrid] +\
+            (1-inter) * mat_a0[:, ii+1][ggrid]
+        ssteady_age = inter * mat_steady_age[:, ii][ggrid] +\
+            (1-inter) * mat_steady_age[:, ii+1][ggrid]
+        xx0 = inter * mat_x0[:, ii][ggrid] + (1-inter) * mat_x0[:, ii+1][ggrid]
+        ttheta = theta[ggrid]
+        ic[name]['S'] = inter * S[ii] + (1-inter) * S[ii+1]
 
-if mat_depth_ie[imax, imax] < ie_depth_ic[len(ie_depth_ic)-1]:
-    sys.exit("The mesh does not extend down to the bottom of the core.")
+    # ----------------------------------------------------------
+    #  Computation of theta for the ice core: theta_ic
+    # ----------------------------------------------------------
 
-theta_ic = np.log(np.interp(ie_depth_ic, ddepth_ie, OOMEGA))
+    if mat_depth_ie[imax, imax] < ie_depth_ic[-1]:
+        sys.exit("The mesh does not extend down to the bottom of the core.")
 
-# ----------------------------------------------------------
-#  Computation steady a0 and x0 for the ice core
-# ----------------------------------------------------------
+    ic[name]['theta'] = np.log(np.interp(ie_depth_ic, ddepth_ie, OOMEGA))
 
-# Be careful, xp must be in increasing order for np.interp
-steady_a0_ic = np.interp(-theta_ic, -ttheta, aa0)
-x0_ic = np.interp(-theta_ic, -ttheta, xx0)
+    # ----------------------------------------------------------
+    #  Computation steady a0 and x0 for the ice core
+    # ----------------------------------------------------------
 
-# ----------------------------------------------------------
-#  Computation of steady_age vostok icecore
-# ----------------------------------------------------------
+    # Be careful, xp must be in increasing order for np.interp
+    steady_a0_ic = np.interp(-ic[name]['theta'], -ttheta, aa0)
+    ic[name]['x0'] = np.interp(-ic[name]['theta'], -ttheta, xx0)
 
-# Cubic spline with derivative constraint at surface
-# We had a point close to the surface to impose the derivative of the age
+    # ----------------------------------------------------------
+    #  Computation of steady_age icecore
+    # ----------------------------------------------------------
 
-new_ttheta = np.insert(ttheta, 1, -1/1000000)
-chi_0 = np.insert(ssteady_age, 1,
-                  1/(steady_a0_ic[0])*(ie_depth_ic[1] - ie_depth_ic[0]) /
-                  (theta_ic[0] - theta_ic[1]) * 1/1000000)
+    # Cubic spline with derivative constraint at surface
+    # We had a point close to the surface to impose the derivative of the age
 
-steady_age_ic = interp1d(-new_ttheta, chi_0,
-                         assume_sorted=True, kind='cubic')(-theta_ic)
+    new_ttheta = np.insert(ttheta, 1, -1/1000000)
+    chi_0 = np.insert(ssteady_age, 1,
+                      1/(steady_a0_ic[0])*(ie_depth_ic[1] - ie_depth_ic[0]) /
+                      (ic[name]['theta'][0] - ic[name]['theta'][1]) / 1000000)
 
-# ----------------------------------------------------------
-#  Computation of age for the ice core
-# ----------------------------------------------------------
+    steady_age_ic = interp1d(-new_ttheta, chi_0, assume_sorted=True,
+                             kind='cubic')(-ic[name]['theta'])
 
-age_ic = np.interp(steady_age_ic+age_surf, steady_age_R, age_R)
-print('Bottom age for the ice core:', age_ic[-1])
+    # ----------------------------------------------------------
+    #  Computation of age for the ice core
+    # ----------------------------------------------------------
 
-# ----------------------------------------------------------
-#  a0_ic
-# ----------------------------------------------------------
+    ic[name]['age'] = np.interp(steady_age_ic+age_surf, steady_age_R, age_R)
+    print('Bottom age for the ice core:', ic[name]['age'][-1])
 
-# Here, steady_a0_ic is at the node, while a0_ic is for an interval
-a0_ic = (steady_a0_ic[1:]+steady_a0_ic[:-1])/2 *\
-    interp_stair_aver(steady_age_ic, steady_age_R, R)
+    # ----------------------------------------------------------
+    #  a0_ic
+    # ----------------------------------------------------------
 
-# ----------------------------------------------------------
-#  Computation of tau_ic for the ice core
-# ----------------------------------------------------------
+    # Here, steady_a0_ic is at the node, while a0_ic is for an interval
+    ic[name]['a0'] = (steady_a0_ic[1:]+steady_a0_ic[:-1])/2 *\
+        interp_stair_aver(steady_age_ic, steady_age_R, R)
 
-aa = (steady_a0_ic[1:]+steady_a0_ic[:-1]) / 2
-tau_ic = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
-                (steady_age_ic[1:] - steady_age_ic[:-1])
+    # ----------------------------------------------------------
+    #  Computation of tau_ic for the ice core
+    # ----------------------------------------------------------
 
-# ----------------------------------------------------------
-# Output quantities along the flow line
-# ----------------------------------------------------------
+    aa = (steady_a0_ic[1:]+steady_a0_ic[:-1]) / 2
+    ic[name]['tau'] = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
+        (steady_age_ic[1:] - steady_age_ic[:-1])
 
-if output_fl:
-    output = np.vstack((x, Q, a, ux_surf))
-    np.savetxt(datadir+'flow_line_output.txt', np.transpose(output),
-               header='x(km) total_flux accu(m/yr) surf_velocity(m/yr)')
+    # ----------------------------------------------------------
+    # Output for the ice cores
+    # ----------------------------------------------------------
 
-# ----------------------------------------------------------
-# Output for the ice core
-# ----------------------------------------------------------
+    if output_ic:
+        output = np.vstack((ic[name]['depth'], ic[name]['age'],
+                            np.append(ic[name]['tau'], np.nan),
+                            np.append(ic[name]['a0'], np.nan),
+                            ic[name]['x0'],
+                            steady_a0_ic))
+        np.savetxt(datadir+name+'_ice_core_output.txt', np.transpose(output),
+                   header="depth age thinning accu x_origin accu_steady")
 
-if output_ic:
-    output = np.vstack((depth_ic, age_ic, np.append(tau_ic, np.nan),
-                        np.append(a0_ic, np.nan), x0_ic,
-                        steady_a0_ic))
-    np.savetxt(datadir+'ice_core_output.txt', np.transpose(output),
-               header="depth age thinning accu x_origin accu_steady")
+    # -----------------------------------------------------------
+    # Reading of comparison files
+    # -----------------------------------------------------------
+    if ic[name]['comp'] is not None:
+        ic[name]['cp_depth'], ic[name]['cp_age'], ic[name]['cp_x'],\
+            ic[name]['cp_tau'] = np.loadtxt(datadir+ic[name]['comp'],
+                                            unpack=True)
 
-# -----------------------------------------------------------
-# Reading of comparison files
-# -----------------------------------------------------------
-if comp_icecore is not None:
-    cp_depth, cp_age, cp_x, cp_tau = np.loadtxt(datadir+comp_icecore,
-                                                unpack=True)
+# ---------------------------------------
+# Reading of flow line comparison file
+# ---------------------------------------
 
 if comp_flowline is not None:
     cp_fl_x, cp_fl_ux_surf = np.loadtxt(datadir+comp_flowline, unpack=True)
@@ -600,6 +594,16 @@ if comp_isochrones is not None:
     cp_iso_x = readarray[0, :]
     cp_iso_depth = readarray[1:, :]
     cp_iso_nb = cp_iso_depth.shape[0]
+
+
+# ----------------------------------------------------------
+# Output quantities along the flow line
+# ----------------------------------------------------------
+
+if output_fl:
+    output = np.vstack((x, Q, a, ux_surf))
+    np.savetxt(datadir+'flow_line_output.txt', np.transpose(output),
+               header='x(km) total_flux accu(m/yr) surf_velocity(m/yr)')
 
 # -----------
 # FIGURES
@@ -612,11 +616,14 @@ if create_figs:
     print('Before creating figures.',
           round(time.perf_counter()-START_TIME, 4), 's.')
 
-    XX_core = ic_x * np.ones(2)
-    ZZ_core = np.array([ic_S, ic_S-ic_max_depth])
-    DD_core = np.array([0, ic_max_depth])
-    PP_core = math.log(ic_x/x_right)*np.ones(2)
-    TT_core = np.array([0, theta_ic[-1]])
+    for name in ic:
+
+        ic[name]['XX'] = ic[name]['x'] * np.ones(2)
+        ic[name]['ZZ'] = np.array([ic[name]['S'],
+                                   ic[name]['S']-ic[name]['max_depth']])
+        ic[name]['DD'] = np.array([0, ic[name]['max_depth']])
+        ic[name]['PP'] = math.log(ic[name]['x']/x_right)*np.ones(2)
+        ic[name]['TT'] = np.array([0, ic[name]['theta'][-1]])
     color_core = 'r'
     lw_core = 2
     ls_core = 'dashed'
@@ -631,10 +638,11 @@ if create_figs:
         plt.plot(pi, mat_theta[i, :], color='k', linewidth=0.1)
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$\theta$', fontsize=18)
-    plt.plot(PP_core, TT_core, linewidth=lw_core, color=color_core,
-             linestyle=ls_core)
-    plt.annotate(ic_name, (PP_core[0], 0.03), ha='center',
-                 va='bottom', color=color_core)
+    for name in ic:
+        plt.plot(ic[name]['PP'], ic[name]['TT'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['PP'][0], 0.03), ha='center',
+                     va='bottom', color=color_core)
     plt.savefig(datadir+'mesh_pi_theta.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -652,10 +660,11 @@ if create_figs:
     plt.vlines(x, z_ie_min_mesh, S, color='k', linewidths=0.1)
     plt.xlabel(r'$x$ (km)', fontsize=18)
     plt.ylabel(r'$z$ (m)', fontsize=18)
-    plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
-             linestyle=ls_core)
-    plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
-                 color=color_core)
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
+                     va='bottom', color=color_core)
     plt.savefig(datadir+'mesh_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -667,6 +676,10 @@ if create_figs:
     fig.set_size_inches(15, 5)
     fig.subplots_adjust(right=0.8)
     ax.set_xlabel('x (km)', fontsize=18)
+    axic = ax.secondary_xaxis("top")
+    axic.set_xticks(ticks=[ic[name]['x'] for name in ic], labels=ic.keys())
+    axic.tick_params(colors='r')
+
     ax.set_ylabel('Y (relative unit)')
     ax.plot(x_fld, Y_fld, color='k')
     ax.spines.right.set_visible(False)
@@ -682,10 +695,10 @@ if create_figs:
 
     ax2 = ax.twinx()
     ax2.spines['right'].set_position(('axes', 1.09))
-    ax2.spines['right'].set_color('r')
-    ax2.plot(x_fld, m_fld, color='r')
-    ax2.set_ylabel('m (m/yr)', color='r')
-    ax2.tick_params(axis='y', colors='r')
+    ax2.spines['right'].set_color('b')
+    ax2.plot(x_fld, m_fld, color='b')
+    ax2.set_ylabel('m (m/yr)', color='b')
+    ax2.tick_params(axis='y', colors='b')
     plt.savefig(datadir+'boundary_conditions_x.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -697,6 +710,10 @@ if create_figs:
     fig.set_size_inches(15, 5)
     fig.subplots_adjust(right=0.8)
     ax.set_xlabel('x (km)', fontsize=18)
+    axic = ax.secondary_xaxis("top")
+    axic.set_xticks(ticks=[ic[name]['x'] for name in ic], labels=ic.keys())
+    axic.tick_params(colors='r')
+
     ax.set_ylabel('Q (relative unit)')
     ax.plot(x, Q, color='k')
     ax.spines.right.set_visible(False)
@@ -712,13 +729,13 @@ if create_figs:
 
     ax2 = ax.twinx()
     ax2.spines['right'].set_position(('axes', 1.09))
-    ax2.spines['right'].set_color('r')
-    ax2.plot(x, ux_surf*R[0], color='r')
+    ax2.spines['right'].set_color('b')
+    ax2.plot(x, ux_surf*R[0], color='b')
     if comp_flowline is not None:
-        ax2.plot(cp_fl_x, cp_fl_ux_surf, color='r', linestyle='dashed')
-    ax2.set_ylabel('surface velocity (m/yr)', color='r')
-    ax2.tick_params(axis='y', colors='r')
-    plt.savefig(datadir+'surface_velocity_x.'+fig_format,
+        ax2.plot(cp_fl_x, cp_fl_ux_surf, color='b', linestyle='dashed')
+    ax2.set_ylabel('surface velocity (m/yr)', color='b')
+    ax2.tick_params(axis='y', colors='b')
+    plt.savefig(datadir+'calculated_quantities_x.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
@@ -744,10 +761,11 @@ if create_figs:
     cb.set_label(r'$\omega$')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
-    plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
-             linestyle=ls_core)
-    plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
-                 color=color_core)
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
+                     va='bottom', color=color_core)
     plt.savefig(datadir+'iso-omega_lines.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -786,10 +804,11 @@ if create_figs:
         for i in range(cp_iso_nb):
             plt.plot(cp_iso_x, np.interp(cp_iso_x, x, S) - cp_iso_depth[i, :],
                      color='k', linestyle='dashed')
-    plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
-             linestyle=ls_core)
-    plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
-                 color=color_core)
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
+                     va='bottom', color=color_core)
     plt.savefig(datadir+'age_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -829,10 +848,11 @@ if create_figs:
         for i in range(cp_iso_nb):
             plt.plot(cp_iso_x, cp_iso_depth[i, :],
                      color='k', linestyle='dashed')
-    plt.plot(XX_core, DD_core, linewidth=lw_core, color=color_core,
-             linestyle=ls_core)
-    plt.annotate(ic_name, (ic_x, -50), ha='center', va='bottom',
-                 color=color_core)
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['DD'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['x'], -50), ha='center', va='bottom',
+                     color=color_core)
     plt.savefig(datadir+'age_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -864,10 +884,11 @@ if create_figs:
     ax.set_xlabel(r'$\pi$', fontsize=19)
     ax.set_ylabel(r'$\theta$', fontsize=19)
     ax.grid()
-    plt.plot(PP_core, TT_core, linewidth=lw_core, color=color_core,
-             linestyle=ls_core)
-    plt.annotate(ic_name, (PP_core[0], 0.03), ha='center',
-                 va='bottom', color=color_core)
+    for name in ic:
+        plt.plot(ic[name]['PP'], ic[name]['TT'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['PP'][0], 0.03), ha='center',
+                     va='bottom', color=color_core)
     plt.savefig(datadir+'age_pi_theta.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -901,10 +922,11 @@ if create_figs:
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
     ax.grid()
-    plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
-             linestyle=ls_core)
-    plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
-                 color=color_core)
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
+                     va='bottom', color=color_core)
     plt.savefig(datadir+'thinning_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -938,11 +960,12 @@ if create_figs:
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
     ax.grid()
-    plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
-             linestyle=ls_core)
-    plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
-                 color=color_core)
-    plt.savefig(datadir+'thinning_x_z.'+fig_format,
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
+                     va='bottom', color=color_core)
+    plt.savefig(datadir+'thinning_analytical_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
@@ -975,10 +998,11 @@ if create_figs:
     plt.plot(x, B, label="Corner trajectory", color='k', linewidth=1,
              linestyle='dashed')
     plt.plot(x, B, label='Bedrock', color='0')
-    plt.plot(XX_core, ZZ_core, linewidth=lw_core, color=color_core,
-             linestyle=ls_core, label='ice core')
-    plt.annotate(ic_name, (ic_x, ic_S+50), ha='center', va='bottom',
-                 color=color_core)
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core, label='ice core')
+        plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
+                     va='bottom', color=color_core)
     plt.legend(loc='lower left')
     plt.xlabel(r'$x$ (km)', fontsize=19)
     plt.ylabel(r'$z$ (m)', fontsize=19)
@@ -1001,53 +1025,64 @@ if create_figs:
     # Graphs vs depth for the ice core
     # ----------------------------------------------------------
 
-    fig, ax = plt.subplots(figsize=(7, 7))
-    ax.set_ylabel('depth (m)')
-    ax.invert_yaxis()
-    ax.plot(x0_ic, depth_ic, color='r')
-    if comp_icecore is not None and ~np.isnan(cp_x).all():
-        ax.plot(cp_x, cp_depth, color='r', linestyle='dashed')
-    ax.set_xlabel(r'$x$ origin (km)', color='r')
-    ax.spines['bottom'].set_color('r')
-    ax.tick_params(axis='x', colors='r')
+    for name in ic:
 
-    ax2 = ax.twiny()
-    ax2.spines.bottom.set_visible(False)
-    ax2.plot(age_ic/1000, depth_ic, color='b')
-    if comp_icecore is not None and ~np.isnan(cp_age).all():
-        ax2.plot(cp_age, cp_depth, color='b', linestyle='dashed')
-    ax2.set_xlabel('age (kyr)', color='b')
-    ax2.spines['top'].set_color('b')
-    ax2.tick_params(axis='x', colors='b')
+        fig, ax = plt.subplots(figsize=(7, 7))
+        ax.set_ylabel('depth (m)')
+        ax.invert_yaxis()
+        ax.plot(ic[name]['x0'], ic[name]['depth'], color='r')
+        if ic[name]['comp'] is not None and ~np.isnan(ic[name]['cp_x']).all():
+            ax.plot(ic[name]['cp_x'], ic[name]['cp_depth'], color='r',
+                    linestyle='dashed')
+        ax.set_xlabel(r'$x$ origin (km)', color='r')
+        ax.spines['bottom'].set_color('r')
+        ax.tick_params(axis='x', colors='r')
 
-    ax3 = ax.twiny()
-    ax3.spines['top'].set_position(('axes', 1.1))
-    ax3.spines.bottom.set_visible(False)
-    ax3.plot(tau_ic, depth_ic[:-1], color='g')
-    if comp_icecore is not None and ~np.isnan(cp_tau).all():
-        ax3.plot(cp_tau, cp_depth, color='g', linestyle='dashed')
-    ax3.set_xlabel('thinning function (no unit)', color='g')
-    ax3.spines['top'].set_color('g')
-    ax3.tick_params(axis='x', colors='g')
+        ax2 = ax.twiny()
+        ax2.spines.bottom.set_visible(False)
+        ax2.plot(ic[name]['age']/1000, ic[name]['depth'], color='b')
+        if ic[name]['comp'] is not None and \
+                ~np.isnan(ic[name]['cp_age']).all():
+            ax2.plot(ic[name]['cp_age'], ic[name]['cp_depth'], color='b',
+                     linestyle='dashed')
+        ax2.set_xlabel('age (kyr)', color='b')
+        ax2.spines['top'].set_color('b')
+        ax2.tick_params(axis='x', colors='b')
 
-    plt.savefig(datadir+'ice_core_vs_depth.'+fig_format,
-                format=fig_format, bbox_inches='tight')
+        ax3 = ax.twiny()
+        ax3.spines['top'].set_position(('axes', 1.1))
+        ax3.spines.bottom.set_visible(False)
+        ax3.plot(ic[name]['tau'], ic[name]['depth'][:-1], color='g')
+        if ic[name]['comp'] is not None and \
+                ~np.isnan(ic[name]['cp_tau']).all():
+            ax3.plot(ic[name]['cp_tau'], ic[name]['cp_depth'], color='g',
+                     linestyle='dashed')
+        ax3.set_xlabel('thinning function (no unit)', color='g')
+        ax3.spines['top'].set_color('g')
+        ax3.tick_params(axis='x', colors='g')
+
+        plt.savefig(datadir+name+'_ice_core_vs_depth.'+fig_format,
+                    format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------
     # Graphs vs age for the ice core
     # ----------------------------------------------
 
-    fig, ax = plt.subplots(figsize=(15, 7))
-    ax.set_xlabel('age (kyr)')
-    ax.set_ylabel('layer thickness (m/yr)')
-    ax.stairs(a0_ic, age_ic/1000, baseline=None, label='accumulation')
-    ax.stairs(tau_ic * a0_ic, age_ic/1000, baseline=None,
-              label='layer thickness')
-    ax.legend()
+    for name in ic:
 
-    plt.savefig(datadir+'ice_core_vs_age.'+fig_format,
-                format=fig_format, bbox_inches='tight')
+        fig, ax = plt.subplots(figsize=(15, 7))
+        ax.set_xlabel('age (kyr)')
+        ax.set_ylabel('layer thickness (m/yr)')
+        ax.stairs(ic[name]['a0'], ic[name]['age']/1000, baseline=None,
+                  label='accumulation')
+        ax.stairs(ic[name]['tau'] * ic[name]['a0'], ic[name]['age']/1000,
+                  baseline=None, label='layer thickness')
+        ax.legend()
 
+        plt.savefig(datadir+name+'_ice_core_vs_age.'+fig_format,
+                    format=fig_format, bbox_inches='tight')
+
+    # Showing the figures
     plt.show()
 
 # Program execution time

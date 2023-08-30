@@ -23,10 +23,19 @@ age_surf: 0
 # If temporal factor is stairs or linear
 temp_fact_linear: True
 
-ic_name: 'Vostok'
-ic_x: 370.  # X coordinate of the drilling, in km
-ic_max_depth: 3349. #Max depth in the drilling
-ic_step_depth: 1.  #Depth step in the drilling
+# Ice cores
+ic: 
+    "Vostok":
+        "x": 370.  # X coordinate of the drilling, in km
+        "max_depth": 3349. #Max depth in the drilling
+        "step_depth": 1.  #Depth step in the drilling
+        "comp": 'AICC2023.txt'  #Comparison file
+    "Test":
+        "x": 100.
+        "max_depth": 1000.
+        "step_depth": 10.
+        'comp': null
+        
 
 fig_age_max: 1000 #max age (kyr) for the age contour plots
 fig_age_spacing: 10 #spacing for the age (kyr) contour plots
@@ -37,9 +46,8 @@ traj_step: 10 #Plot only one srreamline every traj_step
 
 create_figs: True  #If we create figures or not.
 fig_format: 'pdf'
-comp_icecore: 'AICC2023.txt'
 comp_flowline: 'GTS-III-FlowLine.txt'
 #comp_isochrones: 'GTS-III-isochrones.txt'
 
-output_ic: True
-output_fl: True
+output_ic: True  #Whether we ouput for the ice cores
+output_fl: True  #Whether we output for the flow line
