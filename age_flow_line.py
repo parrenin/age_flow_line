@@ -505,6 +505,7 @@ for name in ic:
         xx0 = inter * mat_x0[:, ii][ggrid] + (1-inter) * mat_x0[:, ii+1][ggrid]
         ttheta = theta[ggrid]
         ic[name]['S'] = inter * S[ii] + (1-inter) * S[ii+1]
+        ic[name]['PI'] = pi[ii] + inter*(pi[ii+1]-pi[ii])
 
     # ----------------------------------------------------------
     #  Computation of theta for the ice core: theta_ic
@@ -622,7 +623,7 @@ if create_figs:
         ic[name]['ZZ'] = np.array([ic[name]['S'],
                                    ic[name]['S']-ic[name]['max_depth']])
         ic[name]['DD'] = np.array([0, ic[name]['max_depth']])
-        ic[name]['PP'] = math.log(ic[name]['x']/x_right)*np.ones(2)
+        ic[name]['PP'] = ic[name]['PI']*np.ones(2)
         ic[name]['TT'] = np.array([0, ic[name]['theta'][-1]])
     color_core = 'r'
     lw_core = 2
