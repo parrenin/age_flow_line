@@ -490,7 +490,9 @@ for name in ic:
         xx0 = mat_x0[:, imax][ggrid]
         ttheta = theta[ggrid]
         ic[name]['S'] = S[imax]
+        ic[name]['PI'] = 0.
     else:
+        # FIXME: the horizontal interpolation is bad here, do something better
         ii = np.argmax(x[x <= ic[name]['x']])
         inter = (x[ii+1]-ic[name]['x']) / (x[ii+1] - x[ii])
         ggrid = np.logical_and(grid_age[:, ii], grid_age[::, ii+1])
