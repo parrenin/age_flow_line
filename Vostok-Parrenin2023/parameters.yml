@@ -1,8 +1,8 @@
 # Discretization relative step
-delta: 0.01
+delta: 0.1
 
 # Number of intervals in the (\pi, \theta) mesh
-imax: 1000
+imax: 100
 
 # Horizontal coordinate of right border, in km
 x_right: 370 

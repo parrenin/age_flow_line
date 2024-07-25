@@ -464,6 +464,13 @@ print('Before calculating for the ice cores',
       round(time.perf_counter()-START_TIME, 4), 's.')
 
 for name in ic:
+    
+    # ---------------------------------------------------
+    # pi for the ice core
+    # ---------------------------------------------------
+
+    ic[name]['Q'] = np.interp(ic[name]['x'], x_fld, Q_fld)
+    ic[name]['pi'] = math.log(ic[name]['Q']/Q_fld[-1])
 
     # ---------------------------------------------------
     # Depth_ic and ie_depth_ic along the drilling
@@ -488,13 +495,13 @@ for name in ic:
         aa0 = mat_a0[:, imax][ggrid]
         ssteady_age = mat_steady_age[:, imax][ggrid]
         xx0 = mat_x0[:, imax][ggrid]
+        ttau = mat_tau_anal[:, imax][ggrid]
         ttheta = theta[ggrid]
         ic[name]['S'] = S[imax]
         ic[name]['PI'] = 0.
     else:
-        # FIXME: the horizontal interpolation is bad here, do something better
         ii = np.argmax(x[x <= ic[name]['x']])
-        inter = (x[ii+1]-ic[name]['x']) / (x[ii+1] - x[ii])
+        inter = (pi[ii+1]-ic[name]['pi']) / delta
         ggrid = np.logical_and(grid_age[:, ii], grid_age[::, ii+1])
         ddepth_ie = inter * mat_depth_ie[:, ii][ggrid] +\
             (1-inter) * mat_depth_ie[:, ii+1][ggrid]
@@ -505,6 +512,8 @@ for name in ic:
         ssteady_age = inter * mat_steady_age[:, ii][ggrid] +\
             (1-inter) * mat_steady_age[:, ii+1][ggrid]
         xx0 = inter * mat_x0[:, ii][ggrid] + (1-inter) * mat_x0[:, ii+1][ggrid]
+        ttau = inter * mat_tau_anal[:, ii][ggrid] + \
+            (1-inter) * mat_tau_anal[:, ii+1][ggrid]
         ttheta = theta[ggrid]
         ic[name]['S'] = inter * S[ii] + (1-inter) * S[ii+1]
         ic[name]['PI'] = pi[ii] + inter*(pi[ii+1]-pi[ii])
@@ -513,10 +522,11 @@ for name in ic:
     #  Computation of theta for the ice core: theta_ic
     # ----------------------------------------------------------
 
-    if mat_depth_ie[imax, imax] < ie_depth_ic[-1]:
+    if ddepth_ie[-1] < ie_depth_ic[-1]:
         sys.exit("The mesh does not extend down to the bottom of the core.")
 
     ic[name]['theta'] = np.log(np.interp(ie_depth_ic, ddepth_ie, OOMEGA))
+#    ic[name]['omega'] = np.interp(ie_depth_ic, ddepth_ie, OOMEGA)
 
     # ----------------------------------------------------------
     #  Computation steady a0 and x0 for the ice core
@@ -533,13 +543,15 @@ for name in ic:
     # Cubic spline with derivative constraint at surface
     # We had a point close to the surface to impose the derivative of the age
 
-    new_ttheta = np.insert(ttheta, 1, -1/1000000)
-    chi_0 = np.insert(ssteady_age, 1,
-                      1/(steady_a0_ic[0])*(ie_depth_ic[1] - ie_depth_ic[0]) /
-                      (ic[name]['theta'][0] - ic[name]['theta'][1]) / 1000000)
+    # new_ttheta = np.insert(ttheta, 1, -1/1000000)
+    # chi_0 = np.insert(ssteady_age, 1,
+    #                   (ie_depth_ic[1] - ie_depth_ic[0]) / (steady_a0_ic[0]+steady_a0_ic[1])*2/ \
+    #                   (ic[name]['theta'][0] - ic[name]['theta'][1]) / 1000000 )
 
-    steady_age_ic = interp1d(-new_ttheta, chi_0, assume_sorted=True,
-                             kind='cubic')(-ic[name]['theta'])
+    # steady_age_ic = interp1d(-new_ttheta, chi_0, assume_sorted=True,
+    #                          kind='cubic')(-ic[name]['theta'])
+    steady_age_ic = interp1d(-ttheta, ssteady_age, assume_sorted=True,
+                              kind='cubic')(-ic[name]['theta'])
 
     # ----------------------------------------------------------
     #  Computation of age for the ice core
@@ -560,9 +572,16 @@ for name in ic:
     #  Computation of tau_ic for the ice core
     # ----------------------------------------------------------
 
-    aa = (steady_a0_ic[1:]+steady_a0_ic[:-1]) / 2
-    ic[name]['tau'] = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
-        (steady_age_ic[1:] - steady_age_ic[:-1])
+    ic[name]['tau'] = np.interp(-ic[name]['theta'], -ttheta, ttau)
+    ic[name]['tau'] = (ic[name]['tau'][1:]+ic[name]['tau'][:-1])/2.
+    # steady_age_ic_recalc = np.cumsum((ie_depth_ic[1:]-ie_depth_ic[:-1])/ \
+    #                                  (steady_a0_ic[1:]+steady_a0_ic[:-1])*2/ \
+    #                                      ic[name]['tau'])
+    # steady_age_ic_recalc = np.insert(steady_age_ic_recalc, 0, 0.)
+    # print(steady_age_ic - steady_age_ic_recalc)
+    # aa = (steady_a0_ic[1:]+steady_a0_ic[:-1]) / 2
+    # ic[name]['tau'] = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
+    #     (steady_age_ic[1:] - steady_age_ic[:-1])
 
     # ----------------------------------------------------------
     # Output for the ice cores
