@@ -6,6 +6,8 @@ import yaml
 import matplotlib.pyplot as plt
 import time
 import math
+import os
+import resource
 
 # FIXME: Use firn density profile from Salamatin's equation
 # FIXME: Try again natural sampling with an intelligent interpolation fct.
@@ -210,6 +212,7 @@ if thickness_ie:
     H = H + DELTA_H
 B = S - H
 S_ie = S - DELTA_H
+H_ie = H - DELTA_H
 
 # --------------------------------------------------
 # Melting
@@ -1015,8 +1018,8 @@ if create_figs:
                 levels=level0, linewidths=1)
     # Color contour plot.
     from matplotlib import ticker
-    cp = plt.contourf(mat_x, mat_z, mat_q, levels=levels,
-                      locator=ticker.LogLocator())
+#    cp = plt.contourf(mat_x, mat_z, mat_q, levels=levels,
+#                      locator=ticker.LogLocator())
     plt.plot(x, S, label='Surface', color='0')
     # Fake plots for the legend
     plt.plot(x, B, label="Trajectories", color=color, linewidth=lw)
@@ -1075,7 +1078,9 @@ if create_figs:
         ax2.set_xlabel('age (kyr)', color='b')
         ax2.spines['top'].set_color('b')
         ax2.tick_params(axis='x', colors='b')
-
+        if 'fig_max_age' in ic[name]:
+            ax2.set_xlim(0, ic[name]['fig_max_age'])
+        
         ax3 = ax.twiny()
         ax3.spines['top'].set_position(('axes', 1.1))
         ax3.spines.bottom.set_visible(False)
@@ -1117,3 +1122,6 @@ if create_figs:
 # Program execution time
 MESSAGE = 'Program execution time: '+str(time.perf_counter()-START_TIME)+' s.'
 print(MESSAGE)
+if os.name != 'nt':
+    mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    print('Max memory usage: '+str(mem)+' kbytes')
