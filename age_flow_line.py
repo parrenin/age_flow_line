@@ -69,6 +69,7 @@ create_figs = True
 fig_format = 'pdf'
 comp_flowline = None
 comp_isochrones = None
+obs_bedrock = None
 output_ic = True
 output_fl = True
 
@@ -339,6 +340,7 @@ mat_depth_ie[0, :] = 0
 mat_depth = np.interp(mat_depth_ie, np.append(D_depth_ie,
                                               D_depth_ie[-1]+10000.),
                       np.append(D_depth, D_depth[-1]+10000.))
+depth_max_mesh = np.nanmax(mat_depth, axis=0)
 
 # ----------------------------------------------------------
 #  Computation of z matrix: mat_z
@@ -623,6 +625,13 @@ if comp_isochrones is not None:
     cp_iso_depth = readarray[1:, :]
     cp_iso_nb = cp_iso_depth.shape[0]
 
+if obs_bedrock is not None:
+    readarray = np.loadtxt(datadir+obs_bedrock, unpack=True)
+    obs_bed_x = readarray[0, :]
+    obs_bed_depth = readarray[1, :]
+    obs_bed_depth = np.interp(x, obs_bed_x, obs_bed_depth)
+    obs_bed_z = S - obs_bed_depth
+    obs_bed_x = np.interp(x, obs_bed_x, obs_bed_x)
 
 # ----------------------------------------------------------
 # Output quantities along the flow line
@@ -686,6 +695,8 @@ if create_figs:
     for i in range(0, imax+1):
         plt.plot(x, mat_z[i, :],  ls='-', color='k', linewidth=0.1)
     plt.vlines(x, z_ie_min_mesh, S, color='k', linewidths=0.1)
+    if obs_bedrock is not None:
+        plt.plot(obs_bed_x, obs_bed_z, color='violet')
     plt.xlabel(r'$x$ (km)', fontsize=18)
     plt.ylabel(r'$z$ (m)', fontsize=18)
     for name in ic:
@@ -696,6 +707,31 @@ if create_figs:
     plt.savefig(datadir+'mesh_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
+    # ----------------------------------------------------------
+    # Display of (x, depth) mesh
+    # ----------------------------------------------------------
+
+    fig, ax = plt.subplots(figsize=(15, 5))
+    plt.plot(x, np.zeros_like(x), label='Surface', color='0')
+    plt.plot(x, S-B, label='Bedrock', color='0')
+    # The vertical grid step can increase near the bed.
+    # This is due do iso-omega layers being thicker near the bed.
+    for i in range(0, imax+1):
+        plt.plot(x, mat_depth[i, :],  ls='-', color='k', linewidth=0.1)
+    plt.vlines(x, depth_max_mesh, S, color='k', linewidths=0.1)
+    if obs_bedrock is not None:
+        plt.plot(obs_bed_x, obs_bed_depth, color='violet')
+    plt.xlabel(r'$x$ (km)', fontsize=18)
+    plt.ylabel(r'$depth$ (m)', fontsize=18)
+    ax.invert_yaxis()
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['DD'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['x'], -50), ha='center',
+                     va='bottom', color=color_core)
+    plt.savefig(datadir+'mesh_x_depth.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+    
     # -------------------------------------------------------------------------
     # Boundary conditions of the flow in x
     # -------------------------------------------------------------------------
@@ -796,7 +832,43 @@ if create_figs:
                  color=color_core, linestyle=ls_core)
         plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
                      va='bottom', color=color_core)
-    plt.savefig(datadir+'iso-omega_lines.'+fig_format,
+    if obs_bedrock is not None:
+        plt.plot(obs_bed_x, obs_bed_z, color='violet')
+    plt.savefig(datadir+'iso-omega_lines_x_z.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+
+    # ----------------------------------------------------------
+    # Display of iso-omega lines in (x, depth)
+    # ----------------------------------------------------------
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+    plt.plot(x, np.zeros_like(x), label='Surface', color='0')
+    plt.plot(x, S-B, label='Bedrock', color='0')
+    levels = np.arange(0, 1.01, 0.01)
+    levels_cb = np.arange(0, 11, 1)/10.
+    # There is no node on the bedrock, so the color does not go down there.
+    cp = plt.contourf(mat_x, mat_depth, mat_omega,
+                      levels=levels,
+                      cmap='jet')
+    cp2 = plt.contour(mat_x, mat_depth, mat_omega,
+                      levels=levels_cb,
+                      colors='k')
+    cb = plt.colorbar(cp)
+    cb.set_ticks(levels_cb)
+    cb.set_ticklabels(levels_cb)
+    cb.add_lines(cp2)
+    cb.set_label(r'$\omega$')
+    ax.set_xlabel(r'$x$ (km)', fontsize=19)
+    ax.set_ylabel(r'$depth$ (m)', fontsize=19)
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['DD'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['x'], -50), ha='center',
+                     va='bottom', color=color_core)
+    if obs_bedrock is not None:
+        plt.plot(obs_bed_x, obs_bed_depth, color='violet')
+    ax.invert_yaxis()
+    plt.savefig(datadir+'iso-omega_lines_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
@@ -808,6 +880,10 @@ if create_figs:
     plt.plot(x, S, label='Surface', color='0')
     plt.plot(x, B, label='Bedrock', color='0')
 
+    if comp_isochrones is not None:
+        for i in range(cp_iso_nb):
+            plt.plot(cp_iso_x, np.interp(cp_iso_x, x, S) - cp_iso_depth[i, :],
+                     color='w', linestyle='solid')
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
     levels_iso = np.array(fig_age_iso)
@@ -830,15 +906,13 @@ if create_figs:
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
     ax.grid()
-    if comp_isochrones is not None:
-        for i in range(cp_iso_nb):
-            plt.plot(cp_iso_x, np.interp(cp_iso_x, x, S) - cp_iso_depth[i, :],
-                     color='k', linestyle='dashed')
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
                  color=color_core, linestyle=ls_core)
         plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
                      va='bottom', color=color_core)
+    if obs_bedrock is not None:
+        plt.plot(obs_bed_x, obs_bed_z, color='violet')
     plt.savefig(datadir+'age_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -851,6 +925,10 @@ if create_figs:
     plt.plot(x, np.zeros_like(S), label='Surface', color='0')
     plt.plot(x, S-B, label='Bedrock', color='0')
 
+    if comp_isochrones is not None:
+        for i in range(cp_iso_nb):
+            plt.plot(cp_iso_x, cp_iso_depth[i, :],
+                     color='w', linestyle='solid')
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
     levels_iso = np.array(fig_age_iso)
@@ -874,15 +952,13 @@ if create_figs:
     ax.set_ylabel(r'depth (m)', fontsize=19)
     ax.invert_yaxis()
     ax.grid()
-    if comp_isochrones is not None:
-        for i in range(cp_iso_nb):
-            plt.plot(cp_iso_x, cp_iso_depth[i, :],
-                     color='k', linestyle='dashed')
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['DD'], linewidth=lw_core,
                  color=color_core, linestyle=ls_core)
         plt.annotate(name, (ic[name]['x'], -50), ha='center', va='bottom',
                      color=color_core)
+    if obs_bedrock is not None:
+        plt.plot(obs_bed_x, obs_bed_depth, color='violet')
     plt.savefig(datadir+'age_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -957,11 +1033,13 @@ if create_figs:
                  color=color_core, linestyle=ls_core)
         plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
                      va='bottom', color=color_core)
+    if obs_bedrock is not None:
+        plt.plot(obs_bed_x, obs_bed_z, color='violet')
     plt.savefig(datadir+'thinning_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
-    # Display of thinning function - analytical formula
+    # Display of thinning function - analytical formula - (x,z)
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(12, 6))
@@ -993,11 +1071,53 @@ if create_figs:
                  color=color_core, linestyle=ls_core)
         plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
                      va='bottom', color=color_core)
+        if obs_bedrock is not None:
+            plt.plot(obs_bed_x, obs_bed_z, color='violet')
     plt.savefig(datadir+'thinning_analytical_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
-    # Display of stream lines
+    # Display of thinning function - analytical formula - (x,depth)
+    # ----------------------------------------------------------
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    plt.plot(x, np.zeros_like(x), label='Surface', color='0')
+    plt.plot(x, S-B, label='Bedrock', color='0')
+    levels = np.arange(0, 1.21, 0.01)
+    levels_cb = np.arange(0, 13, 1)/10.
+    cp = plt.contourf(mat_x, mat_depth, mat_tau_anal,
+                      levels=levels,
+                      cmap='jet')
+    cp2 = plt.contour(mat_x, mat_depth, mat_tau_anal,
+                      levels=levels_cb,
+                      colors='k')
+    # Corner trajectory
+    level0 = np.array([Q[0]])
+    plt.contour(mat_x, mat_depth, mat_q, colors='k', linestyles='dashed',
+                levels=level0, linewidths=1)
+    cb = plt.colorbar(cp)
+    cb.set_ticks(levels_cb)
+    cb.set_ticklabels(levels_cb)
+    cb.add_lines(cp2)
+    cb.set_label('Thinning function (no unit))')
+    ax.set_xlabel(r'$x$ (km)', fontsize=19)
+    ax.set_ylabel(r'$depth$ (m)', fontsize=19)
+    ax.invert_yaxis()
+    ax.grid()
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['DD'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['x'], -50), ha='center',
+                     va='bottom', color=color_core)
+    if obs_bedrock is not None:
+        plt.plot(obs_bed_x, obs_bed_depth, color='violet')
+    plt.savefig(datadir+'thinning_analytical_x_depth.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+
+
+    # ----------------------------------------------------------
+    # Display of stream lines - (x,z)
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(15, 7))
@@ -1031,11 +1151,58 @@ if create_figs:
                  color=color_core, linestyle=ls_core, label=name)
         plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
                      va='bottom', color=color_core)
+    if obs_bedrock is not None:
+        plt.plot(obs_bed_x, obs_bed_z, color='violet')
 #    plt.legend(loc='lower left')
     plt.xlabel(r'$x$ (km)', fontsize=19)
     plt.ylabel(r'$z$ (m)', fontsize=19)
     plt.grid()
-    plt.savefig(datadir+'stream_lines.'+fig_format,
+    plt.savefig(datadir+'stream_lines_x_z.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+
+    # ----------------------------------------------------------
+    # Display of stream lines - (x,depth)
+    # ----------------------------------------------------------
+
+    fig, ax = plt.subplots(figsize=(15, 7))
+    # Rmq: We use plt.contour instead of plotting the individual lines, since
+    # it is simpler and slightly faster.
+    # Rmq2: We don't exactly go down to the bedrock here but this is normal.
+    # Trajectories that come from the surface and traj that come from the dome.
+    levels = np.concatenate((Q[-1:0:-traj_step],
+                             mat_q[0::traj_step, 0]))
+    levels = np.flip(levels[~np.isnan(levels)])
+    color = 'k'
+    lw = 0.2
+    plt.contour(mat_x, mat_depth, mat_q, colors=color,
+                levels=levels, linewidths=lw)
+    # Corner trajectory
+    level0 = np.array([Q[0]])
+    plt.contour(mat_x, mat_depth, mat_q, colors='k', linestyles='dashed',
+                levels=level0, linewidths=1)
+    # Color contour plot.
+    from matplotlib import ticker
+#    cp = plt.contourf(mat_x, mat_z, mat_q, levels=levels,
+#                      locator=ticker.LogLocator())
+    plt.plot(x, np.zeros_like(x), label='Surface', color='0')
+    # Fake plots for the legend
+    plt.plot(x, S-B, label="Trajectories", color=color, linewidth=lw)
+    plt.plot(x, S-B, label="Corner trajectory", color='k', linewidth=1,
+             linestyle='dashed')
+    plt.plot(x, S-B, label='Bedrock', color='0')
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['DD'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core, label=name)
+        plt.annotate(name, (ic[name]['x'], -50), ha='center',
+                     va='bottom', color=color_core)
+    if obs_bedrock is not None:
+        plt.plot(obs_bed_x, obs_bed_depth, color='violet')
+#    plt.legend(loc='lower left')
+    plt.xlabel(r'$x$ (km)', fontsize=19)
+    plt.ylabel(r'$depth$ (m)', fontsize=19)
+    ax.invert_yaxis()
+    plt.grid()
+    plt.savefig(datadir+'stream_lines_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # ---------------------------------------------------------------------
