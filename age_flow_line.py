@@ -827,6 +827,8 @@ if create_figs:
     cb.set_label(r'$\omega$')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, top+50))
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
                  color=color_core, linestyle=ls_core)
@@ -868,6 +870,8 @@ if create_figs:
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_depth, color='violet')
     ax.invert_yaxis()
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, -50))
     plt.savefig(datadir+'iso-omega_lines_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -905,6 +909,8 @@ if create_figs:
     cb.set_label('Modeled age (kyr)')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, top+50))
     ax.grid()
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
@@ -951,6 +957,8 @@ if create_figs:
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'depth (m)', fontsize=19)
     ax.invert_yaxis()
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, -50))
     ax.grid()
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['DD'], linewidth=lw_core,
@@ -1027,6 +1035,8 @@ if create_figs:
     cb.set_label('Thinning function (no unit))')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, top+50))
     ax.grid()
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
@@ -1065,6 +1075,8 @@ if create_figs:
     cb.set_label('Thinning function (no unit))')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, top+50))
     ax.grid()
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
@@ -1104,6 +1116,8 @@ if create_figs:
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$depth$ (m)', fontsize=19)
     ax.invert_yaxis()
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, -50))
     ax.grid()
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['DD'], linewidth=lw_core,
@@ -1156,6 +1170,8 @@ if create_figs:
 #    plt.legend(loc='lower left')
     plt.xlabel(r'$x$ (km)', fontsize=19)
     plt.ylabel(r'$z$ (m)', fontsize=19)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, top+50))
     plt.grid()
     plt.savefig(datadir+'stream_lines_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
@@ -1201,6 +1217,8 @@ if create_figs:
     plt.xlabel(r'$x$ (km)', fontsize=19)
     plt.ylabel(r'$depth$ (m)', fontsize=19)
     ax.invert_yaxis()
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, -50))
     plt.grid()
     plt.savefig(datadir+'stream_lines_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
