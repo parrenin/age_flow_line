@@ -1,3 +1,0 @@
-#distance(km)	depth (m)
-0.0	3000.
-41. 3000.
