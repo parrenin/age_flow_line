@@ -1,0 +1,56 @@
+# Discretization relative step
+delta: 0.02
+
+# Number of intervals in the (\pi, \theta) mesh
+imax: 1000
+
+# Horizontal coordinate of right border, in km
+x_right: 40.7
+# Horizontal step for the computation of the total flux Q, in km
+x_step: 0.01
+
+# Ice thickness being ice equivalent or not
+thickness_ie: True
+
+# accu representation, put accu_right if relative or 1 if not.
+accu_relative: 1.
+accu_present: False
+R_exp: 1.
+
+# Define surface age
+age_surf: 0
+
+# If temporal factor is stairs or linear
+temp_fact_linear: True
+
+# Ice cores
+ic:
+    "EDC":
+        "x": 6.3  # X coordinate of the drilling, in km
+        "max_depth": 2900. #Max depth in the drilling
+        "step_depth": 1.  #Depth step in the drilling
+        "comp": null  #Comparison file
+    "BELDC":
+        "x": 40.
+        "max_depth": 2900.
+        "step_depth": 1.
+        'comp': null
+
+
+fig_age_max: 1000 #max age (kyr) for the age contour plots
+fig_age_spacing: 10 #spacing for the age (kyr) contour plots
+fig_age_spacing_labels: 100 #spacing for the labels (kyr) of the age color bars
+fig_age_iso: [73, 85, 90, 97, 113, 121, 132, 160, 180, 203, 215, 240,243,304,321,336,367,397,476]
+#age (yr BP)
+
+
+traj_step: 1 #Plot only one srreamline every traj_step
+
+create_figs: True  #If we create figures or not.
+fig_format: 'pdf'
+# comp_icecore: 'AICC2012.txt'
+# comp_flowline: 'GTS-III-FlowLine.txt'
+comp_isochrones: 'isochrones.txt'
+
+output_ic: True
+output_fl: True

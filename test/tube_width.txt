@@ -1,0 +1,3 @@
+#distance(km)	flowwidth
+0	1.
+41. 2.

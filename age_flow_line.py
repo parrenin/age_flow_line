@@ -696,7 +696,7 @@ if create_figs:
     plt.vlines(x, z_ie_min_mesh, S, color='grey', linewidths=0.1)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_z, color='k', linewidth=2.)
-        plt.plot(x, B, label='Bedrock', color='violet', linewidth=1.)
+        plt.plot(x, B, label='Bedrock', color='violet', linewidth=2.)
     else:        
         plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
     plt.xlabel(r'$x$ (km)', fontsize=18)
@@ -722,7 +722,7 @@ if create_figs:
     plt.vlines(x, depth_max_mesh, S, color='grey', linewidths=0.1)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_depth, color='k', linewidth=2.)
-        plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=1.)
+        plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=2.)
     else:        
         plt.plot(x, S-B, label='Bedrock', color='k', linewidth=2.)
     plt.xlabel(r'$x$ (km)', fontsize=18)
@@ -839,7 +839,7 @@ if create_figs:
                      va='bottom', color=color_core)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_z, color='k', linewidth=2.)
-        plt.plot(x, B, label='Bedrock', color='violet', linewidth=1.)
+        plt.plot(x, B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
     plt.savefig(datadir+'iso-omega_lines_x_z.'+fig_format,
@@ -874,7 +874,7 @@ if create_figs:
                      va='bottom', color=color_core)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_depth, color='k', linewidth=2.)
-        plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=1.)
+        plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, S-B, label='Bedrock', color='k', linewidth=2.)
     ax.invert_yaxis()
@@ -925,7 +925,7 @@ if create_figs:
                      va='bottom', color=color_core)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_z, color='k', linewidth=2.)
-        plt.plot(x, B, label='Bedrock', color='violet', linewidth=1.)
+        plt.plot(x, B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
     plt.savefig(datadir+'age_x_z.'+fig_format,
@@ -974,7 +974,7 @@ if create_figs:
                      color=color_core)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_depth, color='k', linewidth=2.)
-        plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=1.)
+        plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, S-B, label='Bedrock', color='k', linewidth=2.)
     plt.savefig(datadir+'age_x_depth.'+fig_format,
@@ -1052,7 +1052,7 @@ if create_figs:
                      va='bottom', color=color_core)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_z, color='k', linewidth=2.)
-        plt.plot(x, B, label='Bedrock', color='violet', linewidth=1.)
+        plt.plot(x, B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
     plt.savefig(datadir+'thinning_x_z.'+fig_format,
@@ -1093,7 +1093,7 @@ if create_figs:
                      va='bottom', color=color_core)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_z, color='k', linewidth=2.)
-        plt.plot(x, B, label='Bedrock', color='violet', linewidth=1.)
+        plt.plot(x, B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
     plt.savefig(datadir+'thinning_analytical_x_z.'+fig_format,
@@ -1135,7 +1135,7 @@ if create_figs:
                      va='bottom', color=color_core)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_depth, color='k', linewidth=2.)
-        plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=1.)
+        plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, S-B, label='Bedrock', color='k', linewidth=2.)
     plt.savefig(datadir+'thinning_analytical_x_depth.'+fig_format,
@@ -1178,7 +1178,7 @@ if create_figs:
                      va='bottom', color=color_core)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_z, color='k', linewidth=2.)
-        plt.plot(x, B, label='Bedrock', color='violet', linewidth=1.)
+        plt.plot(x, B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
 #    plt.legend(loc='lower left')
@@ -1225,7 +1225,7 @@ if create_figs:
                      va='bottom', color=color_core)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_depth, color='k', linewidth=2.)
-        plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=1.)
+        plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, S-B, label='Bedrock', color='k', linewidth=2.)
 #    plt.legend(loc='lower left')
