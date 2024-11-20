@@ -529,7 +529,7 @@ for name in ic:
     # ----------------------------------------------------------
 
     if ddepth_ie[-1] < ie_depth_ic[-1]:
-        sys.exit("The mesh does not extend down to the bottom of the core.")
+        sys.exit("The mesh does not extend down to the bottom of the", name, "ice core.")
 
     ic[name]['theta'] = np.log(np.interp(ie_depth_ic, ddepth_ie, OOMEGA))
     ic[name]['omega'] = np.interp(ie_depth_ic, ddepth_ie, OOMEGA)
@@ -563,7 +563,7 @@ for name in ic:
     # ----------------------------------------------------------
 
     ic[name]['age'] = np.interp(steady_age_ic+age_surf, steady_age_R, age_R)
-    print('Bottom age for the ice core:', ic[name]['age'][-1])
+    print('Bottom age for the', name, 'ice core:', ic[name]['age'][-1])
 
     # ----------------------------------------------------------
     #  a0_ic
@@ -585,7 +585,7 @@ for name in ic:
     steady_age_ic_recalc = np.insert(steady_age_ic_recalc, 0, 0.)
     ic[name]['age_int'] = np.interp(steady_age_ic_recalc+age_surf,
                                     steady_age_R, age_R)
-    print('max age deviation:',
+    print('max age deviation for', name, 'between the two numerical schemes:',
           np.max(np.abs(steady_age_ic - steady_age_ic_recalc)))
     aa = (steady_a0_ic[1:]+steady_a0_ic[:-1]) / 2
     ic[name]['tau_diff'] = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
