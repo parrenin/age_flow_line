@@ -93,6 +93,10 @@ if temp_fact_linear:
     R = np.append(R, R[-1])
 
 D_depth, D_D = np.loadtxt(datadir+'relative_density.txt', unpack=True)
+D_depth = np.append(D_depth, D_depth[-1]+0.01)
+D_depth = np.append(D_depth, 10000)
+D_D = np.append(D_D, 1)
+D_D = np.append(D_D, 1)
 
 # -----------------------------------------------------
 # Loading files for Geographic data, arrays creations
