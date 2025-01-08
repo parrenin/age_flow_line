@@ -109,5 +109,5 @@ If you have defined virtual ice cores, it has also created some output files:
 
 # What to do if something goes wrong?
 
-Some errors can be eliminated by restarting the kernel in spyder (under "Console">"Restart kernel").
+Some errors can be eliminated by restarting the kernel in spyder (under "Console">"Restart kernel").\
 If the problem persist, please post an email to the author or on the mailing list with the error message appearing on the command line.
