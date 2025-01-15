@@ -49,7 +49,7 @@ fig_age_iso: [73, 85, 90, 97, 113, 121, 132, 160, 180, 203, 215, 240,243,304,321
 traj_step: 10 #Plot only one srreamline every traj_step
 
 create_figs: True  #If we create figures or not.
-fig_format: 'pdf'
+fig_format: 'svg'
 # comp_icecore: 'AICC2012.txt'
 # comp_flowline: 'GTS-III-FlowLine.txt'
 comp_isochrones: 'isochrones.txt'

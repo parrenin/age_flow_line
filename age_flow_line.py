@@ -823,10 +823,10 @@ if create_figs:
     # There is no node on the bedrock, so the color does not go down there.
     cp = plt.contourf(mat_x, mat_z, mat_omega,
                       levels=levels,
-                      cmap='jet')
+                      cmap='plasma')
     cp2 = plt.contour(mat_x, mat_z, mat_omega,
                       levels=levels_cb,
-                      colors='k')
+                      colors='k', linewidths=0.5)
     cb = plt.colorbar(cp)
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
@@ -860,7 +860,7 @@ if create_figs:
     # There is no node on the bedrock, so the color does not go down there.
     cp = plt.contourf(mat_x, mat_depth, mat_omega,
                       levels=levels,
-                      cmap='jet')
+                      cmap='plasma')
     cp2 = plt.contour(mat_x, mat_depth, mat_omega,
                       levels=levels_cb,
                       colors='k', linewidths=0.5)
@@ -904,7 +904,7 @@ if create_figs:
     levels_iso = np.array(fig_age_iso)
     cp = plt.contourf(mat_x, mat_z, mat_age/1000.,
                       levels=levels,
-                      cmap='jet')
+                      cmap='plasma_r')
     cp2 = plt.contour(mat_x, mat_z, mat_age/1000.,
                       levels=levels_iso,
                       colors='k', linewidths=0.5)
@@ -952,7 +952,7 @@ if create_figs:
     levels_iso = np.array(fig_age_iso)
     cp = plt.contourf(mat_x, mat_depth, mat_age/1000.,
                       levels=levels,
-                      cmap='jet')
+                      cmap='plasma_r')
     cp2 = plt.contour(mat_x, mat_depth, mat_age/1000.,
                       levels=levels_iso,
                       colors='k', linewidths=0.5)
@@ -996,7 +996,7 @@ if create_figs:
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
     cp = plt.contourf(mat_pi, mat_theta, mat_age/1000., levels=levels,
-                      cmap='jet')
+                      cmap='plasma_r')
     cp2 = plt.contour(mat_pi, mat_theta, mat_age/1000.,
                       levels=levels_iso, colors='k', linewidths=0.5)
     # Corner trajectory
@@ -1028,11 +1028,11 @@ if create_figs:
     plt.plot(x, S, label='Surface', color='0')
     zz = np.insert((mat_z[1:, :] + mat_z[:-1, :])/2, 0, S, axis=0)
     tt = np.insert(mat_tau, 0, np.ones(imax+1), axis=0)
-    levels = np.arange(0, 1.21, 0.01)
-    levels_cb = np.arange(0, 13, 1)/10.
+    levels = np.arange(0, 1.01, 0.01)
+    levels_cb = np.arange(0, 11, 1)/10.
     cp = plt.contourf(mat_x, zz, tt,
                       levels=levels,
-                      cmap='jet')
+                      cmap='plasma')
     cp2 = plt.contour(mat_x, zz, tt,
                       levels=levels_cb,
                       colors='k', linewidths=0.5)
@@ -1069,11 +1069,11 @@ if create_figs:
     fig, ax = plt.subplots(figsize=(12, 6))
 
     plt.plot(x, S, label='Surface', color='0')
-    levels = np.arange(0, 1.21, 0.01)
-    levels_cb = np.arange(0, 13, 1)/10.
+    levels = np.arange(0, 1.01, 0.01)
+    levels_cb = np.arange(0, 11, 1)/10.
     cp = plt.contourf(mat_x, mat_z, mat_tau_anal,
                       levels=levels,
-                      cmap='jet')
+                      cmap='plasma')
     cp2 = plt.contour(mat_x, mat_z, mat_tau_anal,
                       levels=levels_cb,
                       colors='k', linewidths=0.5)
@@ -1110,11 +1110,11 @@ if create_figs:
     fig, ax = plt.subplots(figsize=(12, 6))
 
     plt.plot(x, np.zeros_like(x), label='Surface', color='0')
-    levels = np.arange(0, 1.21, 0.01)
-    levels_cb = np.arange(0, 13, 1)/10.
+    levels = np.arange(0, 1.01, 0.01)
+    levels_cb = np.arange(0, 11, 1)/10.
     cp = plt.contourf(mat_x, mat_depth, mat_tau_anal,
                       levels=levels,
-                      cmap='jet')
+                      cmap='plasma')
     cp2 = plt.contour(mat_x, mat_depth, mat_tau_anal,
                       levels=levels_cb,
                       colors='k', linewidths=0.5)
@@ -1287,16 +1287,16 @@ if create_figs:
         ax3 = ax.twiny()
         ax3.spines['top'].set_position(('axes', 1.1))
         ax3.spines.bottom.set_visible(False)
-        ax3.plot(ic[name]['tau'], ic[name]['depth'][:-1], color='g')
-        ax3.plot(ic[name]['tau_diff'], ic[name]['depth'][:-1], color='g',
+        ax3.plot(ic[name]['tau'], ic[name]['depth'][:-1], color='orange')
+        ax3.plot(ic[name]['tau_diff'], ic[name]['depth'][:-1], color='orange',
                  linestyle='dotted')
         if ic[name]['comp'] is not None and \
                 ~np.isnan(ic[name]['cp_tau']).all():
-            ax3.plot(ic[name]['cp_tau'], ic[name]['cp_depth'], color='g',
+            ax3.plot(ic[name]['cp_tau'], ic[name]['cp_depth'], color='orange',
                      linestyle='dashed')
-        ax3.set_xlabel('thinning function (no unit)', color='g')
-        ax3.spines['top'].set_color('g')
-        ax3.tick_params(axis='x', colors='g')
+        ax3.set_xlabel('thinning function (no unit)', color='orange')
+        ax3.spines['top'].set_color('orange')
+        ax3.tick_params(axis='x', colors='orange')
 
         plt.savefig(datadir+name+'_ice_core_vs_depth.'+fig_format,
                     format=fig_format, bbox_inches='tight')

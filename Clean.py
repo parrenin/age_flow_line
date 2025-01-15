@@ -24,6 +24,6 @@ def clean(pattern):
             if len(os.listdir(path)) == 0:
                 os.rmdir(path)
     
-list_pattern = ['.pdf', 'output.txt']
+list_pattern = ['.pdf', 'output.txt', '.svg']
 for pattern in list_pattern:
     clean(pattern)
