@@ -898,7 +898,7 @@ if create_figs:
     if comp_isochrones is not None:
         for i in range(cp_iso_nb):
             plt.plot(cp_iso_x, np.interp(cp_iso_x, x, S) - cp_iso_depth[i, :],
-                     color='w', linestyle='solid', linewidth=0.5)
+                     color='k', linestyle='dotted', linewidth=0.5)
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
     levels_iso = np.array(fig_age_iso)
@@ -946,7 +946,7 @@ if create_figs:
     if comp_isochrones is not None:
         for i in range(cp_iso_nb):
             plt.plot(cp_iso_x, cp_iso_depth[i, :],
-                     color='w', linestyle='solid', linewidth=0.5)
+                     color='k', linestyle='dotted', linewidth=0.5)
     levels = np.arange(0, fig_age_max, fig_age_spacing)
     levels_cb = np.arange(0, fig_age_max, fig_age_spacing_labels)
     levels_iso = np.array(fig_age_iso)

@@ -81,6 +81,9 @@ Then you have several input file in `.txt` format:
 - `relative_density.txt`: a depth vs relative density profile
 - `temporal_factor.txt`: the accumulation/melting relative temporal variations
 
+If you want to set up a new flow tube experiment, we suggest to copy an existing experiment directory such as DC-BELDC.
+Then you can incrementally modify the `parameters.yml` parameter file and the `.txt` data files.
+
 # What are the outputs of a run?
 
 If the run went correctly, it has created output files for the whole flow line:
