@@ -536,7 +536,7 @@ for name in ic:
         sys.exit("The mesh does not extend down to the bottom of the", name, "ice core.")
 
     ic[name]['theta'] = np.log(np.interp(ie_depth_ic, ddepth_ie, OOMEGA))
-    ic[name]['omega'] = np.interp(ie_depth_ic, ddepth_ie, OOMEGA)
+    ic[name]['Omega'] = np.interp(ie_depth_ic, ddepth_ie, OOMEGA)
 
     # ----------------------------------------------------------
     #  Computation steady a0 and x0 for the ice core
@@ -1297,6 +1297,18 @@ if create_figs:
         ax3.set_xlabel('thinning function (no unit)', color='orange')
         ax3.spines['top'].set_color('orange')
         ax3.tick_params(axis='x', colors='orange')
+
+        ax4 = ax.twiny()
+        ax4.spines['top'].set_position(('axes', 1.2))
+        ax4.spines.bottom.set_visible(False)
+        ax4.plot(ic[name]['Omega'], ic[name]['depth'][:], color='violet')
+        # if ic[name]['comp'] is not None and \
+        #         ~np.isnan(ic[name]['cp_tau']).all():
+        #     ax4.plot(ic[name]['cp_tau'], ic[name]['cp_depth'], color='orange',
+        #              linestyle='dashed')
+        ax4.set_xlabel('$\Omega$ (no unit)', color='violet')
+        ax4.spines['top'].set_color('violet')
+        ax4.tick_params(axis='x', colors='violet')
 
         plt.savefig(datadir+name+'_ice_core_vs_depth.'+fig_format,
                     format=fig_format, bbox_inches='tight')
