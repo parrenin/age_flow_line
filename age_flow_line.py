@@ -440,7 +440,7 @@ for i in range(1, imax+1):
 mat_tau_anal = np.ones((imax+1, imax+1))
 mat_tau_anal[1:-1, :] = 1/(mat_tau_anal[1:-1, :] - tau_reduc_pitheta[1:-1, :]
                            * a / (dzdOMEGA[:-1, :] + dzdOMEGA[1:, :]) * 2)
-mat_tau_anal = mat_tau_anal * a / mat_a0 * OMEGA.reshape(imax+1, 1)
+mat_tau_anal *= a / mat_a0 * OMEGA.reshape(imax+1, 1)
 mat_tau_anal[-1, :] = np.nan
 
 # ---------------------------------
