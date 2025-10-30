@@ -60,6 +60,7 @@ accu_present = True
 R_exp = 1.
 temp_fact_linear = False
 traj_step = 10
+grid_step = 5
 fig_age_max = 1000000
 fig_age_spacing = 10000
 fig_age_spacing_labels = 100000
@@ -674,9 +675,9 @@ if create_figs:
     # ----------------------------------------------------------
 
     fig, ax = plt.subplots(figsize=(12, 6))
-    plt.vlines(pi, theta_min_mesh, theta_max, color='grey', linewidths=0.1)
-    for i in range(0, imax+1):
-        plt.plot(pi, mat_theta[i, :], color='grey', linewidth=0.1)
+    plt.vlines(pi[::grid_step], theta_min_mesh[::grid_step], theta_max[::grid_step], color='grey', linewidths=0.1)
+    for i in range(0, imax+1, grid_step):
+        plt.plot(pi[::grid_step], mat_theta[i, ::grid_step], color='grey', linewidth=0.1)
     plt.xlabel(r'$\pi$', fontsize=18)
     plt.ylabel(r'$\theta$', fontsize=18)
     for name in ic:
@@ -695,14 +696,14 @@ if create_figs:
     plt.plot(x, S, label='Surface', color='0')
     # The vertical grid step can increase near the bed.
     # This is due do iso-omega layers being thicker near the bed.
-    for i in range(0, imax+1):
-        plt.plot(x, mat_z[i, :],  ls='-', color='grey', linewidth=0.1)
-    plt.vlines(x, z_ie_min_mesh, S, color='grey', linewidths=0.1)
+    for i in range(0, imax+1, grid_step):
+        plt.plot(x[::grid_step], mat_z[i, ::grid_step],  ls='-', color='grey', linewidth=0.1)
+    plt.vlines(x[::grid_step], z_ie_min_mesh[::grid_step], S[::grid_step], color='grey', linewidths=0.1)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_z, color='k', linewidth=2.)
-        plt.plot(x, B, label='Bedrock', color='violet', linewidth=2.)
+        plt.plot(x[::grid_step], B[::grid_step], label='Bedrock', color='violet', linewidth=2.)
     else:        
-        plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
+        plt.plot(x[::grid_step], B[::grid_step], label='Bedrock', color='k', linewidth=2.)
     plt.xlabel(r'$x$ (km)', fontsize=18)
     plt.ylabel(r'$z$ (m)', fontsize=18)
     for name in ic:
@@ -721,14 +722,14 @@ if create_figs:
     plt.plot(x, np.zeros_like(x), label='Surface', color='0')
     # The vertical grid step can increase near the bed.
     # This is due do iso-omega layers being thicker near the bed.
-    for i in range(0, imax+1):
-        plt.plot(x, mat_depth[i, :],  ls='-', color='grey', linewidth=0.1)
-    plt.vlines(x, depth_max_mesh, S, color='grey', linewidths=0.1)
+    for i in range(0, imax+1, grid_step):
+        plt.plot(x[::grid_step], mat_depth[i, ::grid_step],  ls='-', color='grey', linewidth=0.1)
+    plt.vlines(x[::grid_step], depth_max_mesh[::grid_step], S[::grid_step], color='grey', linewidths=0.1)
     if obs_bedrock is not None:
         plt.plot(obs_bed_x, obs_bed_depth, color='k', linewidth=2.)
-        plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=2.)
+        plt.plot(x[::grid_step], (S-B)[::grid_step], label='Bedrock', color='violet', linewidth=2.)
     else:        
-        plt.plot(x, S-B, label='Bedrock', color='k', linewidth=2.)
+        plt.plot(x[::grid_step], (S-B)[::grid_step], label='Bedrock', color='k', linewidth=2.)
     plt.xlabel(r'$x$ (km)', fontsize=18)
     plt.ylabel(r'$depth$ (m)', fontsize=18)
     ax.invert_yaxis()
@@ -1044,7 +1045,7 @@ if create_figs:
     cb.set_ticks(levels_cb)
     cb.set_ticklabels(levels_cb)
     cb.add_lines(cp2)
-    cb.set_label('Thinning function (no unit))')
+    cb.set_label('Thinning function (no unit)')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
     bottom, top = plt.ylim()

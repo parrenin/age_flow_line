@@ -47,6 +47,7 @@ fig_age_iso: [73, 85, 90, 97, 113, 121, 132, 160, 180, 203, 215, 240,243,304,321
 
 
 traj_step: 10 #Plot only one srreamline every traj_step
+grid_step: 10 # Plot only one line every grid_step
 
 create_figs: True  #If we create figures or not.
 fig_format: 'svg'
