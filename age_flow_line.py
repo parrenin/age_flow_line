@@ -534,7 +534,7 @@ for name in ic:
     # ----------------------------------------------------------
 
     if ddepth_ie[-1] < ie_depth_ic[-1]:
-        sys.exit("The mesh does not extend down to the bottom of the", name, "ice core.")
+        sys.exit("The mesh does not extend down to the bottom of the"+ name+ "ice core.")
 
     ic[name]['theta'] = np.log(np.interp(ie_depth_ic, ddepth_ie, OOMEGA))
     ic[name]['Omega'] = np.interp(ie_depth_ic, ddepth_ie, OOMEGA)
