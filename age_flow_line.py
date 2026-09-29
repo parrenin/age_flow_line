@@ -1284,13 +1284,13 @@ if create_figs:
         ax2.tick_params(axis='x', colors='b')
         if 'fig_max_age' in ic[name]:
             ax2.set_xlim(0, ic[name]['fig_max_age'])
-        
+
         ax3 = ax.twiny()
         ax3.spines['top'].set_position(('axes', 1.1))
         ax3.spines.bottom.set_visible(False)
         ax3.plot(ic[name]['tau'], ic[name]['depth'][:-1], color='orange')
-        ax3.plot(ic[name]['tau_diff'], ic[name]['depth'][:-1], color='orange',
-                 linestyle='dotted')
+#        ax3.plot(ic[name]['tau_diff'], ic[name]['depth'][:-1], color='orange',
+#                 linestyle='dotted')
         if ic[name]['comp'] is not None and \
                 ~np.isnan(ic[name]['cp_tau']).all():
             ax3.plot(ic[name]['cp_tau'], ic[name]['cp_depth'], color='orange',
