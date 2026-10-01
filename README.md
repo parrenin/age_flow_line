@@ -6,9 +6,7 @@ A numerical age model along a flow line of an ice sheet
 This manual is a documentation on how to use the age_flow_line software.  
 It is _not_ a description of the age_flow_line principles and assumptions. Please read to the scientific articles
 describing age_flow_line for that purpose:\
-Parrenin, F., Bazin, L., Capron, E., Landais, A., Lemieux-Dudon, B. and Masson-Delmotte, V.:
-IceChrono1: a probabilistic model to compute a common and optimal chronology for several ice cores,
-_Geosci. Model Dev._, 8(5), 1473–1492, doi:10.5194/gmd-8-1473-2015, 2015.  
+Parrenin, F., Chung, A., and Martín, C.: age_flow_line-1.0: a fast and accurate numerical age model for a pseudo-steady flow tube of an ice sheet, Geoscientific Model Development, 18, 8203–8216, https://doi.org/10.5194/gmd-18-8203-2025, 2025.
 It is _not_ an operating system or python documentation.
 Please use your operating system or python documentation instead.
 
@@ -26,17 +24,17 @@ In the downloaded folder, you will find the following files:
 - LICENCE		: is the age_flow_line licence file.
 - age_flow_line.py		: is the main program that you will run.
 - Clean.py		: is a python script to clean a model experiment directory
-- DC-BELDC		: is an example experiment directory: it contains all the necessary
+- DC-BELDC-Jeaumot2026		: is an example experiment directory: it contains all the necessary
 numerical settings and input files for the flow line between Dome C and Little Dome C.
 
 # What do I need to run age_flow_line?
 
-age_flow_line is a scientific python3 software, therefore you need a scipy distribution.  
-age_flow_line is developed and tested using the anaconda distribution, therefore we recommend it.  
-Anaconda can be downloaded here (use the python3 version):  
-https://www.anaconda.com/download
+age_flow_line is a scientific python3- software, therefore you need a scipy distribution.  
+age_flow_line is developed and tested using the miniforge distribution, therefore we recommend it.  
+Miniforge can be downloaded here:  
+https://conda-forge.org/miniforge/
 
-Paleochrono probably works on other scipy distributions, provided they contain the following python
+Age_flow_line probably works on other scipy distributions, provided they contain the following python
 modules:  
 - sys
 - os
@@ -50,7 +48,7 @@ modules:
 
 # How to run age_flow_line?
 
-Assuming you use anaconda, you can go in the spyder shell and type the following commands in the
+Assuming you use miniforge, you can install the spyder IDE and type the following commands in the
 ipython interpreter:
 
 ```
@@ -60,12 +58,12 @@ run age_flow_line.py exp_directory/
 
 where `path-to-age_flow_line` is the directory containing age_flow_line and `exp_directory` is the name of
 your experiment directory. 
-The `DC-LDC` experiment directory is provided for you convenience.
+The `DC-LDC-Jeaumot2026` experiment directory is provided for you convenience.
 It takes a few seconds to run on a recent computer.
 
 # What is the structure of an experiment direcotry?
 
-You can have a look at the provided `DC-LDC` directory.
+You can have a look at the provided `DC-LDC-Jeaumot2026` directory.
 
 You have one parameter file `parameters.yml` which contains general parameters for the
 experiment.
@@ -81,7 +79,7 @@ Then you have several input file in `.txt` format:
 - `relative_density.txt`: a depth vs relative density profile
 - `temporal_factor.txt`: the accumulation/melting relative temporal variations
 
-If you want to set up a new flow tube experiment, we suggest to copy an existing experiment directory such as DC-BELDC.
+If you want to set up a new flow tube experiment, we suggest to copy an existing experiment directory such as DC-BELDC-Jeaumot2026.
 Then you can incrementally modify the `parameters.yml` parameter file and the `.txt` data files.
 
 # What are the outputs of a run?
@@ -113,4 +111,4 @@ If you have defined virtual ice cores, it has also created some output files:
 # What to do if something goes wrong?
 
 Some errors can be eliminated by restarting the kernel in spyder (under "Console">"Restart kernel").\
-If the problem persist, please post an email to the author or on the mailing list with the error message appearing on the command line.
+If the problem persist, please post an email to the author with the error message appearing on the command line.

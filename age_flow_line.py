@@ -13,6 +13,7 @@ import resource
 # FIXME: Try again natural sampling with an intelligent interpolation fct.
 # FIXME: Use an intelligent interpolation with linear temporal factor
 # TODO: Implement R as a fuction of depth
+# TODO: Use panda for inputs
 
 
 def interp_stair_aver(x_out, x_in, y_in):
@@ -1333,7 +1334,7 @@ if create_figs:
                     format=fig_format, bbox_inches='tight')
 
     # Showing the figures
-    plt.show()
+    # plt.show()
 
 # Program execution time
 MESSAGE = 'Program execution time: '+str(time.perf_counter()-START_TIME)+' s.'
