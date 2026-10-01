@@ -96,7 +96,7 @@ If the run went correctly, it has created output files for the whole flow line:
 - `mesh_pi_theta.pdf`: is the mesh in (pi,theta)
 - `mesh_x_z.pdf`: is the mesh in (x,z)
 - `mesh_x_depth.pdf`: is the mesh in (x,depth)
-- `R_temporal_factor.pdf`: is the figure with the accu/melting temporal factor
+- `temporal_factor.pdf`: is the figure with the accu/melting temporal factor
 - `stream_lines_x_z.pdf`: are the stream lines / trajectories in (x,z)
 - `stream_lines_x_depth.pdf`: same using (x,depth)
 - `thinning_analytical_x_z.pdf`: is the thinning function calculated analytically in (x,z)

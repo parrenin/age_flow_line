@@ -1251,7 +1251,7 @@ if create_figs:
     plt.stairs(R[:-2], age_R[:-1]/1000, baseline=None)
     plt.xlabel('time (kyr)', fontsize=15)
     plt.ylabel(r'$R(t)$', fontsize=15)
-    plt.savefig(datadir+'R_temporal_factor.'+fig_format,
+    plt.savefig(datadir+'temporal_factor.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
     # ----------------------------------------------------------
