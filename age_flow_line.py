@@ -14,13 +14,11 @@ import resource
 # FIXME: Use an intelligent interpolation with linear temporal factor
 # TODO: Implement R as a fuction of depth
 # TODO: Use panda for inputs
-# TODO: Rename relative_density.txt to solid_fraction.txt
 # TODO: Use fsolve for zeta(omega), as in age_BIA.
 # TODO: Comparison file for surface velocity
 # TODO: Merge figures boundary conditions and calculated quantities
 # TODO: Use an age color scale for trajectories, as in age_BIA?
 # TODO: Plot isochrones on the ice core figure
-# TODO: Plot "direction of the flow" on the figures with an arrow.
 # TODO: Display comparison isochrones in white
 # TODO: Factorize the figure code with functions
 # TODO: Make figures more elongated horizontally
@@ -104,7 +102,7 @@ if temp_fact_linear:
     R = (R[1:] + R[:-1])/2
     R = np.append(R, R[-1])
 
-D_depth, D_D = np.loadtxt(datadir+'relative_density.txt', unpack=True)
+D_depth, D_D = np.loadtxt(datadir+'solid_fraction.txt', unpack=True)
 D_depth = np.append(D_depth, D_depth[-1]+0.01)
 D_depth = np.append(D_depth, 10000)
 D_D = np.append(D_D, 1)
