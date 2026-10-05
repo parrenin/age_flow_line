@@ -14,6 +14,14 @@ import resource
 # FIXME: Use an intelligent interpolation with linear temporal factor
 # TODO: Implement R as a fuction of depth
 # TODO: Use panda for inputs
+# TODO: Rename relative_density.txt to solid_fraction.txt
+# TODO: Use fsolve for zeta(omega), as in age_BIA.
+# TODO: Comparison file for surface velocity
+# TODO: Merge figures boundary conditions and calculated quantities
+# TODO: Use an age color scale for trajectories, as in age_BIA?
+# TODO: Plot isochrones on the ice core figure
+# TODO: Plot "direction of the flow" on the figures with an arrow.
+# TODO: Display comparison isochrones in white
 
 
 def interp_stair_aver(x_out, x_in, y_in):
@@ -922,8 +930,6 @@ if create_figs:
     cb.set_label('Modeled age (kyr)')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
-    bottom, top = plt.ylim()
-    plt.ylim((bottom, top+50))
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
                  color=color_core, linestyle=ls_core)
@@ -934,6 +940,8 @@ if create_figs:
         plt.plot(x, B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, top+50))
     plt.savefig(datadir+'age_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -971,8 +979,6 @@ if create_figs:
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'depth (m)', fontsize=19)
     ax.invert_yaxis()
-    bottom, top = plt.ylim()
-    plt.ylim((bottom, -50))
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['DD'], linewidth=lw_core,
                  color=color_core, linestyle=ls_core)
@@ -983,6 +989,8 @@ if create_figs:
         plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, S-B, label='Bedrock', color='k', linewidth=2.)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, -50))
     plt.savefig(datadir+'age_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
