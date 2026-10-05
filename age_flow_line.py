@@ -846,8 +846,6 @@ if create_figs:
     cb.set_label(r'$\omega$')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
-    bottom, top = plt.ylim()
-    plt.ylim((bottom, top+50))
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
                  color=color_core, linestyle=ls_core)
@@ -858,6 +856,11 @@ if create_figs:
         plt.plot(x, B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, top+50))
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
     plt.savefig(datadir+'iso-omega_lines_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -896,6 +899,9 @@ if create_figs:
     ax.invert_yaxis()
     bottom, top = plt.ylim()
     plt.ylim((bottom, -50))
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
     plt.savefig(datadir+'iso-omega_lines_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -944,6 +950,9 @@ if create_figs:
         plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
     bottom, top = plt.ylim()
     plt.ylim((bottom, top+50))
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
     plt.savefig(datadir+'age_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -993,6 +1002,9 @@ if create_figs:
         plt.plot(x, S-B, label='Bedrock', color='k', linewidth=2.)
     bottom, top = plt.ylim()
     plt.ylim((bottom, -50))
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
     plt.savefig(datadir+'age_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -1028,6 +1040,9 @@ if create_figs:
                  color=color_core, linestyle=ls_core)
         plt.annotate(name, (ic[name]['PP'][0], 0.03), ha='center',
                      va='bottom', color=color_core)
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
     plt.savefig(datadir+'age_pi_theta.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -1059,8 +1074,6 @@ if create_figs:
     cb.set_label('Thinning function (no unit)')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
-    bottom, top = plt.ylim()
-    plt.ylim((bottom, top+50))
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
                  color=color_core, linestyle=ls_core)
@@ -1071,6 +1084,11 @@ if create_figs:
         plt.plot(x, B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, top+50))
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
     plt.savefig(datadir+'thinning_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -1100,8 +1118,6 @@ if create_figs:
     cb.set_label('Thinning function (no unit))')
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$z$ (m)', fontsize=19)
-    bottom, top = plt.ylim()
-    plt.ylim((bottom, top+50))
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
                  color=color_core, linestyle=ls_core)
@@ -1112,6 +1128,11 @@ if create_figs:
         plt.plot(x, B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, top+50))
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
     plt.savefig(datadir+'thinning_analytical_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -1142,8 +1163,6 @@ if create_figs:
     ax.set_xlabel(r'$x$ (km)', fontsize=19)
     ax.set_ylabel(r'$depth$ (m)', fontsize=19)
     ax.invert_yaxis()
-    bottom, top = plt.ylim()
-    plt.ylim((bottom, -50))
     for name in ic:
         plt.plot(ic[name]['XX'], ic[name]['DD'], linewidth=lw_core,
                  color=color_core, linestyle=ls_core)
@@ -1154,6 +1173,11 @@ if create_figs:
         plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, S-B, label='Bedrock', color='k', linewidth=2.)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, -50))
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
     plt.savefig(datadir+'thinning_analytical_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -1202,6 +1226,9 @@ if create_figs:
     plt.ylabel(r'$z$ (m)', fontsize=19)
     bottom, top = plt.ylim()
     plt.ylim((bottom, top+50))
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
     plt.savefig(datadir+'stream_lines_x_z.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
@@ -1244,16 +1271,15 @@ if create_figs:
         plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, S-B, label='Bedrock', color='k', linewidth=2.)
-    axtop = ax.twiny()
-    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
-    axtop.xaxis.set_ticks([])
-
 #    plt.legend(loc='lower left')
     plt.xlabel(r'$x$ (km)', fontsize=19)
     plt.ylabel(r'$depth$ (m)', fontsize=19)
     ax.invert_yaxis()
     bottom, top = plt.ylim()
     plt.ylim((bottom, -50))
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
     plt.savefig(datadir+'stream_lines_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
