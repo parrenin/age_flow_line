@@ -22,6 +22,8 @@ import resource
 # TODO: Plot isochrones on the ice core figure
 # TODO: Plot "direction of the flow" on the figures with an arrow.
 # TODO: Display comparison isochrones in white
+# TODO: Factorize the figure code with functions
+# TODO: Make figures more elongated horizontally
 
 
 def interp_stair_aver(x_out, x_in, y_in):
@@ -1242,6 +1244,10 @@ if create_figs:
         plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=2.)
     else:
         plt.plot(x, S-B, label='Bedrock', color='k', linewidth=2.)
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
+
 #    plt.legend(loc='lower left')
     plt.xlabel(r'$x$ (km)', fontsize=19)
     plt.ylabel(r'$depth$ (m)', fontsize=19)
