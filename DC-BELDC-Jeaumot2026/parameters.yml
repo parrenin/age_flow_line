@@ -42,7 +42,7 @@ fig_age_max: 1500 #max age (kyr) for the age contour plots
 fig_age_spacing: 10 #spacing for the age (kyr) contour plots
 fig_age_spacing_labels: 100 #spacing for the labels (kyr) of the age color bars
 #fig_age_iso: [100, 200, 400, 800]
-fig_age_iso: [73, 85, 90, 97, 113, 121, 132, 160, 180, 203, 215, 240,243,304,321,336,367,397,476]
+fig_age_iso: [73.2, 84.8, 90.8, 97.7, 115.8, 122.9, 133.2, 159.6, 178.2, 202.5, 214.4, 239.9, 243.2, 305.3, 320.4, 335.7, 367.3, 399.5, 475.3]
 #age (yr BP)
 
 
@@ -58,3 +58,4 @@ obs_bedrock: 'real_thickness.txt'
 
 output_ic: True
 output_fl: True
+output_iso: True

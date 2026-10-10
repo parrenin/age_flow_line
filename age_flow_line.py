@@ -85,6 +85,7 @@ comp_isochrones = None
 obs_bedrock = None
 output_ic = True
 output_fl = True
+output_iso = False
 
 yamls = open(datadir+'parameters.yml').read()
 para = yaml.load(yamls, Loader=yaml.FullLoader)
@@ -659,6 +660,21 @@ if output_fl:
     np.savetxt(datadir+'flow_line_output.txt', np.transpose(output),
                header='x(km) total_flux accu(m/yr) surf_velocity(m/yr)')
 
+# ----------------------------------------------------------
+# Output of isochrones
+# ----------------------------------------------------------
+if output_iso:
+    for i in range(len(x)):
+        z_iso = np.interp(np.array(fig_age_iso)*1000, mat_age[:,i], mat_depth[:,i])
+        if i==0:
+            output = np.insert(z_iso, 0, x[0])
+        else:
+            output = np.vstack((output, np.insert(z_iso, 0, x[i])))
+    header = 'x(km)'
+    for j in range(len(fig_age_iso)):
+        header=header+' iso'+str(j)
+    np.savetxt(datadir+'isochrones_output.txt', output,
+               header=header)
 # -----------
 # FIGURES
 # -----------
