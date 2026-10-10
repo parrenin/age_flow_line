@@ -9,19 +9,22 @@ import math
 import os
 import resource
 
-# FIXME: Use firn density profile from Salamatin's equation
 # FIXME: Try again natural sampling with an intelligent interpolation fct.
 # FIXME: Use an intelligent interpolation with linear temporal factor
 # TODO: Implement R as a fuction of depth
 # TODO: Use panda for inputs
-# TODO: Use fsolve for zeta(omega), as in age_BIA.
 # TODO: Comparison file for surface velocity
 # TODO: Merge figures boundary conditions and calculated quantities
 # TODO: Use an age color scale for trajectories, as in age_BIA?
 # TODO: Plot isochrones on the ice core figure
 # TODO: Display comparison isochrones in white
-# TODO: Factorize the figure code with functions
 # TODO: Make figures more elongated horizontally
+# TODO: Parametrize input files names?
+# TODO: add PD to accu and surf. vel. figures
+# TODO: Change x, z for distance and elevation
+# TODO: Flow line output: add Qm, m, Y.
+# TODO: Calculate isochrone slope by integration and plot it in a figure.
+# TODO: Output for isochrones
 
 
 def interp_stair_aver(x_out, x_in, y_in):

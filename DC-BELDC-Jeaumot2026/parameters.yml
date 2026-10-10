@@ -2,7 +2,7 @@
 delta: 0.02
 
 # Number of intervals in the (\pi, \theta) mesh
-imax: 1000
+imax: 1200
 
 # Horizontal coordinate of right border, in km
 x_right: 40.7
