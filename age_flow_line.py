@@ -24,7 +24,6 @@ import resource
 # TODO: Change x, z for distance and elevation
 # TODO: Flow line output: add Qm, m, Y.
 # TODO: Calculate isochrone slope by integration and plot it in a figure.
-# TODO: Output for isochrones
 
 
 def interp_stair_aver(x_out, x_in, y_in):
@@ -656,9 +655,9 @@ if obs_bedrock is not None:
 # ----------------------------------------------------------
 
 if output_fl:
-    output = np.vstack((x, Q, a, ux_surf))
+    output = np.vstack((x, Q, a, ux_surf*R[0]))
     np.savetxt(datadir+'flow_line_output.txt', np.transpose(output),
-               header='x(km) total_flux accu(m/yr) surf_velocity(m/yr)')
+               header='x(km) total_flux accu(m/yr) PD_surf_velocity(m/yr)')
 
 # ----------------------------------------------------------
 # Output of isochrones
