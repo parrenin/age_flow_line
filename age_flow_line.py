@@ -472,12 +472,12 @@ mat_slope[:, 0] = (mat_z[:, 1] - mat_z[:, 0]) / (x[1] - x[0]) / 1000.
 mat_slope[:, -1] = (mat_z[:, -1] - mat_z[:, -2]) / (x[-1] - x[-2]) / 1000.
 
 mat_traj_term = np.zeros((imax+1, imax+1))
-# FIXME: the trajectory term is calculated in ice equivalent. We should divide by D here
 mat_traj_term[1:-1, :] = tau_reduc_pitheta[1:-1, :] \
-                           * a / (dzdOMEGA[:-1, :] + dzdOMEGA[1:, :]) * 2
+                           * a / (dzdOMEGA[:-1, :] + dzdOMEGA[1:, :]) * 2 
 mat_traj_term = mat_traj_term / (1 - mat_traj_term)
 mat_traj_term *= a*Y/Q*mat_OMEGA 
 mat_traj_term[1:-1, :] *= (dzdOMEGA[:-1, :] + dzdOMEGA[1:, :])/2
+mat_traj_term[1:-1, :] *= (mat_depth[2:, :] - mat_depth[:-2, :]) / (mat_depth_ie[2:, :] - mat_depth_ie[:-2, :])
 mat_traj_term[-1, :] *= dzdOMEGA[-1, :]
 
 mat_slope = mat_slope + mat_traj_term
