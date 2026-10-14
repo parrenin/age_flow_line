@@ -1357,7 +1357,7 @@ if create_figs:
         ax.set_xlabel(r'$x$ origin (km)', color='r')
         ax.spines['bottom'].set_color('r')
         ax.tick_params(axis='x', colors='r')
-        ax.set_ylim(top=0.)
+        ax.set_ylim(top=0., bottom=ic[name]['max_depth'])
 
         ax2 = ax.twiny()
         ax2.spines.bottom.set_visible(False)
@@ -1388,6 +1388,7 @@ if create_figs:
         ax3.set_xlabel('thinning function (no unit)', color='orange')
         ax3.spines['top'].set_color('orange')
         ax3.tick_params(axis='x', colors='orange')
+        ax3.set_xlim(left=0.)
 
         ax4 = ax.twiny()
         ax4.spines['top'].set_position(('axes', 1.2))
