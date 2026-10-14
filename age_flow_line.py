@@ -23,7 +23,9 @@ import resource
 # TODO: add PD to accu and surf. vel. figures
 # TODO: Change x, z for distance and elevation
 # TODO: Flow line output: add Qm, m, Y.
-# TODO: Calculate isochrone slope by integration and plot it in a figure.
+# TODO: Plot isochrones slope in a dedicated figure.
+# TODO: Remove quadratic interpolation for ice core age. How to rather interpolate thinning with zie while preserving the age?
+# TODO: Output trajectories with a given step
 
 
 def interp_stair_aver(x_out, x_in, y_in):
@@ -454,7 +456,31 @@ mat_tau_anal = np.ones((imax+1, imax+1))
 mat_tau_anal[1:-1, :] = 1/(mat_tau_anal[1:-1, :] - tau_reduc_pitheta[1:-1, :]
                            * a / (dzdOMEGA[:-1, :] + dzdOMEGA[1:, :]) * 2)
 mat_tau_anal *= a / mat_a0 * OMEGA.reshape(imax+1, 1)
-mat_tau_anal[-1, :] = np.nan
+mat_tau_anal[-1, :] = np.nan  #FIXME: we could take the slope of the last two nodes instead
+
+
+# --------------------------------------------------------------------
+# Matrix of isochrones slope
+# --------------------------------------------------------------------
+# F. Parrenin, 2026/10/14
+# Based on the analytical formula from Parrenin (HDR, 2013)
+
+
+mat_slope= np.zeros((imax+1, imax+1))
+mat_slope[:, 1:-1] = (mat_z[:, 2:] - mat_z[:, :-2]) / (x[2:] - x[:-2]) / 1000.
+mat_slope[:, 0] = (mat_z[:, 1] - mat_z[:, 0]) / (x[1] - x[0]) / 1000.
+mat_slope[:, -1] = (mat_z[:, -1] - mat_z[:, -2]) / (x[-1] - x[-2]) / 1000.
+
+mat_traj_term = np.zeros((imax+1, imax+1))
+# FIXME: the trajectory term is calculated in ice equivalent. We should divide by D here
+mat_traj_term[1:-1, :] = tau_reduc_pitheta[1:-1, :] \
+                           * a / (dzdOMEGA[:-1, :] + dzdOMEGA[1:, :]) * 2
+mat_traj_term = mat_traj_term / (1 - mat_traj_term)
+mat_traj_term *= a*Y/Q*mat_OMEGA 
+mat_traj_term[1:-1, :] *= (dzdOMEGA[:-1, :] + dzdOMEGA[1:, :])/2
+mat_traj_term[-1, :] *= dzdOMEGA[-1, :]
+
+mat_slope = mat_slope + mat_traj_term
 
 # ---------------------------------
 # Surface velocity
@@ -537,6 +563,8 @@ for name in ic:
         xx0 = inter * mat_x0[:, ii][ggrid] + (1-inter) * mat_x0[:, ii+1][ggrid]
         ttau = inter * mat_tau_anal[:, ii][ggrid] + \
             (1-inter) * mat_tau_anal[:, ii+1][ggrid]
+        sslope = inter * mat_slope[:, ii][ggrid] + \
+            (1-inter) * mat_slope[:, ii+1][ggrid]
         ttheta = theta[ggrid]
         ic[name]['S'] = inter * S[ii] + (1-inter) * S[ii+1]
         ic[name]['PI'] = pi[ii] + inter*(pi[ii+1]-pi[ii])
@@ -608,6 +636,9 @@ for name in ic:
     ic[name]['tau_diff'] = (ie_depth_ic[1:] - ie_depth_ic[:-1]) / aa / \
         (steady_age_ic[1:] - steady_age_ic[:-1])
 
+    # Computation of the slope of isochrones
+    ic[name]['slope'] = np.interp(ic[name]['depth_ie'], ddepth_ie, sslope)
+    
     # ----------------------------------------------------------
     # Output for the ice cores
     # ----------------------------------------------------------
@@ -1346,6 +1377,7 @@ if create_figs:
         ax3.spines['top'].set_position(('axes', 1.1))
         ax3.spines.bottom.set_visible(False)
         ax3.plot(ic[name]['tau'], ic[name]['depth'][:-1], color='orange')
+#        ax3.plot(ic[name]['Omega'], ic[name]['depth'][:], color='violet')
 #        ax3.plot(ic[name]['tau_diff'], ic[name]['depth'][:-1], color='orange',
 #                 linestyle='dotted')
         if ic[name]['comp'] is not None and \
@@ -1359,12 +1391,12 @@ if create_figs:
         ax4 = ax.twiny()
         ax4.spines['top'].set_position(('axes', 1.2))
         ax4.spines.bottom.set_visible(False)
-        ax4.plot(ic[name]['Omega'], ic[name]['depth'][:], color='violet')
+        ax4.plot(ic[name]['slope'], ic[name]['depth'][:], color='violet')
         # if ic[name]['comp'] is not None and \
         #         ~np.isnan(ic[name]['cp_tau']).all():
         #     ax4.plot(ic[name]['cp_tau'], ic[name]['cp_depth'], color='orange',
         #              linestyle='dashed')
-        ax4.set_xlabel('$\Omega$ (no unit)', color='violet')
+        ax4.set_xlabel('layer slope (no unit)', color='violet')
         ax4.spines['top'].set_color('violet')
         ax4.tick_params(axis='x', colors='violet')
 
