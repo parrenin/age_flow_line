@@ -1357,6 +1357,7 @@ if create_figs:
         ax.set_xlabel(r'$x$ origin (km)', color='r')
         ax.spines['bottom'].set_color('r')
         ax.tick_params(axis='x', colors='r')
+        ax.set_ylim(top=0.)
 
         ax2 = ax.twiny()
         ax2.spines.bottom.set_visible(False)
