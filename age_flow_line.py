@@ -648,9 +648,9 @@ for name in ic:
                             np.append(ic[name]['tau'], np.nan),
                             np.append(ic[name]['a0'], np.nan),
                             ic[name]['x0'],
-                            steady_a0_ic))
+                            ic[name]['slope']))
         np.savetxt(datadir+name+'_ice_core_output.txt', np.transpose(output),
-                   header="depth age thinning accu x_origin accu_steady")
+                   header="depth age thinning accu x_origin slope")
 
     # -----------------------------------------------------------
     # Reading of comparison files
