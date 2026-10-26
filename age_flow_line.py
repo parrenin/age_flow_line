@@ -4,6 +4,7 @@ from scipy.interpolate import interp1d
 from scipy.linalg import toeplitz
 import yaml
 import matplotlib.pyplot as plt
+from matplotlib.colors import Normalize
 import time
 import math
 import os
@@ -26,6 +27,7 @@ import resource
 # TODO: Plot isochrones slope in a dedicated figure.
 # TODO: Remove quadratic interpolation for ice core age. How to rather interpolate thinning with zie while preserving the age?
 # TODO: Output trajectories with a given step
+# TODO: mat_slope has very large values in DC-BELDC-Jeaumot exp. Check what happens.
 
 
 def interp_stair_aver(x_out, x_in, y_in):
@@ -87,6 +89,7 @@ obs_bedrock = None
 output_ic = True
 output_fl = True
 output_iso = False
+fig_slope_max = 1.
 
 yamls = open(datadir+'parameters.yml').read()
 para = yaml.load(yamls, Loader=yaml.FullLoader)
@@ -1226,6 +1229,79 @@ if create_figs:
     axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
     axtop.xaxis.set_ticks([])
     plt.savefig(datadir+'thinning_analytical_x_depth.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+
+
+    # ----------------------------------------------------------
+    # Display of slope - (x,z)
+    # ----------------------------------------------------------
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    plt.plot(x, S, label='Surface', color='0')
+    levels = np.arange(-fig_slope_max, fig_slope_max+0.000001, fig_slope_max/50.)
+    cp = plt.contourf(mat_x, mat_z, mat_slope,
+                      levels=levels, cmap='PuOr')
+    level0 = np.array([Q[0]])
+    plt.contour(mat_x, mat_z, mat_q, colors='k', linestyles='dashed',
+                levels=level0, linewidths=1)
+    cb = plt.colorbar(cp)
+    cb.set_label('Layer slope (no unit))')
+    ax.set_xlabel(r'$x$ (km)', fontsize=19)
+    ax.set_ylabel(r'$z$ (m)', fontsize=19)
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['ZZ'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['x'], ic[name]['S']+50), ha='center',
+                     va='bottom', color=color_core)
+    if obs_bedrock is not None:
+        plt.plot(obs_bed_x, obs_bed_z, color='k', linewidth=2.)
+        plt.plot(x, B, label='Bedrock', color='violet', linewidth=2.)
+    else:
+        plt.plot(x, B, label='Bedrock', color='k', linewidth=2.)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, top+50))
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
+    plt.savefig(datadir+'slope_x_z.'+fig_format,
+                format=fig_format, bbox_inches='tight')
+
+    # ----------------------------------------------------------
+    # Display of slope - (x,depth)
+    # ----------------------------------------------------------
+
+    fig, ax = plt.subplots(figsize=(12, 6))
+
+    plt.plot(x, S, label='Surface', color='0')
+    levels = np.arange(-fig_slope_max, fig_slope_max+0.000001, fig_slope_max/50.)
+    cp = plt.contourf(mat_x, mat_depth, mat_slope,
+                      levels=levels,
+                      cmap='PuOr')
+    level0 = np.array([Q[0]])
+    plt.contour(mat_x, mat_depth, mat_q, colors='k', linestyles='dashed',
+                levels=level0, linewidths=1)
+    cb = plt.colorbar(cp)
+    cb.set_label('Layer slope (no unit))')
+    ax.set_xlabel(r'$x$ (km)', fontsize=19)
+    ax.set_ylabel('depth (m)', fontsize=19)
+    ax.invert_yaxis()
+    for name in ic:
+        plt.plot(ic[name]['XX'], ic[name]['DD'], linewidth=lw_core,
+                 color=color_core, linestyle=ls_core)
+        plt.annotate(name, (ic[name]['x'], -50), ha='center',
+                     va='bottom', color=color_core)
+    if obs_bedrock is not None:
+        plt.plot(obs_bed_x, obs_bed_depth, color='k', linewidth=2.)
+        plt.plot(x, S-B, label='Bedrock', color='violet', linewidth=2.)
+    else:
+        plt.plot(x, S-B, label='Bedrock', color='k', linewidth=2.)
+    bottom, top = plt.ylim()
+    plt.ylim((bottom, -50))
+    axtop = ax.twiny()
+    axtop.set_xlabel(r"direction of the flow $\longrightarrow$", fontsize=20)
+    axtop.xaxis.set_ticks([])
+    plt.savefig(datadir+'slope_x_depth.'+fig_format,
                 format=fig_format, bbox_inches='tight')
 
 

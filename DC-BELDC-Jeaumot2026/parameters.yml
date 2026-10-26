@@ -44,7 +44,7 @@ fig_age_spacing_labels: 100 #spacing for the labels (kyr) of the age color bars
 #fig_age_iso: [100, 200, 400, 800]
 fig_age_iso: [73.2, 84.8, 90.8, 97.7, 115.8, 122.9, 133.2, 159.6, 178.2, 202.5, 214.4, 239.9, 243.2, 305.3, 320.4, 335.7, 367.3, 399.5, 475.3]
 #age (yr BP)
-
+fig_slope_max: 0.5
 
 traj_step: 10 #Plot only one srreamline every traj_step
 grid_step: 10 # Plot only one line every grid_step
