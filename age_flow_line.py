@@ -28,6 +28,7 @@ import resource
 # TODO: Remove quadratic interpolation for ice core age. How to rather interpolate thinning with zie while preserving the age?
 # TODO: Output trajectories with a given step
 # TODO: mat_slope has very large values in DC-BELDC-Jeaumot exp. Check what happens.
+# TODO: make dzeta a parameter instead of hard-coding 1/1000.
 
 
 def interp_stair_aver(x_out, x_in, y_in):
