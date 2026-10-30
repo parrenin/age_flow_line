@@ -4,7 +4,6 @@ from scipy.interpolate import interp1d
 from scipy.linalg import toeplitz
 import yaml
 import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize
 import time
 import math
 import os
@@ -91,13 +90,15 @@ output_ic = True
 output_fl = True
 output_iso = False
 fig_slope_max = 1.
+solid_fraction_profiles = None
+dzie_D = 1.0
 
 yamls = open(datadir+'parameters.yml').read()
 para = yaml.load(yamls, Loader=yaml.FullLoader)
 globals().update(para)
 
 # -----------------------------------------------------------------------------
-# Loading data from temporal_factor.txt and relative_density.txt
+# Loading data from temporal_factor.txt and solid_fraction.txt
 # -----------------------------------------------------------------------------
 
 # deut = np.loadtxt(datadir+'deuterium.txt')
@@ -111,11 +112,32 @@ if temp_fact_linear:
     R = (R[1:] + R[:-1])/2
     R = np.append(R, R[-1])
 
-D_depth, D_D = np.loadtxt(datadir+'solid_fraction.txt', unpack=True)
-D_depth = np.append(D_depth, D_depth[-1]+0.01)
-D_depth = np.append(D_depth, 10000)
-D_D = np.append(D_D, 1)
-D_D = np.append(D_D, 1)
+# Lectures des profils de fraction solide (ancres)
+def read_sf_profile(fname):
+    Dd, DD = np.loadtxt(datadir+fname, unpack=True)
+    Dd = np.append(Dd, Dd[-1]+0.01)
+    Dd = np.append(Dd, 10000.)
+    DD = np.append(DD, 1.)
+    DD = np.append(DD, 1.)
+    Die = np.cumsum(np.concatenate((np.array([0.]), DD[:-1]*(Dd[1:]-Dd[:-1]))))
+    return Dd, DD, Die
+
+sf_anchors = []   # (x_km, D_depth, D_D, D_depth_ie)
+if solid_fraction_profiles is not None:
+    xs_check = np.array([float(e['x']) for e in solid_fraction_profiles])
+    if np.any(np.diff(xs_check) <= 0):
+        raise ValueError('solid_fraction_profiles must be sorted by increasing x: '
+                         + str(list(xs_check)))
+    for e in solid_fraction_profiles:
+        Dd, DD, Die = read_sf_profile(e['file'])
+        sf_anchors.append((float(e['x']), Dd, DD, Die))
+else:
+    import os as _os
+    if _os.path.exists(datadir+'solid_fraction.txt'):
+        Dd, DD, Die = read_sf_profile('solid_fraction.txt')
+        sf_anchors.append((-np.inf, Dd, DD, Die))
+    else:
+        sf_anchors.append((-np.inf, np.array([0., 10000.]), np.ones(2), np.array([0., 10000.])))
 
 # -----------------------------------------------------
 # Loading files for Geographic data, arrays creations
@@ -213,19 +235,20 @@ H = np.interp(x, x_H, H_measure)
 s = np.interp(x, x_s, s_measure)
 p = np.interp(x, x_p, p_measure)
 
-# -----------------------------------------------------
-# depth vs ie-depth conversion with density data
-# -----------------------------------------------------
-
-D_depth_ie = np.cumsum(np.concatenate((np.array([0]),
-                                       D_D[:-1] * (D_depth[1:]-D_depth[:-1]))))
 
 # ----------------------------------------------------------
-# DELTA H
+# DELTA H(x) : interpole entre les ancres
 # ----------------------------------------------------------
 
-DELTA_H = D_depth[-1] - D_depth_ie[-1]
-print('DELTA_H:', DELTA_H)
+xs_a = np.array([a[0] for a in sf_anchors])
+dH_a = np.array([a[1][-1]-a[3][-1] for a in sf_anchors])
+if len(sf_anchors) == 1:
+    DELTA_H = np.full_like(x, dH_a[0])
+else:
+    DELTA_H = np.interp(x, xs_a, dH_a)
+print('DELTA_H: %.3f (x=%.1f km) .. %.3f (x=%.1f km)'
+      % (DELTA_H[0], x[0], DELTA_H[-1], x[-1]))
+
 
 # --------------------------------------------------
 # Computation of H, S_ie and B
@@ -237,6 +260,44 @@ if thickness_ie:
 B = S - H
 S_ie = S - DELTA_H
 H_ie = H - DELTA_H
+
+# ----------------------------------------------------------
+# Profils de fraction solide sur la grille x (interpolation entre ancres)
+# ----------------------------------------------------------
+
+v_max = 1.5*np.max(H_ie)
+nv = max(int(np.ceil(v_max/dzie_D))+1, 2)
+v_grid = np.linspace(0., v_max, nv)
+nanc = len(sf_anchors)
+Dprof = np.empty((nanc, nv)); Rprof = np.empty((nanc, nv))
+for k in range(nanc):
+    Dd, DD, Die = sf_anchors[k][1], sf_anchors[k][2], sf_anchors[k][3]
+    Dprof[k] = np.interp(v_grid, Die, DD)
+    Rprof[k] = np.interp(v_grid, Die, Dd)
+if nanc == 1:
+    D_col = np.tile(Dprof[0], (len(x), 1))
+    R_col = np.tile(Rprof[0], (len(x), 1))
+else:
+    D_col = np.empty((len(x), nv)); R_col = np.empty((len(x), nv))
+    for iv in range(nv):
+        D_col[:, iv] = np.interp(x, xs_a, Dprof[:, iv])
+        R_col[:, iv] = np.interp(x, xs_a, Rprof[:, iv])
+
+# Rééchantillonnage sur l'axe profondeur réelle (pour l'inversion depth->ie
+# des forages, précis dans le névé peu dense)
+r_max = 1.5*np.max(H)
+nr = max(int(np.ceil(r_max/dzie_D))+1, 2)
+r_grid = np.linspace(0., r_max, nr)
+IEprof = np.empty((nanc, nr))
+for k in range(nanc):
+    Dd, DD, Die = sf_anchors[k][1], sf_anchors[k][2], sf_anchors[k][3]
+    IEprof[k] = np.interp(r_grid, Dd, Die)
+if nanc == 1:
+    IE_col = np.tile(IEprof[0], (len(x), 1))
+else:
+    IE_col = np.empty((len(x), nr))
+    for ir in range(nr):
+        IE_col[:, ir] = np.interp(x, xs_a, IEprof[:, ir])
 
 # --------------------------------------------------
 # Melting
@@ -360,9 +421,9 @@ mat_depth_ie[0, :] = 0
 #  Computation of depth matrix: mat_depth
 # ----------------------------------------------------------
 
-mat_depth = np.interp(mat_depth_ie, np.append(D_depth_ie,
-                                              D_depth_ie[-1]+10000.),
-                      np.append(D_depth, D_depth[-1]+10000.))
+mat_depth = np.empty_like(mat_depth_ie)
+for j in range(len(x)):
+    mat_depth[:, j] = np.interp(mat_depth_ie[:, j], v_grid, R_col[j])
 depth_max_mesh = np.nanmax(mat_depth, axis=0)
 
 # ----------------------------------------------------------
@@ -530,8 +591,6 @@ for name in ic:
 
     ic[name]['depth'] = np.arange(0., ic[name]['max_depth'] + 0.0001,
                                   ic[name]['step_depth'])
-    ie_depth_ic = np.interp(ic[name]['depth'], D_depth, D_depth_ie)
-    ic[name]['depth_ie'] = ie_depth_ic
     
     # -------------------------------------------------------
     # Calculation of the surrounding nodes for the ice core
@@ -553,6 +612,7 @@ for name in ic:
         ttheta = theta[ggrid]
         ic[name]['S'] = S[imax]
         ic[name]['PI'] = 0.
+        R_loc = R_col[imax]
     else:
         ii = np.argmax(x[x <= ic[name]['x']])
         inter = (pi[ii+1]-ic[name]['pi']) / delta
@@ -573,6 +633,10 @@ for name in ic:
         ttheta = theta[ggrid]
         ic[name]['S'] = inter * S[ii] + (1-inter) * S[ii+1]
         ic[name]['PI'] = pi[ii] + inter*(pi[ii+1]-pi[ii])
+        R_loc = inter * R_col[ii] + (1-inter) * R_col[ii+1]
+        
+    ie_depth_ic = np.interp(ic[name]['depth'], R_loc, v_grid)
+    ic[name]['depth_ie'] = ie_depth_ic
 
     # ----------------------------------------------------------
     #  Computation of theta for the ice core: theta_ic
