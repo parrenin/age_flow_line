@@ -549,6 +549,7 @@ for name in ic:
         ssteady_age = mat_steady_age[:, imax][ggrid]
         xx0 = mat_x0[:, imax][ggrid]
         ttau = mat_tau_anal[:, imax][ggrid]
+        sslope = mat_slope[:, imax][ggrid]
         ttheta = theta[ggrid]
         ic[name]['S'] = S[imax]
         ic[name]['PI'] = 0.
